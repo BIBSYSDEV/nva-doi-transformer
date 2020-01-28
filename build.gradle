@@ -5,7 +5,7 @@ plugins {
     id 'pmd'
 }
 
-group 'org.example'
+group 'no.unit.nva'
 version '1.0-SNAPSHOT'
 
 repositories {
