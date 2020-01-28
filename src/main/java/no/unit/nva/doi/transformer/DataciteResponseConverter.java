@@ -19,6 +19,14 @@ public class DataciteResponseConverter {
 
     public static final String DEFAULT_NEW_RESOURCE_STATUS = "DRAFT";
 
+    /**
+     * Convert Datacite response data to internal NVA data.
+     *
+     * @param dataciteResponse  dataciteResponse
+     * @param resourceIdentifier resourceIdentifier
+     * @param owner owner
+     * @return  resource
+     */
     public Resource toResource(DataciteResponse dataciteResponse, String resourceIdentifier, String owner) {
 
         Instant now = now();
@@ -42,7 +50,9 @@ public class DataciteResponseConverter {
     private Map<String, String> toTitles(List<DataciteTitle> titles) {
         return titles
                 .stream()
-                .collect(Collectors.toConcurrentMap(dataciteTitle -> { return ""; }, DataciteTitle::getTitle));
+                .collect(Collectors.toConcurrentMap(dataciteTitle -> {
+                    return "";
+                }, DataciteTitle::getTitle));
     }
 
     private List<Creator> toCreators(List<DataciteCreator> creators) {

@@ -7,6 +7,14 @@ public class FileMetadata {
     private String checksum;
     private String size;
 
+    /**
+     * Constructor for FileMetadata.
+     *
+     * @param filename  filename
+     * @param mimeType  mimeType
+     * @param checksum  checksum
+     * @param size  size
+     */
     public FileMetadata(String filename, String mimeType, String checksum, String size) {
         this.filename = filename;
         this.mimeType = mimeType;

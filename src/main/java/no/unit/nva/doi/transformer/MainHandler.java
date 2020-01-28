@@ -52,7 +52,8 @@ public class MainHandler implements RequestStreamHandler {
             dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())), headers(), SC_BAD_REQUEST));
+            objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
+                    Problem.valueOf(BAD_REQUEST, e.getMessage())), headers(), SC_BAD_REQUEST));
             return;
         }
 
@@ -60,10 +61,12 @@ public class MainHandler implements RequestStreamHandler {
             String uuid = UUID.randomUUID().toString();
             String owner = context.getIdentity().getIdentityId();
             Resource resource = converter.toResource(dataciteResponse, uuid, owner);
-            objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(resource), headers(), SC_OK));
+            objectMapper.writeValue(output, new GatewayResponse<>(
+                    objectMapper.writeValueAsString(resource), headers(), SC_OK));
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), headers(), SC_INTERNAL_SERVER_ERROR));
+            objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
+                    Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), headers(), SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -74,6 +77,11 @@ public class MainHandler implements RequestStreamHandler {
         return headers;
     }
 
+    /**
+     * Create ObjectMapper.
+     *
+     * @return  objectMapper
+     */
     public static ObjectMapper createObjectMapper() {
         return new ObjectMapper()
                 .registerModule(new ProblemModule())

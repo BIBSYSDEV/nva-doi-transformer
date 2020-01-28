@@ -14,7 +14,22 @@ public class Resource {
     private String indexedDate;
     private String publishedDate;
 
-    public Resource(String resourceIdentifier, String modifiedDate, String createdDate, Metadata metadata, Map<String, FileMetadata> files, String owner, String status, String indexedDate, String publishedDate) {
+    /**
+     * Constructor for Resource.
+     *
+     * @param resourceIdentifier    resourceIdentifier
+     * @param modifiedDate  modifiedDate
+     * @param createdDate   createdDate
+     * @param metadata  metadata
+     * @param files files
+     * @param owner owner
+     * @param status    status
+     * @param indexedDate   indexedDate
+     * @param publishedDate publishedDate
+     */
+    public Resource(String resourceIdentifier, String modifiedDate, String createdDate, Metadata metadata,
+                    Map<String, FileMetadata> files, String owner, String status, String indexedDate,
+                    String publishedDate) {
         this.resourceIdentifier = resourceIdentifier;
         this.modifiedDate = modifiedDate;
         this.createdDate = createdDate;

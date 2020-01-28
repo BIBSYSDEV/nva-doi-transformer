@@ -13,7 +13,19 @@ public class Metadata {
     private Map<String,String> titles;
     private String resourceType;
 
-    public Metadata(List<Creator> creators, String handle, String licenseIdentifier, String publicationYear, String publisher, Map<String, String> titles, String resourceType) {
+    /**
+     * Constructor for Metadata.
+     *
+     * @param creators  creators
+     * @param handle    handle
+     * @param licenseIdentifier licenseIdentifier
+     * @param publicationYear   publicationYear
+     * @param publisher publisher
+     * @param titles    titles
+     * @param resourceType  resourceType
+     */
+    public Metadata(List<Creator> creators, String handle, String licenseIdentifier, String publicationYear,
+                    String publisher, Map<String, String> titles, String resourceType) {
         this.creators = creators;
         this.handle = handle;
         this.licenseIdentifier = licenseIdentifier;

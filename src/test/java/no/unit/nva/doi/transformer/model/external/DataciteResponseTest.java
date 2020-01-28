@@ -16,7 +16,8 @@ public class DataciteResponseTest {
     @Test
     public void test() throws IOException {
 
-        DataciteResponse dataciteResponse = objectMapper.readValue(new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
+        DataciteResponse dataciteResponse = objectMapper.readValue(
+                new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
 
         Assert.assertNotNull(dataciteResponse);
 
