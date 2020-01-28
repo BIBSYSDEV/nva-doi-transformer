@@ -23,7 +23,7 @@ public class DataciteResponseConverter {
 
         Instant now = now();
 
-        Resource resource = new Resource.Builder()
+        return new Resource.Builder()
                 .withCreatedDate(now.toString())
                 .withModifiedDate(now.toString())
                 .withOwner(owner)
@@ -37,8 +37,6 @@ public class DataciteResponseConverter {
                         .build())
                 .withFiles(Collections.emptyMap())
                 .build();
-
-        return resource;
     }
 
     private Map<String, String> toTitles(List<DataciteTitle> titles) {
@@ -51,7 +49,7 @@ public class DataciteResponseConverter {
         return creators
                 .stream()
                 .map(this::toCreator)
-                .collect(Collectors. toList());
+                .collect(Collectors.toList());
     }
 
     private Creator toCreator(DataciteCreator dataciteCreator) {
