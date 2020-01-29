@@ -35,12 +35,12 @@ public class MainHandler implements RequestStreamHandler {
     private final transient DataciteResponseConverter converter;
 
     public MainHandler() {
-        this(createObjectMapper());
+        this(createObjectMapper(), new DataciteResponseConverter());
     }
 
-    public MainHandler(ObjectMapper objectMapper) {
+    public MainHandler(ObjectMapper objectMapper, DataciteResponseConverter converter) {
         this.objectMapper = objectMapper;
-        this.converter = new DataciteResponseConverter();
+        this.converter = converter;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class MainHandler implements RequestStreamHandler {
 
         try {
             String uuid = UUID.randomUUID().toString();
-            String owner = context.getIdentity().getIdentityId();
+            String owner = context.getIdentity().getIdentityPoolId();
             Resource resource = converter.toResource(dataciteResponse, uuid, owner);
             objectMapper.writeValue(output, new GatewayResponse<>(
                     objectMapper.writeValueAsString(resource), headers(), SC_OK));

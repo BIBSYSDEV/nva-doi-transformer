@@ -14,6 +14,10 @@ public class Resource {
     private String indexedDate;
     private String publishedDate;
 
+    public Resource() {
+
+    }
+
     private Resource(Builder builder) {
         setResourceIdentifier(builder.resourceIdentifier);
         setModifiedDate(builder.modifiedDate);

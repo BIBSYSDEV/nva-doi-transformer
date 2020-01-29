@@ -13,6 +13,10 @@ public class Metadata {
     private Map<String,String> titles;
     private String resourceType;
 
+    public Metadata() {
+
+    }
+
     private Metadata(Builder builder) {
         setCreators(builder.creators);
         setHandle(builder.handle);

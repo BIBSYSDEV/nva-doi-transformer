@@ -7,6 +7,10 @@ public class FileMetadata {
     private String checksum;
     private String size;
 
+    public FileMetadata() {
+
+    }
+
     private FileMetadata(Builder builder) {
         setFilename(builder.filename);
         setMimeType(builder.mimeType);

@@ -4,6 +4,10 @@ public class Creator {
 
     private String identifier;
 
+    public Creator() {
+
+    }
+
     private Creator(Builder builder) {
         setIdentifier(builder.identifier);
     }
