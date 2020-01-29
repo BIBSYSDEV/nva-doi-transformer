@@ -68,7 +68,7 @@ Resources:
       MemorySize: 512
       Environment:
         Variables:
-          AllowOrigin: '*'
+          ALLOWED_ORIGIN: '*'
       Events:
         NvaDoi:
           Type: Api

@@ -1,4 +1,4 @@
-package no.unit.nva.doi.transformer.model;
+package no.unit.nva.doi.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.unit.nva.doi.transformer.DataciteResponseConverter;

@@ -28,19 +28,27 @@ import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 public class MainHandler implements RequestStreamHandler {
 
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
-    public static final String ALLOWED_ORIGIN = "*";
     public static final String BODY = "body";
 
     private final transient ObjectMapper objectMapper;
     private final transient DataciteResponseConverter converter;
+    private final transient String allowedOrigin;
 
     public MainHandler() {
-        this(createObjectMapper(), new DataciteResponseConverter());
+        this(createObjectMapper(), new DataciteResponseConverter(), new Environment());
     }
 
-    public MainHandler(ObjectMapper objectMapper, DataciteResponseConverter converter) {
+    /**
+     * Constructor for MainHandler.
+     *
+     * @param objectMapper  objectMapper
+     * @param converter converter
+     * @param environment   environment
+     */
+    public MainHandler(ObjectMapper objectMapper, DataciteResponseConverter converter, Environment environment) {
         this.objectMapper = objectMapper;
         this.converter = converter;
+        this.allowedOrigin = environment.get("ALLOWED_ORIGIN").orElseThrow(IllegalStateException::new);
     }
 
     @Override
@@ -72,7 +80,7 @@ public class MainHandler implements RequestStreamHandler {
 
     private Map<String,String> headers() {
         Map<String,String> headers = new ConcurrentHashMap<>();
-        headers.put(ACCESS_CONTROL_ALLOW_ORIGIN, ALLOWED_ORIGIN);
+        headers.put(ACCESS_CONTROL_ALLOW_ORIGIN, allowedOrigin);
         headers.put(CONTENT_TYPE, APPLICATION_JSON.getMimeType());
         return headers;
     }

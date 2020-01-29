@@ -1,17 +1,18 @@
-package no.unit.nva.doi.transformer.model;
+package no.unit.nva.doi.transformer;
 
 import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.unit.nva.doi.transformer.DataciteResponseConverter;
-import no.unit.nva.doi.transformer.GatewayResponse;
-import no.unit.nva.doi.transformer.MainHandler;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.internal.Resource;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static no.unit.nva.doi.transformer.MainHandler.ACCESS_CONTROL_ALLOW_ORIGIN;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
@@ -40,17 +42,30 @@ public class MainHandlerTest {
 
     private ObjectMapper objectMapper = MainHandler.createObjectMapper();
 
+    private Environment environment;
+
+    @Before
+    public void setUp() {
+        environment = Mockito.mock(Environment.class);
+        Mockito.when(environment.get("ALLOWED_ORIGIN")).thenReturn(Optional.of("*"));
+    }
+
+    @Rule
+    public final EnvironmentVariables environmentVariables
+            = new EnvironmentVariables();
+
     @Test
     public void testDefaultConstructor() {
-        MainHandler mainHandler = new MainHandler();
-        assertNotNull(mainHandler);
+        environmentVariables.set("ALLOWED_ORIGIN", "*");
+        MainHandler findChannelFunctionApp = new MainHandler();
+        assertNotNull(findChannelFunctionApp);
     }
 
     @Test
     public void testOkResponse() throws IOException {
         DataciteResponseConverter converter = new DataciteResponseConverter();
         Context context = getMockContext();
-        MainHandler mainHandler = new MainHandler(objectMapper, converter);
+        MainHandler mainHandler = new MainHandler(objectMapper, converter, environment);
         OutputStream output = new ByteArrayOutputStream();
 
         mainHandler.handleRequest(inputStream(), output, context);
@@ -69,7 +84,7 @@ public class MainHandlerTest {
     public void testBadRequestresponse() throws IOException {
         DataciteResponseConverter converter = new DataciteResponseConverter();
         Context context = getMockContext();
-        MainHandler mainHandler = new MainHandler(objectMapper, converter);
+        MainHandler mainHandler = new MainHandler(objectMapper, converter, environment);
         OutputStream output = new ByteArrayOutputStream();
 
         mainHandler.handleRequest(new ByteArrayInputStream(new byte[0]), output, context);
@@ -85,7 +100,7 @@ public class MainHandlerTest {
         when(converter.toResource(any(DataciteResponse.class), anyString(), anyString()))
                 .thenThrow(new RuntimeException("Fail"));
         Context context = getMockContext();
-        MainHandler mainHandler = new MainHandler(objectMapper, converter);
+        MainHandler mainHandler = new MainHandler(objectMapper, converter, environment);
         OutputStream output = new ByteArrayOutputStream();
 
         mainHandler.handleRequest(inputStream(), output, context);
