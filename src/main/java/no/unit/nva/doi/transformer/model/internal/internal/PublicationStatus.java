@@ -26,6 +26,12 @@ public enum PublicationStatus {
         this.value = value;
     }
 
+    /**
+     * Lookup enum by value.
+     *
+     * @param value value
+     * @return  enum
+     */
     public static PublicationStatus lookup(String value) {
         return Arrays
                 .stream(values())

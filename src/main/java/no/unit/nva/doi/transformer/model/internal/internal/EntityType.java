@@ -23,6 +23,12 @@ public enum EntityType {
         this.value = value;
     }
 
+    /**
+     * Lookup enum by value.
+     *
+     * @param value value
+     * @return  enum
+     */
     public static EntityType lookup(String value) {
         return Arrays
                 .stream(values())

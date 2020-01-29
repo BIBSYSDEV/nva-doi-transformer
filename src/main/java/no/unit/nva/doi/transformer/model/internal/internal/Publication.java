@@ -2,7 +2,6 @@ package no.unit.nva.doi.transformer.model.internal.internal;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.Date;
 import java.util.UUID;
 
 public class Publication {

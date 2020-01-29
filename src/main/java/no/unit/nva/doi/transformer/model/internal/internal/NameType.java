@@ -23,6 +23,12 @@ public enum NameType {
         this.value = value;
     }
 
+    /**
+     * Lookup enum by value.
+     *
+     * @param value value
+     * @return  enum
+     */
     public static NameType lookup(String value) {
         return Arrays
                 .stream(values())

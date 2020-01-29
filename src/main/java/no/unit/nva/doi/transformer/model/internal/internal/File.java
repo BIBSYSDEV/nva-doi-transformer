@@ -2,6 +2,7 @@ package no.unit.nva.doi.transformer.model.internal.internal;
 
 import java.util.UUID;
 
+@SuppressWarnings("PMD.ShortClassName")
 public class File {
 
     private UUID identifier;
