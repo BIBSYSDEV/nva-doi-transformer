@@ -3,6 +3,7 @@ package no.unit.nva.doi.transformer.model.internal.external;
 import java.net.URL;
 import java.util.List;
 
+@SuppressWarnings("PMD.TooManyFields")
 public class DataciteResponse {
 
     private URL id;

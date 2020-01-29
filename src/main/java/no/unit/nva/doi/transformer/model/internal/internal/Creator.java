@@ -4,10 +4,6 @@ public class Creator {
 
     private String identifier;
 
-    public Creator(String identifier) {
-        this.identifier = identifier;
-    }
-
     private Creator(Builder builder) {
         setIdentifier(builder.identifier);
     }
@@ -21,10 +17,7 @@ public class Creator {
     }
 
     public static final class Builder {
-        private String identifier;
-
-        public Builder() {
-        }
+        private transient String identifier;
 
         public Builder withIdentifier(String identifier) {
             this.identifier = identifier;

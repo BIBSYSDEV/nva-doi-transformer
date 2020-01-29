@@ -7,21 +7,6 @@ public class FileMetadata {
     private String checksum;
     private String size;
 
-    /**
-     * Constructor for FileMetadata.
-     *
-     * @param filename  filename
-     * @param mimeType  mimeType
-     * @param checksum  checksum
-     * @param size  size
-     */
-    public FileMetadata(String filename, String mimeType, String checksum, String size) {
-        this.filename = filename;
-        this.mimeType = mimeType;
-        this.checksum = checksum;
-        this.size = size;
-    }
-
     private FileMetadata(Builder builder) {
         setFilename(builder.filename);
         setMimeType(builder.mimeType);
@@ -62,13 +47,10 @@ public class FileMetadata {
     }
 
     public static final class Builder {
-        private String filename;
-        private String mimeType;
-        private String checksum;
-        private String size;
-
-        public Builder() {
-        }
+        private transient String filename;
+        private transient String mimeType;
+        private transient String checksum;
+        private transient String size;
 
         public Builder withFilename(String filename) {
             this.filename = filename;

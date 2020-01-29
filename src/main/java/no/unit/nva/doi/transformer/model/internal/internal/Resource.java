@@ -14,33 +14,6 @@ public class Resource {
     private String indexedDate;
     private String publishedDate;
 
-    /**
-     * Constructor for Resource.
-     *
-     * @param resourceIdentifier    resourceIdentifier
-     * @param modifiedDate  modifiedDate
-     * @param createdDate   createdDate
-     * @param metadata  metadata
-     * @param files files
-     * @param owner owner
-     * @param status    status
-     * @param indexedDate   indexedDate
-     * @param publishedDate publishedDate
-     */
-    public Resource(String resourceIdentifier, String modifiedDate, String createdDate, Metadata metadata,
-                    Map<String, FileMetadata> files, String owner, String status, String indexedDate,
-                    String publishedDate) {
-        this.resourceIdentifier = resourceIdentifier;
-        this.modifiedDate = modifiedDate;
-        this.createdDate = createdDate;
-        this.metadata = metadata;
-        this.files = files;
-        this.owner = owner;
-        this.status = status;
-        this.indexedDate = indexedDate;
-        this.publishedDate = publishedDate;
-    }
-
     private Resource(Builder builder) {
         setResourceIdentifier(builder.resourceIdentifier);
         setModifiedDate(builder.modifiedDate);
@@ -126,18 +99,15 @@ public class Resource {
     }
 
     public static final class Builder {
-        private String resourceIdentifier;
-        private String modifiedDate;
-        private String createdDate;
-        private Metadata metadata;
-        private Map<String, FileMetadata> files;
-        private String owner;
-        private String status;
-        private String indexedDate;
-        private String publishedDate;
-
-        public Builder() {
-        }
+        private transient String resourceIdentifier;
+        private transient String modifiedDate;
+        private transient String createdDate;
+        private transient Metadata metadata;
+        private transient Map<String, FileMetadata> files;
+        private transient String owner;
+        private transient String status;
+        private transient String indexedDate;
+        private transient String publishedDate;
 
         public Builder withResourceIdentifier(String resourceIdentifier) {
             this.resourceIdentifier = resourceIdentifier;

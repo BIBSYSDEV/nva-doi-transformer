@@ -40,8 +40,6 @@ Resources:
           /:
             post:
               summary: Transform Datacite data to NVA data
-              security:
-                - CognitoUserPool: []
               requestBody:
                 required: true
                 content:
@@ -61,17 +59,6 @@ Resources:
                     application/json:
                       schema:
                         type: object
-        components:
-          securitySchemes:
-            CognitoUserPool:
-              type: apiKey
-              name: Authorization
-              in: header
-              x-amazon-apigateway-authtype: cognito_user_pools
-              x-amazon-apigateway-authorizer:
-                type: cognito_user_pools
-                providerARNs:
-                  - !Ref CognitoAuthorizerArn
   NvaDoiTransformerFunction:
     Type: AWS::Serverless::Function
     Properties:

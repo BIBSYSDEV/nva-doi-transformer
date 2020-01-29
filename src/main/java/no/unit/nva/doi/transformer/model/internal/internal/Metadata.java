@@ -13,28 +13,6 @@ public class Metadata {
     private Map<String,String> titles;
     private String resourceType;
 
-    /**
-     * Constructor for Metadata.
-     *
-     * @param creators  creators
-     * @param handle    handle
-     * @param licenseIdentifier licenseIdentifier
-     * @param publicationYear   publicationYear
-     * @param publisher publisher
-     * @param titles    titles
-     * @param resourceType  resourceType
-     */
-    public Metadata(List<Creator> creators, String handle, String licenseIdentifier, String publicationYear,
-                    String publisher, Map<String, String> titles, String resourceType) {
-        this.creators = creators;
-        this.handle = handle;
-        this.licenseIdentifier = licenseIdentifier;
-        this.publicationYear = publicationYear;
-        this.publisher = publisher;
-        this.titles = titles;
-        this.resourceType = resourceType;
-    }
-
     private Metadata(Builder builder) {
         setCreators(builder.creators);
         setHandle(builder.handle);
@@ -102,16 +80,13 @@ public class Metadata {
     }
 
     public static final class Builder {
-        private List<Creator> creators;
-        private String handle;
-        private String licenseIdentifier;
-        private String publicationYear;
-        private String publisher;
-        private Map<String, String> titles;
-        private String resourceType;
-
-        public Builder() {
-        }
+        private transient List<Creator> creators;
+        private transient String handle;
+        private transient String licenseIdentifier;
+        private transient String publicationYear;
+        private transient String publisher;
+        private transient Map<String, String> titles;
+        private transient String resourceType;
 
         public Builder withCreators(List<Creator> creators) {
             this.creators = creators;
