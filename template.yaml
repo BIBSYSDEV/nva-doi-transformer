@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  AWS
+
+  Sample SAM Template for AWS
+
+Globals:
+  Function:
+    Timeout: 20
+  Api:
+    Cors:
+      AllowMethods: "'POST,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
+
+Parameters:
+  CognitoAuthorizerArn:
+    Type: String
+    Description: Reference to Cognito UserPool for the stage
+  CustomDomain:
+    Type: String
+    Description: Custom API to connect this lambda to
+  CustomDomainBasePath:
+    Type: String
+    Description: Base path mapping in CustomDomain
+
+Resources:
+  NvaDoiTransformerFunctionApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      EndpointConfiguration: REGIONAL
+      DefinitionBody:
+        openapi: 3.0.0
+        info:
+          title: NVA DOI Transformer
+          version: '1.0'
+        paths:
+          /:
+            post:
+              summary: Transform Datacite data to NVA data
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NvaDoiTransformerFunctionApi.Arn}/invocations
+                responses: {}
+                httpMethod: POST
+                type: AWS_PROXY
+                passthroughBehavior: WHEN_NO_MATCH
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+  NvaDoiTransformerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: no.unit.nva.doi.transformer.MainHandler::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Environment:
+        Variables:
+          ALLOWED_ORIGIN: '*'
+      Events:
+        NvaDoi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: post
+            RestApiId: !Ref NvaDoiTransformerFunctionApi
+
+  NvaDoiTransformerFunctionBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: !Ref CustomDomainBasePath
+      DomainName: !Ref CustomDomain
+      RestApiId: !Ref NvaDoiFunctionApi
+      Stage: !Ref NvaDoiFunctionApi.Stage
