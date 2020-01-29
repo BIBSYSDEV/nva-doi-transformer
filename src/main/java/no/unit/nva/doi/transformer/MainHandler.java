@@ -2,11 +2,14 @@ package no.unit.nva.doi.transformer;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
-import no.unit.nva.doi.transformer.model.internal.internal.Resource;
+import no.unit.nva.doi.transformer.model.internal.internal.Publication;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemModule;
 
@@ -66,11 +69,11 @@ public class MainHandler implements RequestStreamHandler {
         }
 
         try {
-            String uuid = UUID.randomUUID().toString();
+            UUID uuid = UUID.randomUUID();
             String owner = context.getIdentity().getIdentityPoolId();
-            Resource resource = converter.toResource(dataciteResponse, uuid, owner);
+            Publication publication = converter.toPublication(dataciteResponse, uuid, owner);
             objectMapper.writeValue(output, new GatewayResponse<>(
-                    objectMapper.writeValueAsString(resource), headers(), SC_OK));
+                    objectMapper.writeValueAsString(publication), headers(), SC_OK));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
@@ -93,6 +96,10 @@ public class MainHandler implements RequestStreamHandler {
     public static ObjectMapper createObjectMapper() {
         return new ObjectMapper()
                 .registerModule(new ProblemModule())
+                .registerModule(new JavaTimeModule())
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(SerializationFeature.INDENT_OUTPUT, true)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd">
+<publication xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/entityDescription.xsd">
     <identifier identifierType="DOI">10.1109/5.771073</identifier>
     <creators>
         <creator>
@@ -15,8 +15,8 @@
     <publicationYear>1999</publicationYear>
     <resourceType resourceTypeGeneral="Text">JournalArticle</resourceType>
     <dates>
-        <date dateType="Issued">1999-07</date>
-        <date dateType="Updated">2017-03-10T01:41:02Z</date>
+        <publicationDate dateType="Issued">1999-07</publicationDate>
+        <publicationDate dateType="Updated">2017-03-10T01:41:02Z</publicationDate>
     </dates>
     <relatedIdentifiers>
         <relatedIdentifier relatedIdentifierType="ISSN" relationType="IsPartOf" resourceTypeGeneral="Collection">00189219</relatedIdentifier>
@@ -25,4 +25,4 @@
     <descriptions>
         <description descriptionType="SeriesInformation">Proceedings of the IEEE, 87(7), 1208-1227</description>
     </descriptions>
-</resource>
+</publication>

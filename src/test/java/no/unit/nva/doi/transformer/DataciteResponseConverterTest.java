@@ -1,14 +1,16 @@
 package no.unit.nva.doi.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.unit.nva.doi.transformer.DataciteResponseConverter;
-import no.unit.nva.doi.transformer.MainHandler;
+import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
-import no.unit.nva.doi.transformer.model.internal.internal.Resource;
+import no.unit.nva.doi.transformer.model.internal.internal.Publication;
+import org.junit.Assert;
 import org.junit.Test;
 
+import javax.security.auth.login.CredentialException;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 public class DataciteResponseConverterTest {
 
@@ -22,12 +24,27 @@ public class DataciteResponseConverterTest {
                 new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
 
         DataciteResponseConverter converter = new DataciteResponseConverter();
-        Resource resource = converter.toResource(dataciteResponse, "123", "owner");
+        Publication publication = converter.toPublication(dataciteResponse, UUID.randomUUID(), "junit");
 
-        String json = objectMapper.writeValueAsString(resource);
+        String json = objectMapper.writeValueAsString(publication);
 
         System.out.println(json);
+        Assert.assertNotNull(json);
 
     }
+
+    @Test
+    public void testToName() {
+        DataciteCreator dataciteCreator = new DataciteCreator();
+        dataciteCreator.setFamilyName("Family");
+        dataciteCreator.setGivenName("Given");
+        DataciteResponseConverter converter = new DataciteResponseConverter();
+
+        String name = converter.toName(dataciteCreator);
+
+        Assert.assertEquals("Family, Given", name);
+    }
+
+
 
 }

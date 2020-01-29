@@ -4,7 +4,7 @@ import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
-import no.unit.nva.doi.transformer.model.internal.internal.Resource;
+import no.unit.nva.doi.transformer.model.internal.internal.Publication;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.junit.Assert;
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static no.unit.nva.doi.transformer.MainHandler.ACCESS_CONTROL_ALLOW_ORIGIN;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
@@ -74,9 +75,9 @@ public class MainHandlerTest {
         assertEquals(SC_OK, gatewayResponse.getStatusCode());
         Assert.assertTrue(gatewayResponse.getHeaders().keySet().contains(CONTENT_TYPE));
         Assert.assertTrue(gatewayResponse.getHeaders().keySet().contains(ACCESS_CONTROL_ALLOW_ORIGIN));
-        Resource resource = objectMapper.readValue(gatewayResponse.getBody().toString(),
-                Resource.class);
-        assertEquals(DataciteResponseConverter.DEFAULT_NEW_RESOURCE_STATUS, resource.getStatus());
+        Publication publication = objectMapper.readValue(gatewayResponse.getBody().toString(),
+                Publication.class);
+        assertEquals(DataciteResponseConverter.DEFAULT_NEW_PUBLICATION_STATUS, publication.getStatus());
 
     }
 
@@ -97,7 +98,7 @@ public class MainHandlerTest {
     public  void testInternalServerErrorResponse() throws IOException {
         DataciteResponseConverter converter = mock(DataciteResponseConverter.class);
         mock(DataciteResponseConverter.class);
-        when(converter.toResource(any(DataciteResponse.class), anyString(), anyString()))
+        when(converter.toPublication(any(DataciteResponse.class), any(UUID.class), anyString()))
                 .thenThrow(new RuntimeException("Fail"));
         Context context = getMockContext();
         MainHandler mainHandler = new MainHandler(objectMapper, converter, environment);
