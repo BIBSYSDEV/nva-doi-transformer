@@ -82,5 +82,5 @@ Resources:
     Properties:
       BasePath: !Ref CustomDomainBasePath
       DomainName: !Ref CustomDomain
-      RestApiId: !Ref NvaDoiFunctionApi
-      Stage: !Ref NvaDoiFunctionApi.Stage
+      RestApiId: !Ref NvaDoiTransformerFunctionApi
+      Stage: !Ref NvaDoiTransformerFunctionApi.Stage
