@@ -14,7 +14,6 @@ import no.unit.nva.doi.transformer.model.internal.internal.PublicationStatus;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
