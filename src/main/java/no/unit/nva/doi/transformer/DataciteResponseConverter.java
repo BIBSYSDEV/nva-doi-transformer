@@ -46,24 +46,20 @@ public class DataciteResponseConverter {
                 .withEntityDescription(new EntityDescription.Builder()
                         .withContributors(toContributors(dataciteResponse.getCreators()))
                         .withDate(toDate(dataciteResponse.getPublicationYear()))
-                        .withTitles(toTitles(dataciteResponse.getTitles()))
+                        .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
                         .withType(EntityType.lookup(dataciteResponse.getTypes().getResourceType()))
                         .build())
                 .build();
+    }
+
+    private String getMainTitle(List<DataciteTitle> titles) {
+        return titles.stream().map(DataciteTitle::getTitle).findFirst().orElse("");
     }
 
     protected PublicationDate toDate(Integer publicationYear) {
         return new PublicationDate.Builder()
                 .withYear(publicationYear.toString())
                 .build();
-    }
-
-    protected Map<String, String> toTitles(List<DataciteTitle> titles) {
-        return titles
-                .stream()
-                .collect(Collectors.toConcurrentMap(dataciteTitle -> {
-                    return "";
-                }, DataciteTitle::getTitle));
     }
 
     protected List<Contributor> toContributors(List<DataciteCreator> creators) {

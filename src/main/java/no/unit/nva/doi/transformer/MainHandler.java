@@ -59,6 +59,7 @@ public class MainHandler implements RequestStreamHandler {
         DataciteResponse dataciteResponse;
         try {
             JsonNode event = objectMapper.readTree(input);
+            System.out.println(objectMapper.writeValueAsString(event));
             String body = event.get(BODY).textValue();
             dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
         } catch (Exception e) {
