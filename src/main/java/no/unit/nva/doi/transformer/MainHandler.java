@@ -71,7 +71,7 @@ public class MainHandler implements RequestStreamHandler {
 
         try {
             UUID uuid = UUID.randomUUID();
-            String owner = context.getIdentity().getIdentityPoolId();
+            String owner = "owner";
             Publication publication = converter.toPublication(dataciteResponse, uuid, owner);
             objectMapper.writeValue(output, new GatewayResponse<>(
                     objectMapper.writeValueAsString(publication), headers(), SC_OK));
