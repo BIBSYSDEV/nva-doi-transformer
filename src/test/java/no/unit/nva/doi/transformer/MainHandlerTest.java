@@ -1,6 +1,5 @@
 package no.unit.nva.doi.transformer;
 
-import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
@@ -21,12 +20,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Collections.singletonMap;
 import static no.unit.nva.doi.transformer.MainHandler.ACCESS_CONTROL_ALLOW_ORIGIN;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
@@ -111,18 +110,18 @@ public class MainHandlerTest {
     }
 
     private Context getMockContext() {
-        Context context = mock(Context.class);
-        CognitoIdentity cognitoIdentity = mock(CognitoIdentity.class);
-        when(context.getIdentity()).thenReturn(cognitoIdentity);
-        when(cognitoIdentity.getIdentityPoolId()).thenReturn("junit");
-        return context;
+        return mock(Context.class);
     }
 
     private InputStream inputStream() throws IOException {
         Map<String, Object> event = new HashMap<>();
-        String body = new String(Files.readAllBytes(Paths.get("src/test/resources/datacite_response.json")));
+        String body = new String(Files.readAllBytes(Paths.get("src/test/resources/datacite_response2.json")));
+        event.put("requestContext",
+                singletonMap("authorizer",
+                        singletonMap("claims",
+                                singletonMap("custom:feideId", "junit"))));
         event.put("body", body);
-        event.put("headers", Collections.singletonMap(HttpHeaders.CONTENT_TYPE,
+        event.put("headers", singletonMap(HttpHeaders.CONTENT_TYPE,
                 ContentType.APPLICATION_JSON.getMimeType()));
         return new ByteArrayInputStream(objectMapper.writeValueAsBytes(event));
     }
