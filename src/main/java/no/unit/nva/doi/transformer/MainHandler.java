@@ -71,8 +71,9 @@ public class MainHandler implements RequestStreamHandler {
 
         try {
             UUID uuid = UUID.randomUUID();
-            String owner = "owner";
-            Publication publication = converter.toPublication(dataciteResponse, uuid, owner);
+            log("identityId: " + context.getIdentity().getIdentityId());
+            log("identityPoolId: " + context.getIdentity().getIdentityPoolId());
+            Publication publication = converter.toPublication(dataciteResponse, uuid, "owner");
             objectMapper.writeValue(output, new GatewayResponse<>(
                     objectMapper.writeValueAsString(publication), headers(), SC_OK));
         } catch (Exception e) {
@@ -102,6 +103,10 @@ public class MainHandler implements RequestStreamHandler {
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    public static void log(String message) {
+        System.out.println(message);
     }
 
 
