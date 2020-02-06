@@ -1,11 +1,7 @@
 package no.unit.nva.doi.transformer.model.internal.external;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.net.URL;
 import java.util.List;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 
 @SuppressWarnings("PMD.TooManyFields")
 public class DataciteResponse {
@@ -14,20 +10,14 @@ public class DataciteResponse {
     private String doi;
     private URL url;
     private DataciteTypes types;
-    @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<DataciteCreator> creators;
-    @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<DataciteTitle> titles;
     private String publisher;
     private DataciteContainer container;
-    @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<DataciteContributor> contributors;
-    @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<DataciteDate> dates;
     private Integer publicationYear;
-    @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<DataciteIdentifier> identifiers;
-    @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<DataciteRelatedIdentifier> relatedIdentifiers;
     private String schemaVersion;
     private String providerId;

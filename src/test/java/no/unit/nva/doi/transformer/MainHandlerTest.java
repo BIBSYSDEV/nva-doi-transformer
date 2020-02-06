@@ -115,7 +115,7 @@ public class MainHandlerTest {
 
     private InputStream inputStream() throws IOException {
         Map<String, Object> event = new HashMap<>();
-        String body = new String(Files.readAllBytes(Paths.get("src/test/resources/datacite_response.json")));
+        String body = new String(Files.readAllBytes(Paths.get("src/test/resources/datacite_response2.json")));
         event.put("requestContext",
                 singletonMap("authorizer",
                         singletonMap("claims",
