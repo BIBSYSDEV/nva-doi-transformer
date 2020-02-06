@@ -52,7 +52,7 @@ public class DataciteResponseConverter {
     }
 
     private String getMainTitle(List<DataciteTitle> titles) {
-        return titles.stream().map(DataciteTitle::getTitle).findFirst().orElse("");
+        return titles.stream().map(DataciteTitle::getTitle).findFirst().orElse(null);
     }
 
     protected PublicationDate toDate(Integer publicationYear) {

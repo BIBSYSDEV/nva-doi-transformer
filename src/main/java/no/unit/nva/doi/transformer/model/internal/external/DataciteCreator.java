@@ -1,6 +1,10 @@
 package no.unit.nva.doi.transformer.model.internal.external;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 
 public class DataciteCreator {
 
@@ -8,6 +12,7 @@ public class DataciteCreator {
     private String nameType;
     private String givenName;
     private String familyName;
+    @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<DataciteAffiliation> affiliation;
 
     public String getName() {
