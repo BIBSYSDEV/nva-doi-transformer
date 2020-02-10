@@ -3,7 +3,7 @@ package no.unit.nva.doi.transformer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
-import no.unit.nva.doi.transformer.model.internal.internal.Publication;
+import no.unit.nva.model.Publication;
 import org.junit.Assert;
 import org.junit.Test;
 

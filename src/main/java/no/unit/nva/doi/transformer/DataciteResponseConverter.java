@@ -4,13 +4,11 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteAffiliation;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteTitle;
-import no.unit.nva.doi.transformer.model.internal.internal.Contributor;
-import no.unit.nva.doi.transformer.model.internal.internal.EntityDescription;
-import no.unit.nva.doi.transformer.model.internal.internal.EntityType;
-import no.unit.nva.doi.transformer.model.internal.internal.NameType;
-import no.unit.nva.doi.transformer.model.internal.internal.Publication;
-import no.unit.nva.doi.transformer.model.internal.internal.PublicationDate;
-import no.unit.nva.doi.transformer.model.internal.internal.PublicationStatus;
+import no.unit.nva.model.Contributor;
+import no.unit.nva.model.EntityDescription;
+import no.unit.nva.model.Publication;
+import no.unit.nva.model.PublicationDate;
+import no.unit.nva.model.PublicationStatus;
 
 import java.time.Instant;
 import java.util.List;
@@ -46,7 +44,7 @@ public class DataciteResponseConverter {
                         .withContributors(toContributors(dataciteResponse.getCreators()))
                         .withDate(toDate(dataciteResponse.getPublicationYear()))
                         .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
-                        .withType(EntityType.lookup(dataciteResponse.getTypes().getResourceType()))
+                        .withType(dataciteResponse.getTypes().getResourceType())
                         .build())
                 .build();
     }
@@ -72,7 +70,7 @@ public class DataciteResponseConverter {
     protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
         return new Contributor.Builder()
                 .withName(toName(dataciteCreator))
-                .withNameType(NameType.lookup(dataciteCreator.getNameType()))
+                .withNameType(dataciteCreator.getNameType())
                 .withAffiliation(toAffilitation(dataciteCreator.getAffiliation()))
                 .withSequence(sequence)
                 .build();
