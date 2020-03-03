@@ -6,6 +6,9 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteTitle;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
+import no.unit.nva.model.Identity;
+import no.unit.nva.model.NameType;
+import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationStatus;
@@ -44,7 +47,7 @@ public class DataciteResponseConverter {
                         .withContributors(toContributors(dataciteResponse.getCreators()))
                         .withDate(toDate(dataciteResponse.getPublicationYear()))
                         .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
-                        .withType(dataciteResponse.getTypes().getResourceType())
+                        .withPublicationType(dataciteResponse.getTypes().getResourceType())
                         .build())
                 .build();
     }
@@ -69,14 +72,17 @@ public class DataciteResponseConverter {
 
     protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
         return new Contributor.Builder()
-                .withName(toName(dataciteCreator))
-                .withNameType(dataciteCreator.getNameType())
+                .withIdentity(new Identity.Builder()
+                        .withName(toName(dataciteCreator))
+                        .withNameType(NameType.lookup(dataciteCreator.getNameType()))
+                        .build()
+                )
                 .withAffiliation(toAffilitation(dataciteCreator.getAffiliation()))
                 .withSequence(sequence)
                 .build();
     }
 
-    protected List<String> toAffilitation(List<DataciteAffiliation> affiliation) {
+    protected List<Organization> toAffilitation(List<DataciteAffiliation> affiliation) {
         return null;
     }
 
