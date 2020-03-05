@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'com.github.BIBSYSDEV', name: 'nva-datamodel-java', version: 'abd5b6b'
+    implementation group: 'com.github.BIBSYSDEV', name: 'nva-datamodel-java', version: 'v0.1.0'
     implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.2'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.2'
