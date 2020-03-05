@@ -12,6 +12,7 @@ import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationStatus;
+import no.unit.nva.model.PublicationType;
 
 import java.time.Instant;
 import java.util.List;
@@ -47,7 +48,7 @@ public class DataciteResponseConverter {
                         .withContributors(toContributors(dataciteResponse.getCreators()))
                         .withDate(toDate(dataciteResponse.getPublicationYear()))
                         .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
-                        .withPublicationType(dataciteResponse.getTypes().getResourceType())
+                        .withPublicationType(PublicationType.lookup(dataciteResponse.getTypes().getResourceType()))
                         .build())
                 .build();
     }
@@ -77,7 +78,7 @@ public class DataciteResponseConverter {
                         .withNameType(NameType.lookup(dataciteCreator.getNameType()))
                         .build()
                 )
-                .withAffiliation(toAffilitation(dataciteCreator.getAffiliation()))
+                .withAffiliations(toAffilitation(dataciteCreator.getAffiliation()))
                 .withSequence(sequence)
                 .build();
     }
