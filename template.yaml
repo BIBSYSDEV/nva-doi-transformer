@@ -5,6 +5,16 @@ Description: >
 
   Sample SAM Template for AWS
 
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: NvaDoiTransformer
+    Description: Backend for transforming response from DOI source to internal NVA data model
+    Author: Unit
+    SemanticVersion: 1.0.0
+    SpdxLicenseId: MIT
+    LicenseUrl: LICENSE
+
+
 Globals:
   Function:
     Timeout: 20
