@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.UUID;
 
 public class DataciteResponseConverterTest {
@@ -23,7 +24,8 @@ public class DataciteResponseConverterTest {
                 new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
 
         DataciteResponseConverter converter = new DataciteResponseConverter();
-        Publication publication = converter.toPublication(dataciteResponse, UUID.randomUUID(), "junit");
+        Publication publication = converter.toPublication(dataciteResponse, UUID.randomUUID(), "junit",
+                URI.create("http://example.org/123"));
 
         String json = objectMapper.writeValueAsString(publication);
 
