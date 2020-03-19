@@ -14,6 +14,7 @@ import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationStatus;
 import no.unit.nva.model.PublicationType;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,10 @@ public class DataciteResponseConverter {
      * @param owner owner
      * @return  publication
      */
-    public Publication toPublication(DataciteResponse dataciteResponse, UUID identifier, String owner) {
+    public Publication toPublication(DataciteResponse dataciteResponse,
+                                     UUID identifier,
+                                     String owner,
+                                     URI publisherId) {
 
         Instant now = now();
 
@@ -42,6 +46,7 @@ public class DataciteResponseConverter {
                 .withCreatedDate(now)
                 .withModifiedDate(now)
                 .withOwner(owner)
+                .withPublisher(toPublisher(publisherId))
                 .withIdentifier(identifier)
                 .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
                 .withEntityDescription(new EntityDescription.Builder()
@@ -50,6 +55,12 @@ public class DataciteResponseConverter {
                         .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
                         .withPublicationType(PublicationType.lookup(dataciteResponse.getTypes().getResourceType()))
                         .build())
+                .build();
+    }
+
+    private Organization toPublisher(URI publisherId) {
+        return new Organization.Builder()
+                .withId(publisherId)
                 .build();
     }
 
