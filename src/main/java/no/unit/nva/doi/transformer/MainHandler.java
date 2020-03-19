@@ -33,6 +33,7 @@ import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 public class MainHandler implements RequestStreamHandler {
 
+    public static final String ORG_NUMBER_COUNTRY_PREFIX_NORWAY = "NO";
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
     public static final String BODY = "body";
 
@@ -87,7 +88,7 @@ public class MainHandler implements RequestStreamHandler {
 
         try {
             UUID uuid = UUID.randomUUID();
-            URI publisherID = OrgNumberMapper.toCristinId(orgNumber);
+            URI publisherID = toPublisherId(orgNumber);
             Publication publication = converter.toPublication(dataciteResponse, uuid, owner, publisherID);
             log(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output, new GatewayResponse<>(
@@ -123,6 +124,14 @@ public class MainHandler implements RequestStreamHandler {
 
     public static void log(String message) {
         System.out.println(message);
+    }
+
+    private URI toPublisherId(String orgNumber) {
+        if (orgNumber.startsWith(ORG_NUMBER_COUNTRY_PREFIX_NORWAY)) {
+            // Remove this if and when datamodel has support for OrgNumber country prefix
+            return OrgNumberMapper.toCristinId(orgNumber.substring(ORG_NUMBER_COUNTRY_PREFIX_NORWAY.length()));
+        }
+        return OrgNumberMapper.toCristinId(orgNumber);
     }
 
     private String getClaimValueFromRequestContext(JsonNode event, String claimName) {
