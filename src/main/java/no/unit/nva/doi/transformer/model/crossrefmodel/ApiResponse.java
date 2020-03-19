@@ -3,6 +3,7 @@ package no.unit.nva.doi.transformer.model.crossrefmodel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ApiResponse {
+
     @JsonProperty("status")
     private String status;
     @JsonProperty("message-type")

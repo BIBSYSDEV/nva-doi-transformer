@@ -23,7 +23,6 @@ public class Reference {
     @JsonProperty("journal-title")
     private String journalTitle;
 
-
     public String getKey() {
         return key;
     }

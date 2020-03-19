@@ -76,6 +76,10 @@ public class Author {
             return this;
         }
 
+        /**
+         * Creates an Author object.
+         * @return an Author object.
+         */
         public Author build() {
             Author author = new Author();
             author.setGivenName(givenName);

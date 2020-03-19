@@ -1,10 +1,9 @@
 package no.unit.nva.doi.transformer.model.crossrefmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
-@SuppressWarnings("PMD.TooManyFields")
+@SuppressWarnings({"PMD.TooManyFields","PMD.ExcessivePublicCount"})
 public class CrossRefDocument {
 
     @JsonProperty("indexed")
@@ -33,10 +32,11 @@ public class CrossRefDocument {
     private String page;
     @JsonProperty("source")
     private String source;
+    @SuppressWarnings("PMD.LinguisticNaming")
     @JsonProperty("is-referenced-by-count")
     private int isReferencedByCount;
     @JsonProperty("title")
-    private String[] title;
+    private List<String> title;
     @JsonProperty("prefix")
     private String prefix;
     @JsonProperty("volume")
@@ -99,6 +99,7 @@ public class CrossRefDocument {
     public void setShortContainerTitle(List<String> shortContainerTitle) {
         this.shortContainerTitle = shortContainerTitle;
     }
+
     public int getReferenceCount() {
         return referenceCount;
     }
@@ -315,11 +316,11 @@ public class CrossRefDocument {
         this.isReferencedByCount = isReferencedByCount;
     }
 
-    public String[] getTitle() {
+    public List<String> getTitle() {
         return title;
     }
 
-    public void setTitle(String[] title) {
+    public void setTitle(List<String> title) {
         this.title = title;
     }
 
@@ -344,7 +345,31 @@ public class CrossRefDocument {
     }
 
     public void setAuthor(List<Author> author) {
-        this.author=author;
+        this.author = author;
+    }
+
+    public CrossrefDate getIndexed() {
+        return indexed;
+    }
+
+    public String getMember() {
+        return member;
+    }
+
+    public void setMember(String member) {
+        this.member = member;
+    }
+
+    public List<Reference> getReference() {
+        return reference;
+    }
+
+    public void setReference(List<Reference> reference) {
+        this.reference = reference;
+    }
+
+    public void setScore(float score) {
+        this.score = score;
     }
 }
 

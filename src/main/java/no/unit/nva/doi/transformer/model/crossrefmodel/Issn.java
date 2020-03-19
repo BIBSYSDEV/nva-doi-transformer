@@ -1,21 +1,22 @@
 package no.unit.nva.doi.transformer.model.crossrefmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Arrays;
 
+
 public class Issn {
+
     @JsonProperty("value")
-    private String issn;
+    private String value;
     @JsonProperty("type")
     private IssnType type;
 
-    public String getIssn() {
-        return issn;
+    public String getValue() {
+        return value;
     }
 
-    public void setIssn(String issn) {
-        this.issn = issn;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public IssnType getType() {
@@ -38,7 +39,7 @@ public class Issn {
 
         public static IssnType getType(String name) {
             return Arrays.stream(values()).filter(issnType -> issnType.name.equals(name)).findFirst()
-                    .orElseThrow(RuntimeException::new);
+                         .orElseThrow(RuntimeException::new);
         }
 
         public String getName() {

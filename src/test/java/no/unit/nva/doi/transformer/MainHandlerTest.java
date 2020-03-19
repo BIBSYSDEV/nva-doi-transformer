@@ -1,32 +1,5 @@
 package no.unit.nva.doi.transformer;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
-import no.unit.nva.model.Publication;
-import no.unit.nva.model.util.OrgNumberMapper;
-import org.apache.http.HttpHeaders;
-import org.apache.http.entity.ContentType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.mockito.Mockito;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 import static java.util.Collections.singletonMap;
 import static no.unit.nva.doi.transformer.MainHandler.ACCESS_CONTROL_ALLOW_ORIGIN;
 import static no.unit.nva.model.util.OrgNumberMapper.UNIT_ORG_NUMBER;
@@ -40,6 +13,31 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
+import no.unit.nva.model.Publication;
+import org.apache.http.HttpHeaders;
+import org.apache.http.entity.ContentType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.mockito.Mockito;
 
 public class MainHandlerTest {
 
@@ -55,7 +53,7 @@ public class MainHandlerTest {
 
     @Rule
     public final EnvironmentVariables environmentVariables
-            = new EnvironmentVariables();
+        = new EnvironmentVariables();
 
     @Test
     public void testDefaultConstructor() {
@@ -78,9 +76,8 @@ public class MainHandlerTest {
         Assert.assertTrue(gatewayResponse.getHeaders().keySet().contains(CONTENT_TYPE));
         Assert.assertTrue(gatewayResponse.getHeaders().keySet().contains(ACCESS_CONTROL_ALLOW_ORIGIN));
         Publication publication = objectMapper.readValue(gatewayResponse.getBody().toString(),
-                Publication.class);
+            Publication.class);
         assertEquals(DataciteResponseConverter.DEFAULT_NEW_PUBLICATION_STATUS, publication.getStatus());
-
     }
 
     @Test
@@ -97,11 +94,11 @@ public class MainHandlerTest {
     }
 
     @Test
-    public  void testInternalServerErrorResponse() throws IOException {
+    public void testInternalServerErrorResponse() throws IOException {
         DataciteResponseConverter converter = mock(DataciteResponseConverter.class);
         mock(DataciteResponseConverter.class);
         when(converter.toPublication(any(DataciteResponse.class), any(UUID.class), anyString(), any(URI.class)))
-                .thenThrow(new RuntimeException("Fail"));
+            .thenThrow(new RuntimeException("Fail"));
         Context context = getMockContext();
         MainHandler mainHandler = new MainHandler(objectMapper, converter, environment);
         OutputStream output = new ByteArrayOutputStream();
@@ -120,12 +117,12 @@ public class MainHandlerTest {
         Map<String, Object> event = new HashMap<>();
         String body = new String(Files.readAllBytes(Paths.get("src/test/resources/datacite_response2.json")));
         event.put("requestContext",
-                singletonMap("authorizer",
-                        singletonMap("claims",
-                                Map.of("custom:feideId", "junit", "custom:orgNumber", UNIT_ORG_NUMBER))));
+            singletonMap("authorizer",
+                singletonMap("claims",
+                    Map.of("custom:feideId", "junit", "custom:orgNumber", UNIT_ORG_NUMBER))));
         event.put("body", body);
         event.put("headers", singletonMap(HttpHeaders.CONTENT_TYPE,
-                ContentType.APPLICATION_JSON.getMimeType()));
+            ContentType.APPLICATION_JSON.getMimeType()));
         return new ByteArrayInputStream(objectMapper.writeValueAsBytes(event));
     }
 }

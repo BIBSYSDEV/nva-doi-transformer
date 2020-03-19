@@ -1,10 +1,10 @@
 package no.unit.nva.doi.transformer.model.crossrefmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class ContentDomain {
+
     @JsonProperty("domain")
     private List<String> domain;
     @JsonProperty("crossmark-restriction")
@@ -25,5 +25,4 @@ public class ContentDomain {
     public void setCrossmarkRestriction(boolean crossmarkRestriction) {
         this.crossmarkRestriction = crossmarkRestriction;
     }
-
 }

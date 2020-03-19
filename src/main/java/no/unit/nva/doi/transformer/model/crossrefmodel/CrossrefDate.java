@@ -3,11 +3,19 @@ package no.unit.nva.doi.transformer.model.crossrefmodel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+@SuppressWarnings("PMD.MethodReturnsInternalArray")
 public class CrossrefDate {
 
+    private static String SELECT_ZONE_OFFSET_BY_CONSTANT = "";
     @JsonProperty("date-parts")
     private int[][] dateParts; //
     @JsonProperty("date-time")
@@ -31,29 +39,51 @@ public class CrossrefDate {
         this.dateTime = input;
     }
 
-    public double getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(double input) {
+    public void setTimestamp(long input) {
         this.timestamp = input;
     }
 
-    public void extractEarliestYear() {
-        Optional<Integer> datetimeYear=extractYearFromDateTime();
-        Optional<Integer> timeStampYear= extractYearFromTimeStamp();
+    public Optional<Integer> extractEarliestYear() {
+        List<Integer> allYears = new ArrayList<>();
+        extractYearFromDateTime().ifPresent(allYears::add);
+        extractYearFromTimeStamp().ifPresent(allYears::add);
+        extractYearFromArray().forEach(allYears::add);
+        return allYears.stream().min(Integer::compareTo);
+    }
 
+    private Stream<Integer> extractYearFromArray() {
+        if (dateParts != null) {
+            return Arrays.stream(dateParts)
+                         .filter(this::hasYear)
+                         .map(dateArray -> dateArray[0]);
+        }
+        return Stream.empty();
+    }
+
+    private boolean hasYear(int[] dateArray) {
+        return dateArray != null && dateArray.length > 0;
     }
 
     private Optional<Integer> extractYearFromTimeStamp() {
-        return Optional.of(timestamp).map(Instant.ofEpochMilli(timestamp))
+        if (timestamp == 0) {
+            // timestamp=0 means 1-1-1970
+            return Optional.empty();
+        }
+        return Optional.of(timestamp)
+                       .map(Instant::ofEpochMilli)
+                       .map(inst -> inst.atOffset(ZoneOffset.UTC).getYear());
     }
 
     private Optional<Integer> extractYearFromDateTime() {
 
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.ofOffset(
+            SELECT_ZONE_OFFSET_BY_CONSTANT, ZoneOffset.UTC));
         return Optional.ofNullable(this.dateTime)
-                        .map(d -> LocalDateTime.parse(this.dateTime, DateTimeFormatter.ISO_INSTANT))
-                        .map(LocalDateTime::getYear);
-
+                       .map(d -> LocalDateTime.parse(this.dateTime, formatter))
+                       .map(LocalDateTime::getYear);
     }
 }
