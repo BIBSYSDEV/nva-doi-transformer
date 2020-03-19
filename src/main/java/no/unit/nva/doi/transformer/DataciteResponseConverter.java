@@ -1,5 +1,13 @@
 package no.unit.nva.doi.transformer;
 
+import static java.time.Instant.now;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteAffiliation;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
@@ -10,19 +18,10 @@ import no.unit.nva.model.Identity;
 import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
-import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationStatus;
 import no.unit.nva.model.PublicationType;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import static java.time.Instant.now;
-
-public class DataciteResponseConverter {
+public class DataciteResponseConverter extends AbstractConverter {
 
     public static final PublicationStatus DEFAULT_NEW_PUBLICATION_STATUS = PublicationStatus.NEW;
 
@@ -53,15 +52,13 @@ public class DataciteResponseConverter {
                 .build();
     }
 
-    private String getMainTitle(List<DataciteTitle> titles) {
-        return titles.stream().map(DataciteTitle::getTitle).findFirst().orElse(null);
+
+    protected String getMainTitle(List<DataciteTitle> titles) {
+        Stream<String> titleStrings=titles.stream().map(DataciteTitle::getTitle);
+        return  getMainTitle(titleStrings);
     }
 
-    protected PublicationDate toDate(Integer publicationYear) {
-        return new PublicationDate.Builder()
-                .withYear(publicationYear.toString())
-                .build();
-    }
+
 
     protected List<Contributor> toContributors(List<DataciteCreator> creators) {
         AtomicInteger counter = new AtomicInteger();
@@ -91,7 +88,7 @@ public class DataciteResponseConverter {
         if (dataciteCreator.getName() != null) {
             return dataciteCreator.getName();
         } else {
-            return String.join(", ", dataciteCreator.getFamilyName(), dataciteCreator.getGivenName());
+            return super.toName(dataciteCreator.getFamilyName(),dataciteCreator.getGivenName());
         }
     }
 

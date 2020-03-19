@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
+import org.apache.http.HttpHeaders;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemModule;
 
@@ -33,6 +34,7 @@ public class MainHandler implements RequestStreamHandler {
 
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
     public static final String BODY = "body";
+    public static final String HEADERS = "headers";
     public static final String REQUEST_CONTEXT_AUTHORIZER_CLAIMS_CUSTOM_FEIDE_ID =
             "/requestContext/authorizer/claims/custom:feideId";
     public static final String MISSING_CUSTOM_FEIDE_ID_CLAIM_IN_REQUEST_CONTEXT =
@@ -64,12 +66,14 @@ public class MainHandler implements RequestStreamHandler {
 
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
-        DataciteResponse dataciteResponse;
+        DataciteResponse dataciteResponse=null;
         String owner;
+        String body;
+        Map<String, String> headers;
         try {
             JsonNode event = objectMapper.readTree(input);
-            String body = event.get(BODY).textValue();
-            dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
+            body = event.get(BODY).textValue();
+            headers =  getHeadersFromJson(event);
             owner = Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS_CUSTOM_FEIDE_ID).textValue())
                     .orElseThrow(() -> new IllegalArgumentException(MISSING_CUSTOM_FEIDE_ID_CLAIM_IN_REQUEST_CONTEXT));
         } catch (Exception e) {
@@ -81,6 +85,7 @@ public class MainHandler implements RequestStreamHandler {
 
         try {
             UUID uuid = UUID.randomUUID();
+            Optional<String> contentLocation= getContentLocation(headers);
             Publication publication = converter.toPublication(dataciteResponse, uuid, owner);
             log(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output, new GatewayResponse<>(
@@ -90,6 +95,17 @@ public class MainHandler implements RequestStreamHandler {
             objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
                     Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), headers(), SC_INTERNAL_SERVER_ERROR));
         }
+    }
+
+    private Optional<String> getContentLocation(Map<String, String> headers) {
+
+        return Optional.of(headers.getOrDefault(HttpHeaders.CONTENT_LOCATION,null));
+    }
+
+    public Map<String, String> getHeadersFromJson(JsonNode root)  {
+        JsonNode headers = root.get("headers");
+        Map<String, String> headersMap = (Map<String, String>) objectMapper.convertValue(headers, Map.class);
+        return headersMap;
     }
 
     private Map<String, String> headers() {
