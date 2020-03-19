@@ -10,13 +10,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
-import org.apache.http.HttpHeaders;
+import no.unit.nva.model.util.OrgNumberMapper;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemModule;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,11 +35,13 @@ public class MainHandler implements RequestStreamHandler {
 
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
     public static final String BODY = "body";
-    public static final String HEADERS = "headers";
-    public static final String REQUEST_CONTEXT_AUTHORIZER_CLAIMS_CUSTOM_FEIDE_ID =
-            "/requestContext/authorizer/claims/custom:feideId";
-    public static final String MISSING_CUSTOM_FEIDE_ID_CLAIM_IN_REQUEST_CONTEXT =
-            "Missing custom:feideId claim in requestContext";
+
+    public static final String REQUEST_CONTEXT_AUTHORIZER_CLAIMS = "/requestContext/authorizer/claims/";
+    public static final String CUSTOM_FEIDE_ID = "custom:feideId";
+    public static final String CUSTOM_ORG_NUMBER = "custom:orgNumber";
+    public static final String MISSING_CLAIM_IN_REQUEST_CONTEXT =
+            "Missing claim in requestContext: ";
+
     public static final String ALLOWED_ORIGIN = "ALLOWED_ORIGIN";
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable not set: ";
 
@@ -66,16 +69,15 @@ public class MainHandler implements RequestStreamHandler {
 
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
-        DataciteResponse dataciteResponse=null;
+        DataciteResponse dataciteResponse;
         String owner;
-        String body;
-        Map<String, String> headers;
+        String orgNumber;
         try {
             JsonNode event = objectMapper.readTree(input);
-            body = event.get(BODY).textValue();
-            headers =  getHeadersFromJson(event);
-            owner = Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS_CUSTOM_FEIDE_ID).textValue())
-                    .orElseThrow(() -> new IllegalArgumentException(MISSING_CUSTOM_FEIDE_ID_CLAIM_IN_REQUEST_CONTEXT));
+            String body = event.get(BODY).textValue();
+            dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
+            owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
+            orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
@@ -85,8 +87,8 @@ public class MainHandler implements RequestStreamHandler {
 
         try {
             UUID uuid = UUID.randomUUID();
-            Optional<String> contentLocation= getContentLocation(headers);
-            Publication publication = converter.toPublication(dataciteResponse, uuid, owner);
+            URI publisherID = OrgNumberMapper.toCristinId(orgNumber);
+            Publication publication = converter.toPublication(dataciteResponse, uuid, owner, publisherID);
             log(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output, new GatewayResponse<>(
                     objectMapper.writeValueAsString(publication), headers(), SC_OK));
@@ -95,17 +97,6 @@ public class MainHandler implements RequestStreamHandler {
             objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
                     Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), headers(), SC_INTERNAL_SERVER_ERROR));
         }
-    }
-
-    private Optional<String> getContentLocation(Map<String, String> headers) {
-
-        return Optional.of(headers.getOrDefault(HttpHeaders.CONTENT_LOCATION,null));
-    }
-
-    public Map<String, String> getHeadersFromJson(JsonNode root)  {
-        JsonNode headers = root.get("headers");
-        Map<String, String> headersMap = (Map<String, String>) objectMapper.convertValue(headers, Map.class);
-        return headersMap;
     }
 
     private Map<String, String> headers() {
@@ -134,5 +125,9 @@ public class MainHandler implements RequestStreamHandler {
         System.out.println(message);
     }
 
+    private String getClaimValueFromRequestContext(JsonNode event, String claimName) {
+        return Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS + claimName).textValue())
+                .orElseThrow(() -> new IllegalArgumentException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
+    }
 
 }

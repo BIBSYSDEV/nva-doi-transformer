@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
+import no.unit.nva.model.util.OrgNumberMapper;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.junit.Assert;
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -27,6 +29,7 @@ import java.util.UUID;
 
 import static java.util.Collections.singletonMap;
 import static no.unit.nva.doi.transformer.MainHandler.ACCESS_CONTROL_ALLOW_ORIGIN;
+import static no.unit.nva.model.util.OrgNumberMapper.UNIT_ORG_NUMBER;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -97,7 +100,7 @@ public class MainHandlerTest {
     public  void testInternalServerErrorResponse() throws IOException {
         DataciteResponseConverter converter = mock(DataciteResponseConverter.class);
         mock(DataciteResponseConverter.class);
-        when(converter.toPublication(any(DataciteResponse.class), any(UUID.class), anyString()))
+        when(converter.toPublication(any(DataciteResponse.class), any(UUID.class), anyString(), any(URI.class)))
                 .thenThrow(new RuntimeException("Fail"));
         Context context = getMockContext();
         MainHandler mainHandler = new MainHandler(objectMapper, converter, environment);
@@ -119,7 +122,7 @@ public class MainHandlerTest {
         event.put("requestContext",
                 singletonMap("authorizer",
                         singletonMap("claims",
-                                singletonMap("custom:feideId", "junit"))));
+                                Map.of("custom:feideId", "junit", "custom:orgNumber", UNIT_ORG_NUMBER))));
         event.put("body", body);
         event.put("headers", singletonMap(HttpHeaders.CONTENT_TYPE,
                 ContentType.APPLICATION_JSON.getMimeType()));

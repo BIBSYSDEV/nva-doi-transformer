@@ -21,6 +21,16 @@ import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationStatus;
 import no.unit.nva.model.PublicationType;
 
+import java.net.URI;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import static java.time.Instant.now;
+
+
 public class DataciteResponseConverter extends AbstractConverter {
 
     public static final PublicationStatus DEFAULT_NEW_PUBLICATION_STATUS = PublicationStatus.NEW;
@@ -33,7 +43,10 @@ public class DataciteResponseConverter extends AbstractConverter {
      * @param owner owner
      * @return  publication
      */
-    public Publication toPublication(DataciteResponse dataciteResponse, UUID identifier, String owner) {
+    public Publication toPublication(DataciteResponse dataciteResponse,
+                                     UUID identifier,
+                                     String owner,
+                                     URI publisherId) {
 
         Instant now = now();
 
@@ -41,6 +54,7 @@ public class DataciteResponseConverter extends AbstractConverter {
                 .withCreatedDate(now)
                 .withModifiedDate(now)
                 .withOwner(owner)
+                .withPublisher(toPublisher(publisherId))
                 .withIdentifier(identifier)
                 .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
                 .withEntityDescription(new EntityDescription.Builder()
@@ -49,6 +63,12 @@ public class DataciteResponseConverter extends AbstractConverter {
                         .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
                         .withPublicationType(PublicationType.lookup(dataciteResponse.getTypes().getResourceType()))
                         .build())
+                .build();
+    }
+
+    private Organization toPublisher(URI publisherId) {
+        return new Organization.Builder()
+                .withId(publisherId)
                 .build();
     }
 
