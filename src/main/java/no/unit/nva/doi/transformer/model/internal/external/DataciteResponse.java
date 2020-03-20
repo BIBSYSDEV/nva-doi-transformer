@@ -1,11 +1,9 @@
 package no.unit.nva.doi.transformer.model.internal.external;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.net.URL;
 import java.util.List;
 
 @SuppressWarnings("PMD.TooManyFields")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class DataciteResponse {
 
     private URL id;

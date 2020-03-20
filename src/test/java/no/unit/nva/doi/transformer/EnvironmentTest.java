@@ -11,8 +11,7 @@ import org.junit.contrib.java.lang.system.EnvironmentVariables;
 public class EnvironmentTest {
 
     @Rule
-    public final EnvironmentVariables environmentVariables
-        = new EnvironmentVariables();
+    public final EnvironmentVariables environmentVariables= new EnvironmentVariables();
 
     @Test
     public void testEnv() {
