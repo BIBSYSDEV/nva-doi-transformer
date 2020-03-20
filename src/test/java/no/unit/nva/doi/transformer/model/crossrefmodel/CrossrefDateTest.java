@@ -82,7 +82,7 @@ public class CrossrefDateTest {
     public void extractEarliestYearReturnsTheEarliestYearForMixedEntries() {
         int expectedYear = 2019;
         int notExpectedYear = expectedYear + 1;
-        int insertedDates[][] = new int[][]{{expectedYear, 1, 1}, {notExpectedYear}};
+        int[][] insertedDates = new int[][]{{expectedYear, 1, 1}, {notExpectedYear}};
 
         CrossrefDate date = new CrossrefDate();
         date.setDateParts(insertedDates);
@@ -103,7 +103,7 @@ public class CrossrefDateTest {
 
     private void insertDateArray(int expectedYear) {
         int notExpectedYear = expectedYear + 1;
-        int insertedDates[][] = new int[][]{{expectedYear, 1, 1}, {notExpectedYear}};
+        int[][] insertedDates = new int[][]{{expectedYear, 1, 1}, {notExpectedYear}};
         date.setDateParts(insertedDates);
     }
 

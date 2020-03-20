@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Link {
     /*
-    			"URL": "http:\/\/link.springer.com\/content\/pdf\/10.1007\/s00115-004-1822-4.pdf",
-			"content-type": "application\/pdf",
-			"content-version": "vor",
-			"intended-application": "text-mining"
+        "URL": "http:\/\/link.springer.com\/content\/pdf\/10.1007\/s00115-004-1822-4.pdf",
+        "content-type": "application\/pdf",
+        "content-version": "vor",
+        "intended-application": "text-mining"
      */
 
     @JsonProperty("URL")

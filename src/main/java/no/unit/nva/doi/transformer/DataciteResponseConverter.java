@@ -1,7 +1,5 @@
 package no.unit.nva.doi.transformer;
 
-import static java.time.Instant.now;
-
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
@@ -19,12 +17,9 @@ import no.unit.nva.model.Identity;
 import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
-import no.unit.nva.model.PublicationStatus;
 import no.unit.nva.model.PublicationType;
 
 public class DataciteResponseConverter extends AbstractConverter {
-
-    public static final PublicationStatus DEFAULT_NEW_PUBLICATION_STATUS = PublicationStatus.NEW;
 
     /**
      * Convert Datacite response data to NVA Publication.
@@ -34,12 +29,9 @@ public class DataciteResponseConverter extends AbstractConverter {
      * @param owner            owner
      * @return publication
      */
-    public Publication toPublication(DataciteResponse dataciteResponse,
-                                     UUID identifier,
-                                     String owner,
-                                     URI publisherId) {
-
-        Instant now = now();
+    public Publication toPublication(DataciteResponse dataciteResponse, Instant now, UUID identifier, String owner,
+                                     URI publisherId
+    ) {
 
         return new Publication.Builder()
             .withCreatedDate(now)
@@ -54,12 +46,6 @@ public class DataciteResponseConverter extends AbstractConverter {
                 .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
                 .withPublicationType(PublicationType.lookup(dataciteResponse.getTypes().getResourceType()))
                 .build())
-            .build();
-    }
-
-    private Organization toPublisher(URI publisherId) {
-        return new Organization.Builder()
-            .withId(publisherId)
             .build();
     }
 

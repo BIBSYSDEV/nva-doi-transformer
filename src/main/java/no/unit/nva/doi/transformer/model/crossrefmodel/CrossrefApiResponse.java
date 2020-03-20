@@ -2,7 +2,7 @@ package no.unit.nva.doi.transformer.model.crossrefmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ApiResponse {
+public class CrossrefApiResponse {
 
     @JsonProperty("status")
     private String status;
@@ -11,7 +11,7 @@ public class ApiResponse {
     @JsonProperty("message-version")
     private String messageVersion;
     @JsonProperty("message")
-    private CrossRefDocument crossRefDocument;
+    private CrossRefDocument message;
 
     public String getStatus() {
         return status;
@@ -37,12 +37,12 @@ public class ApiResponse {
         this.messageVersion = input;
     }
 
-    public CrossRefDocument getCrossRefDocument() {
-        return crossRefDocument;
+    public CrossRefDocument getMessage() {
+        return message;
     }
 
-    public void setCrossRefDocument(CrossRefDocument input) {
-        this.crossRefDocument = input;
+    public void setMessage(CrossRefDocument input) {
+        this.message = input;
     }
 }
 

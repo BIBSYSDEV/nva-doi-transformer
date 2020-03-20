@@ -1,7 +1,6 @@
 package no.unit.nva.doi.transformer;
 
-import static no.unit.nva.doi.transformer.DataciteResponseConverter.DEFAULT_NEW_PUBLICATION_STATUS;
-
+import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,7 +51,12 @@ public class CrossRefConverter extends AbstractConverter {
      * @param identifier the publication identifier.
      * @return a internal representation of the publication.
      */
-    public Publication toPublication(CrossRefDocument document, Instant now, String owner, UUID identifier) {
+    public Publication toPublication(CrossRefDocument document,
+                                     Instant now,
+                                     String owner,
+                                     UUID identifier,
+                                     URI publisherId
+    ) {
 
         if (document != null && hasTitle(document)) {
 
@@ -61,6 +65,7 @@ public class CrossRefConverter extends AbstractConverter {
                 .withModifiedDate(now)
                 .withOwner(owner)
                 .withIdentifier(identifier)
+                .withPublisher(toPublisher(publisherId))
                 .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
                 .withEntityDescription(new EntityDescription.Builder()
                     .withContributors(toContributors(document.getAuthor()))
@@ -74,8 +79,7 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private boolean hasTitle(CrossRefDocument document) {
-        return document.getTitle()!=null && !document.getTitle().isEmpty();
-
+        return document.getTitle() != null && !document.getTitle().isEmpty();
     }
 
     protected PublicationType extractPublicationType(CrossRefDocument document) {

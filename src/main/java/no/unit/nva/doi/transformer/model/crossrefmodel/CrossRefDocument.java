@@ -3,7 +3,7 @@ package no.unit.nva.doi.transformer.model.crossrefmodel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-@SuppressWarnings({"PMD.TooManyFields","PMD.ExcessivePublicCount"})
+@SuppressWarnings({"PMD.TooManyFields", "PMD.ExcessivePublicCount"})
 public class CrossRefDocument {
 
     @JsonProperty("indexed")
@@ -174,10 +174,6 @@ public class CrossRefDocument {
 
     public float getScore() {
         return score;
-    }
-
-    public void setScore(int input) {
-        this.score = input;
     }
 
     public List<String> getSubtitle() {

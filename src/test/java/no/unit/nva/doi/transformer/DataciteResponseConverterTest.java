@@ -1,5 +1,7 @@
 package no.unit.nva.doi.transformer;
 
+import static java.time.Instant.now;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +24,7 @@ public class DataciteResponseConverterTest {
             new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
 
         DataciteResponseConverter converter = new DataciteResponseConverter();
-        Publication publication = converter.toPublication(dataciteResponse, UUID.randomUUID(), "junit",
+        Publication publication = converter.toPublication(dataciteResponse, now(), UUID.randomUUID(), "junit",
             URI.create("http://example.org/123"));
 
         String json = objectMapper.writeValueAsString(publication);

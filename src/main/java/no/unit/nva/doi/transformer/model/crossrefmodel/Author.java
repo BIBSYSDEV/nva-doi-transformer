@@ -12,7 +12,7 @@ public class Author {
     @JsonProperty("sequence")
     private String sequence;
     @JsonProperty("affiliation")
-    private List<String> affiliation;
+    private List<Affiliation> affiliation;
 
     public String getGivenName() {
         return givenName;
@@ -38,11 +38,11 @@ public class Author {
         this.sequence = sequence;
     }
 
-    public List<String> getAffiliation() {
+    public List<Affiliation> getAffiliation() {
         return affiliation;
     }
 
-    public void setAffiliation(List<String> affiliation) {
+    public void setAffiliation(List<Affiliation> affiliation) {
         this.affiliation = affiliation;
     }
 
@@ -51,7 +51,7 @@ public class Author {
         private String givenName;
         private String familyName;
         private String sequence;
-        private List<String> affiliation;
+        private List<Affiliation> affiliation;
 
         public Builder() {
         }
@@ -71,13 +71,14 @@ public class Author {
             return this;
         }
 
-        public Builder withAffiliation(List<String> affiliation) {
+        public Builder withAffiliation(List<Affiliation> affiliation) {
             this.affiliation = affiliation;
             return this;
         }
 
         /**
          * Creates an Author object.
+         *
          * @return an Author object.
          */
         public Author build() {

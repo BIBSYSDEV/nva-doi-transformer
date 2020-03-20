@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class CrossRefConverterTest {
+public class CrossRefConverterTest extends ConversionTest {
 
     private static final Instant NOW = Instant.now();
     public static final String AUTHOR_GIVEN_NAME = "givenName";
@@ -39,8 +39,8 @@ public class CrossRefConverterTest {
     private static final Integer NUMBER_OF_SAMPLE_AUTHORS = 1;
     public static final String SURNAME_COMMA_FIRSTNAME = "%s,.*%s";
     public static final String NOT_JOURNAL_ARTICLE = "book";
-    private final UUID DOCID = UUID.randomUUID();
-    private final String OWNER = "TheOwner";
+    private static final UUID DOC_ID = UUID.randomUUID();
+    private static final String OWNER = "TheOwner";
 
     private CrossRefDocument sampleInputDocument = createSampleDocument();
     private final CrossRefConverter converter = new CrossRefConverter();
@@ -67,15 +67,17 @@ public class CrossRefConverterTest {
 
         List<Contributor> contributors = samplePublication.getEntityDescription().getContributors();
 
-        String actualName = contributors.get(NUMBER_OF_SAMPLE_AUTHORS - 1).getIdentity().getName();
-        String givenName = sampleInputDocument.getAuthor().get(NUMBER_OF_SAMPLE_AUTHORS - 1).getGivenName();
-        String familyName = sampleInputDocument.getAuthor().get(NUMBER_OF_SAMPLE_AUTHORS - 1).getFamilyName();
-        String expectedNameRegEx = String.format(SURNAME_COMMA_FIRSTNAME, familyName, givenName);
-
         assertThat(contributors.size(), is(equalTo(sampleInputDocument.getAuthor().size())));
         assertThat(contributors.size(), is(equalTo(NUMBER_OF_SAMPLE_AUTHORS)));
+
+        String actualName = contributors.get(NUMBER_OF_SAMPLE_AUTHORS - 1).getIdentity().getName();
+        String givenName = sampleInputDocument.getAuthor().get(NUMBER_OF_SAMPLE_AUTHORS - 1).getGivenName();
         assertThat(actualName, containsString(givenName));
+
+        String familyName = sampleInputDocument.getAuthor().get(NUMBER_OF_SAMPLE_AUTHORS - 1).getFamilyName();
         assertThat(actualName, containsString(familyName));
+
+        String expectedNameRegEx = String.format(SURNAME_COMMA_FIRSTNAME, familyName, givenName);
         assertThat(actualName, matchesPattern(expectedNameRegEx));
     }
 
@@ -124,7 +126,7 @@ public class CrossRefConverterTest {
     }
 
     private Publication toPublication(CrossRefDocument doc) {
-        return converter.toPublication(doc, NOW, OWNER, DOCID);
+        return converter.toPublication(doc, NOW, OWNER, DOC_ID, SOME_PUBLISHER_URI);
     }
 
     private CrossRefDocument createSampleDocument() {
