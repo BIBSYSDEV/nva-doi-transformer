@@ -64,8 +64,7 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Rule
-    public final EnvironmentVariables environmentVariables
-        = new EnvironmentVariables();
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Test
     public void testDefaultConstructor() {
