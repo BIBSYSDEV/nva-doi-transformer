@@ -28,16 +28,15 @@ dependencies {
     implementation group: 'org.zalando', name: 'problem', version: '0.23.0'
     implementation group: 'org.zalando', name: 'jackson-datatype-problem', version: '0.23.0'
 
-
+    //Used for different testing utilities such as reading from resources
     testImplementation 'com.github.BIBSYSDEV:aws-build-tools:v1.5.5'
-
-    testImplementation 'org.hamcrest:hamcrest:2.2'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.2.4'
     testImplementation group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
     testImplementation "org.junit.jupiter:junit-jupiter:${junit5Version}"
     testCompileOnly 'junit:junit:4.12'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.1.0'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
 test {
