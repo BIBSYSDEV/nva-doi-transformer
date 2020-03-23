@@ -49,6 +49,7 @@ public class CrossrefDate {
 
     /**
      * Calculates the earliest year from all the dates stored in the object.
+     *
      * @return the earliest year.
      */
     public Optional<Integer> extractEarliestYear() {

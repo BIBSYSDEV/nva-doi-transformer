@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 public enum MetadataLocation {
     CROSSREF("https://api.crossref.org"),
     DATACITE("https://data.datacite.org");
@@ -31,9 +30,9 @@ public enum MetadataLocation {
 
     /**
      * Create a MetadataLocation enum instance from a string.
+     *
      * @param location a valid location string {@see } .
      * @return a {@link MetadataLocation} object
-     *
      */
     public static MetadataLocation lookup(String location) {
         if (valuesMap.containsKey(location)) {
