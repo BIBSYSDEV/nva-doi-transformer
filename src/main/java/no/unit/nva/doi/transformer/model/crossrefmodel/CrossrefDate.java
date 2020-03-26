@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Parses dates in the following (JSON) format
+ * Parses dates in the following (JSON) format.
  * <pre>
  * {@code
  *
@@ -29,11 +29,10 @@ import java.util.stream.Stream;
  *  "timestamp": 1574099851510
  *  }
  * }
- *</pre>
+ * </pre>
  */
 @SuppressWarnings("PMD.MethodReturnsInternalArray")
 public class CrossrefDate {
-
 
     private static String SELECT_ZONE_OFFSET_BY_CONSTANT = "";
     @JsonProperty("date-parts")

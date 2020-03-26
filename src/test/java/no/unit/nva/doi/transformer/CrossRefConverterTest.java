@@ -115,7 +115,7 @@ public class CrossRefConverterTest extends ConversionTest {
     @Test
     @DisplayName("toPublication throws Exception when the sequence ordinal is not valid")
     public void toPublicationThrowsExceptionWhenTheOrdinalIsNotValid() {
-        Author author=sampleInputDocument.getAuthor().stream().findFirst().get();
+        Author author = sampleInputDocument.getAuthor().stream().findFirst().get();
         author.setSequence(INVALID_ORDINAL);
         IllegalArgumentException exception =
             assertThrows(IllegalArgumentException.class, () -> toPublication(sampleInputDocument));
@@ -125,15 +125,14 @@ public class CrossRefConverterTest extends ConversionTest {
     @Test
     @DisplayName("toPublication sets the correct number when the sequence ordinal is valid")
     public void toPublicationSetsCorrectNumberForValidOrdinal() {
-        Author author=sampleInputDocument.getAuthor().stream().findFirst().get();
-        String validOrdinal= "second";
-        int expected=2;
+        Author author = sampleInputDocument.getAuthor().stream().findFirst().get();
+        String validOrdinal = "second";
+        int expected = 2;
         author.setSequence(validOrdinal);
 
-        int actual=toPublication(sampleInputDocument).getEntityDescription().getContributors()
-                                          .stream().findFirst().get().getSequence();
-        assertThat(actual,is(equalTo(expected)));
-
+        int actual = toPublication(sampleInputDocument).getEntityDescription().getContributors()
+                                                       .stream().findFirst().get().getSequence();
+        assertThat(actual, is(equalTo(expected)));
     }
 
     private Publication toPublication(CrossRefDocument doc) {

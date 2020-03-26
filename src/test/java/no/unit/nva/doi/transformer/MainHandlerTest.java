@@ -103,13 +103,14 @@ public class MainHandlerTest extends ConversionTest {
     @Test
     public void testInternalServerErrorResponse() throws IOException {
         DataciteResponseConverter dataciteConverter = mock(DataciteResponseConverter.class);
-        CrossRefConverter crossRefConverter= new CrossRefConverter();
+        CrossRefConverter crossRefConverter = new CrossRefConverter();
 
-        when(dataciteConverter.toPublication(any(DataciteResponse.class), any(Instant.class), any(UUID.class), anyString(),
-            any(URI.class)))
+        when(dataciteConverter
+            .toPublication(any(DataciteResponse.class), any(Instant.class), any(UUID.class), anyString(),
+                any(URI.class)))
             .thenThrow(new RuntimeException("Fail"));
         Context context = getMockContext();
-        MainHandler mainHandler = new MainHandler(objectMapper, dataciteConverter,crossRefConverter, environment);
+        MainHandler mainHandler = new MainHandler(objectMapper, dataciteConverter, crossRefConverter, environment);
         OutputStream output = new ByteArrayOutputStream();
 
         mainHandler.handleRequest(inputStream(), output, context);
@@ -195,7 +196,7 @@ public class MainHandlerTest extends ConversionTest {
             DataciteResponseConverter dataciteConverter = new DataciteResponseConverter();
             CrossRefConverter crossRefConverter = new CrossRefConverter();
             context = getMockContext();
-            mainHandler = new MainHandler(objectMapper, dataciteConverter,crossRefConverter, environment);
+            mainHandler = new MainHandler(objectMapper, dataciteConverter, crossRefConverter, environment);
             output = new ByteArrayOutputStream();
         }
 

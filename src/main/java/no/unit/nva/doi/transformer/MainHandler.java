@@ -61,6 +61,8 @@ public class MainHandler implements RequestStreamHandler {
     }
 
     /**
+     * Non-default constructor.
+     *
      * @param objectMapper      json mapper.
      * @param dataciteConverter datacite converter.
      * @param crossRefConverter crossref converter
@@ -109,7 +111,8 @@ public class MainHandler implements RequestStreamHandler {
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
-                Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
+                Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), failureResponseHeaders(),
+                SC_INTERNAL_SERVER_ERROR));
         }
     }
 

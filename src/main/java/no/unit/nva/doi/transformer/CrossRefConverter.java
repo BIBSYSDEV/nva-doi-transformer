@@ -27,8 +27,6 @@ public class CrossRefConverter extends AbstractConverter {
     // The "journal" publication type in the crossref entries
     public static String JOURNAL_ARTICLE = "journal-article";
 
-
-
     /**
      * Creates a publication.
      *
@@ -83,6 +81,7 @@ public class CrossRefConverter extends AbstractConverter {
 
     /**
      * For more details about how date is extracted see {@link CrossrefDate}.
+     *
      * @param document A crossref JSON document
      * @return The earliest year found in publication dates
      */
@@ -101,8 +100,8 @@ public class CrossRefConverter extends AbstractConverter {
         }
     }
 
-    private Contributor toContributor(Author author)  {
-        try{
+    private Contributor toContributor(Author author) {
+        try {
             Identity identity = new Identity.Builder()
                 .withName(toName(author.getFamilyName(), author.getGivenName()))
                 .build();
@@ -110,16 +109,15 @@ public class CrossRefConverter extends AbstractConverter {
                 .withIdentity(identity)
                 .withSequence(parseSequence(author.getSequence()))
                 .build();
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
-        catch(ParseException e){
-            throw  new IllegalArgumentException(e.getMessage());
-        }
-
     }
 
     /**
-     * Parses the "sequence" field of the cross-ref document,
-     * The "sequence" field shows if the author is the 1st, 2nd, etc. author
+     * Parses the "sequence" field of the cross-ref document, The "sequence" field shows if the author is the 1st, 2nd,
+     * etc. author
+     *
      * @param sequence ordinal string e.g. "first"
      * @return Ordinal in number format. "first" -> 1, "second" -> 2, etc.
      */
