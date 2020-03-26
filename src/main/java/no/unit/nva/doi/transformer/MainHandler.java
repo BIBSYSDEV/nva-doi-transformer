@@ -4,7 +4,6 @@ import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_OK;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
@@ -48,6 +47,7 @@ public class MainHandler implements RequestStreamHandler {
     public static final String MISSING_CLAIM_IN_REQUEST_CONTEXT = "Missing claim in requestContext: ";
 
     public static final String ALLOWED_ORIGIN = "ALLOWED_ORIGIN";
+    public static final String APPLICATION_PROBLEM = "application/problem+json";
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable not set: ";
 
     private final transient ObjectMapper objectMapper;
@@ -81,7 +81,7 @@ public class MainHandler implements RequestStreamHandler {
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
         String owner;
         String orgNumber;
-        String body = null;
+        String body;
         String contentLocation;
         try {
             JsonNode event = objectMapper.readTree(input);
@@ -152,14 +152,13 @@ public class MainHandler implements RequestStreamHandler {
 
     private Map<String, String> requestHeaders(JsonNode root) {
         JsonNode headersNode = root.get(HEADERS);
-        Map<String, String> headers = (Map<String, String>) objectMapper.convertValue(headersNode, Map.class);
-        return headers;
+        return (Map<String, String>) objectMapper.convertValue(headersNode, Map.class);
     }
 
     private Map<String, String> responseHeaders() {
         Map<String, String> headers = new ConcurrentHashMap<>();
         headers.put(ACCESS_CONTROL_ALLOW_ORIGIN, allowedOrigin);
-        headers.put(CONTENT_TYPE, APPLICATION_JSON.getMimeType());
+        headers.put(CONTENT_TYPE, APPLICATION_PROBLEM);
         return headers;
     }
 

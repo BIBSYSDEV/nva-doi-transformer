@@ -1,8 +1,6 @@
 package no.unit.nva.doi.transformer;
 
-import static no.unit.nva.doi.transformer.CrossRefConverter.ordinals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -10,7 +8,6 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import java.text.ParseException;
 import java.time.Instant;
@@ -84,18 +81,6 @@ public class CrossRefConverterTest extends ConversionTest {
 
         String expectedNameRegEx = String.format(SURNAME_COMMA_FIRSTNAME, familyName, givenName);
         assertThat(actualName, matchesPattern(expectedNameRegEx));
-    }
-
-    @Test
-    @DisplayName("The creators sequence is translated from ordinal string to number")
-    public void creatorsOrdinalStringIsTransformedToNumber() {
-        assertThat(sampleInputDocument.getAuthor().size(), is(equalTo(NUMBER_OF_SAMPLE_AUTHORS)));
-        String sequenceString = sampleInputDocument.getAuthor().get(NUMBER_OF_SAMPLE_AUTHORS - 1).getSequence();
-        assertThat(ordinals, hasKey(sequenceString));
-
-        Contributor contributor = samplePublication.getEntityDescription().getContributors()
-                                                   .get(NUMBER_OF_SAMPLE_AUTHORS - 1);
-        assertThat(contributor.getSequence(), is(equalTo(ordinals.get(sequenceString))));
     }
 
     @Test
