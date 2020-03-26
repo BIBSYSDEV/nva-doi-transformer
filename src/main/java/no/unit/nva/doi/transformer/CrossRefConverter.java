@@ -97,6 +97,11 @@ public class CrossRefConverter extends AbstractConverter {
         return getMainTitle(document.getTitle().stream());
     }
 
+    /**
+     * For more details about how date is extracted see {@link CrossrefDate}.
+     * @param document A crossref JSON document
+     * @return The earliest year found in publication dates
+     */
     private Optional<PublicationDate> extractDate(CrossRefDocument document) {
         Optional<Integer> earliestYear = Optional.ofNullable(document.getPublishedPrint())
                                                  .flatMap(CrossrefDate::extractEarliestYear);
