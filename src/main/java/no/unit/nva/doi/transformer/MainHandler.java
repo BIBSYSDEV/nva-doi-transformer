@@ -31,6 +31,7 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.util.OrgNumberMapper;
 import org.apache.http.HttpHeaders;
+import org.apache.http.entity.ContentType;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemModule;
 
@@ -92,7 +93,7 @@ public class MainHandler implements RequestStreamHandler {
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
-                Problem.valueOf(BAD_REQUEST, e.getMessage())), responseHeaders(), SC_BAD_REQUEST));
+                Problem.valueOf(BAD_REQUEST, e.getMessage())), failureResponseHeaders(), SC_BAD_REQUEST));
             return;
         }
 
@@ -104,11 +105,11 @@ public class MainHandler implements RequestStreamHandler {
 
             log(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output, new GatewayResponse<>(
-                objectMapper.writeValueAsString(publication), responseHeaders(), SC_OK));
+                objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
-                Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), responseHeaders(), SC_INTERNAL_SERVER_ERROR));
+                Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -155,7 +156,14 @@ public class MainHandler implements RequestStreamHandler {
         return (Map<String, String>) objectMapper.convertValue(headersNode, Map.class);
     }
 
-    private Map<String, String> responseHeaders() {
+    private Map<String, String> sucessResponseHeaders() {
+        Map<String, String> headers = new ConcurrentHashMap<>();
+        headers.put(ACCESS_CONTROL_ALLOW_ORIGIN, allowedOrigin);
+        headers.put(CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
+        return headers;
+    }
+
+    private Map<String, String> failureResponseHeaders() {
         Map<String, String> headers = new ConcurrentHashMap<>();
         headers.put(ACCESS_CONTROL_ALLOW_ORIGIN, allowedOrigin);
         headers.put(CONTENT_TYPE, APPLICATION_PROBLEM);

@@ -8,12 +8,9 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.ibm.icu.text.RuleBasedNumberFormat;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
@@ -137,13 +134,6 @@ public class CrossRefConverterTest extends ConversionTest {
                                           .stream().findFirst().get().getSequence();
         assertThat(actual,is(equalTo(expected)));
 
-    }
-
-    @Test
-    public void foo() throws ParseException {
-        RuleBasedNumberFormat nf = new RuleBasedNumberFormat(Locale.UK, RuleBasedNumberFormat.SPELLOUT);
-        int number=nf.parse("first").intValue();
-        assertThat(number,is(1));
     }
 
     private Publication toPublication(CrossRefDocument doc) {
