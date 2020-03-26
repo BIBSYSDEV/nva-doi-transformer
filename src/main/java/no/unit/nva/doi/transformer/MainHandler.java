@@ -81,7 +81,7 @@ public class MainHandler implements RequestStreamHandler {
         String contentLocation;
         try {
             JsonNode event = objectMapper.readTree(input);
-            body = extractBody(event);
+            body = extractRequestBody(event);
             contentLocation = extractContentLocationHeader(event);
             owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
             orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
@@ -108,7 +108,7 @@ public class MainHandler implements RequestStreamHandler {
         }
     }
 
-    private String extractBody(JsonNode event) {
+    private String extractRequestBody(JsonNode event) {
         JsonNode body = event.get(BODY);
         if (body.isValueNode()) {
             return body.asText();

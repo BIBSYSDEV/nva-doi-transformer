@@ -69,12 +69,12 @@ public class DataciteResponseConverter extends AbstractConverter {
                 .withNameType(NameType.lookup(dataciteCreator.getNameType()))
                 .build()
             )
-            .withAffiliations(toAffilitation(dataciteCreator.getAffiliation()))
+            .withAffiliations(toAffilitations(dataciteCreator.getAffiliation()))
             .withSequence(sequence)
             .build();
     }
 
-    protected List<Organization> toAffilitation(List<DataciteAffiliation> affiliation) {
+    protected List<Organization> toAffilitations(List<DataciteAffiliation> affiliations) {
         return null;
     }
 
