@@ -29,7 +29,7 @@ dependencies {
     implementation group: 'org.zalando', name: 'jackson-datatype-problem', version: '0.23.0'
 
     //Used for different testing utilities such as reading from resources
-    testImplementation 'com.github.BIBSYSDEV:aws-build-tools:v1.5.5'
+    testImplementation group:'com.github.BIBSYSDEV', name:'aws-build-tools', version:'v1.5.5'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.2.4'
     testImplementation group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
