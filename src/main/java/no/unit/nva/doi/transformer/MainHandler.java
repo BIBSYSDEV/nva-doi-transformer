@@ -51,23 +51,27 @@ public class MainHandler implements RequestStreamHandler {
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable not set: ";
 
     private final transient ObjectMapper objectMapper;
-    private final transient DataciteResponseConverter converter;
+    private final transient DataciteResponseConverter dataciteConverter;
+    private final CrossRefConverter crossRefConverter;
     private final transient String allowedOrigin;
 
     public MainHandler() {
-        this(createObjectMapper(), new DataciteResponseConverter(), new Environment());
+        this(createObjectMapper(), new DataciteResponseConverter(), new CrossRefConverter(), new Environment());
     }
 
     /**
-     * Constructor for MainHandler.
-     *
-     * @param objectMapper objectMapper
-     * @param converter    converter
-     * @param environment  environment
+     * @param objectMapper      json mapper.
+     * @param dataciteConverter datacite converter.
+     * @param crossRefConverter crossref converter
+     * @param environment       environment variables.
      */
-    public MainHandler(ObjectMapper objectMapper, DataciteResponseConverter converter, Environment environment) {
+    public MainHandler(ObjectMapper objectMapper,
+                       DataciteResponseConverter dataciteConverter,
+                       CrossRefConverter crossRefConverter,
+                       Environment environment) {
         this.objectMapper = objectMapper;
-        this.converter = converter;
+        this.dataciteConverter = dataciteConverter;
+        this.crossRefConverter = crossRefConverter;
         this.allowedOrigin = environment.get(ALLOWED_ORIGIN)
                                         .orElseThrow(() -> new IllegalStateException(
                                             ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
@@ -131,14 +135,14 @@ public class MainHandler implements RequestStreamHandler {
     private Publication convertFromDatacite(String body, Instant now, String owner, UUID uuid, URI publisherId)
         throws JsonProcessingException {
         DataciteResponse dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
-        return converter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
+        return dataciteConverter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
     }
 
     private Publication convertFromCrossRef(String body, Instant now, String owner, UUID identifier,
                                             URI publisherId) throws JsonProcessingException {
-        CrossRefConverter converter = new CrossRefConverter();
+
         CrossRefDocument document = objectMapper.readValue(body, CrossrefApiResponse.class).getMessage();
-        return converter.toPublication(document, now, owner, identifier, publisherId);
+        return crossRefConverter.toPublication(document, now, owner, identifier, publisherId);
     }
 
     private String extractContentLocationHeader(JsonNode event) {
