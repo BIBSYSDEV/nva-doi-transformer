@@ -21,6 +21,8 @@
     <exclude name="SystemPrintln"/>
     <exclude name="GuardLogStatement"/>
     <exclude name="AvoidPrintStackTrace"/>
+    <exclude name="UseVarargs"/>
+    <exclude name="ArrayIsStoredDirectly"/>
 
     <!-- In TableManager we map ResourceNotFoundException to TableNotFoundException -->
     <exclude name="PreserveStackTrace"/>
@@ -37,6 +39,7 @@
     <exclude name="TooManyStaticImports"/>
     <exclude name="ClassNamingConventions"/>
     <exclude name="UnnecessaryConstructor"/>
+    <exclude name="ShortClassName"/>
 
     <!--<exclude name="BeanMembersShouldSerialize"/>-->
 

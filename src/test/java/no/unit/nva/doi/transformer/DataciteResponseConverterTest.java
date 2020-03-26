@@ -1,19 +1,19 @@
 package no.unit.nva.doi.transformer;
 
+import static java.time.Instant.now;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.UUID;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.UUID;
-
 public class DataciteResponseConverterTest {
-
 
     private ObjectMapper objectMapper = MainHandler.createObjectMapper();
 
@@ -21,17 +21,16 @@ public class DataciteResponseConverterTest {
     public void test() throws IOException {
 
         DataciteResponse dataciteResponse = objectMapper.readValue(
-                new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
+            new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
 
         DataciteResponseConverter converter = new DataciteResponseConverter();
-        Publication publication = converter.toPublication(dataciteResponse, UUID.randomUUID(), "junit",
-                URI.create("http://example.org/123"));
+        Publication publication = converter.toPublication(dataciteResponse, now(), UUID.randomUUID(), "junit",
+            URI.create("http://example.org/123"));
 
         String json = objectMapper.writeValueAsString(publication);
 
         System.out.println(json);
         Assert.assertNotNull(json);
-
     }
 
     @Test
@@ -45,7 +44,4 @@ public class DataciteResponseConverterTest {
 
         Assert.assertEquals("Family, Given", name);
     }
-
-
-
 }

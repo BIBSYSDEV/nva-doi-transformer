@@ -1,19 +1,17 @@
 package no.unit.nva.doi.transformer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
-import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 public class EnvironmentTest {
 
     @Rule
-    public final EnvironmentVariables environmentVariables
-            = new EnvironmentVariables();
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Test
     public void testEnv() {
@@ -29,5 +27,4 @@ public class EnvironmentTest {
         Optional<String> test = environment.get("TEST");
         assertFalse(test.isPresent());
     }
-
 }
