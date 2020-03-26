@@ -128,6 +128,12 @@ public class CrossRefConverter extends AbstractConverter {
             .build();
     }
 
+    /**
+     * Parses the "sequence" field of the cross-ref document,
+     * The "sequence" field shows if the author is the 1st, 2nd, etc. author
+     * @param sequence ordinal string e.g. "first"
+     * @return Ordinal in number format. "first" -> 1, "second" -> 2, etc.
+     */
     private int parseSequence(String sequence) {
         return ordinals.get(sequence.toLowerCase(Locale.getDefault()));
     }
