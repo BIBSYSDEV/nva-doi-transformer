@@ -1,12 +1,12 @@
 package no.unit.nva.doi.transformer;
 
+import com.ibm.icu.text.RuleBasedNumberFormat;
 import java.net.URI;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,26 +24,10 @@ public class CrossRefConverter extends AbstractConverter {
 
     public static final String NOT_A_JOURNAL_ARTICLE_ERROR = "The entry is not a journal article";
     public static final String INVALID_ENTRY_ERROR = "The entry is empty or has no title";
-    protected static Map<String, Integer> ordinals;
-
     // The "journal" publication type in the crossref entries
     public static String JOURNAL_ARTICLE = "journal-article";
 
-    static {
-        // The ordinals in crossref entries are defined by "first", "second" etc.
-        // We need to map them to numbers.
-        ordinals = new HashMap<>();
-        ordinals.put("first", 1);
-        ordinals.put("second", 2);
-        ordinals.put("third", 3);
-        ordinals.put("fourth", 4);
-        ordinals.put("fifth", 5);
-        ordinals.put("sixth", 6);
-        ordinals.put("seventh", 7);
-        ordinals.put("eighth", 8);
-        ordinals.put("ninth", 9);
-        ordinals.put("tenth", 10);
-    }
+
 
     /**
      * Creates a publication.
@@ -117,15 +101,20 @@ public class CrossRefConverter extends AbstractConverter {
         }
     }
 
-    private Contributor toContributor(Author author) {
+    private Contributor toContributor(Author author)  {
+        try{
+            Identity identity = new Identity.Builder()
+                .withName(toName(author.getFamilyName(), author.getGivenName()))
+                .build();
+            return new Contributor.Builder()
+                .withIdentity(identity)
+                .withSequence(parseSequence(author.getSequence()))
+                .build();
+        }
+        catch(ParseException e){
+            throw  new IllegalArgumentException(e.getMessage());
+        }
 
-        Identity identity = new Identity.Builder()
-            .withName(toName(author.getFamilyName(), author.getGivenName()))
-            .build();
-        return new Contributor.Builder()
-            .withIdentity(identity)
-            .withSequence(parseSequence(author.getSequence()))
-            .build();
     }
 
     /**
@@ -134,7 +123,8 @@ public class CrossRefConverter extends AbstractConverter {
      * @param sequence ordinal string e.g. "first"
      * @return Ordinal in number format. "first" -> 1, "second" -> 2, etc.
      */
-    private int parseSequence(String sequence) {
-        return ordinals.get(sequence.toLowerCase(Locale.getDefault()));
+    private int parseSequence(String sequence) throws ParseException {
+        RuleBasedNumberFormat nf = new RuleBasedNumberFormat(Locale.UK, RuleBasedNumberFormat.SPELLOUT);
+        return nf.parse(sequence).intValue();
     }
 }

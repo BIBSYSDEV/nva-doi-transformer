@@ -10,9 +10,13 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.ibm.icu.text.NumberFormat;
+import com.ibm.icu.text.RuleBasedNumberFormat;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
@@ -41,6 +45,7 @@ public class CrossRefConverterTest extends ConversionTest {
     public static final String NOT_JOURNAL_ARTICLE = "book";
     private static final UUID DOC_ID = UUID.randomUUID();
     private static final String OWNER = "TheOwner";
+    private static final String INVALID_ORDINAL = "invalid ordinal";
 
     private CrossRefDocument sampleInputDocument = createSampleDocument();
     private final CrossRefConverter converter = new CrossRefConverter();
@@ -123,6 +128,37 @@ public class CrossRefConverterTest extends ConversionTest {
         IllegalArgumentException exception =
             assertThrows(IllegalArgumentException.class, () -> toPublication(sampleInputDocument));
         assertThat(exception.getMessage(), is(equalTo(CrossRefConverter.NOT_A_JOURNAL_ARTICLE_ERROR)));
+    }
+
+    @Test
+    @DisplayName("toPublication throws Exception when the sequence ordinal is not valid")
+    public void toPublicationThrowsExceptionWhenTheOrdinalIsNotValid() {
+        Author author=sampleInputDocument.getAuthor().stream().findFirst().get();
+        author.setSequence(INVALID_ORDINAL);
+        IllegalArgumentException exception =
+            assertThrows(IllegalArgumentException.class, () -> toPublication(sampleInputDocument));
+        assertThat(exception.getMessage(), containsString(INVALID_ORDINAL));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the correct number when the sequence ordinal is valid")
+    public void toPublicationSetsCorrectNumberForValidOrdinal() {
+        Author author=sampleInputDocument.getAuthor().stream().findFirst().get();
+        String validOrdinal= "second";
+        int expected=2;
+        author.setSequence(validOrdinal);
+
+        int actual=toPublication(sampleInputDocument).getEntityDescription().getContributors()
+                                          .stream().findFirst().get().getSequence();
+        assertThat(actual,is(equalTo(expected)));
+
+    }
+
+    @Test
+    public void foo() throws ParseException {
+        RuleBasedNumberFormat nf = new RuleBasedNumberFormat(Locale.UK, RuleBasedNumberFormat.SPELLOUT);
+        int number=nf.parse("first").intValue();
+        assertThat(number,is(1));
     }
 
     private Publication toPublication(CrossRefDocument doc) {
