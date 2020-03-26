@@ -26,9 +26,12 @@ public class CrossRefConverter extends AbstractConverter {
     public static final String INVALID_ENTRY_ERROR = "The entry is empty or has no title";
     protected static Map<String, Integer> ordinals;
 
+    // The "journal" publication type in the crossref entries
     public static String JOURNAL_ARTICLE = "journal-article";
 
     static {
+        // The ordinals in crossref entries are defined by "first", "second" etc.
+        // We need to map them to numbers.
         ordinals = new HashMap<>();
         ordinals.put("first", 1);
         ordinals.put("second", 2);
