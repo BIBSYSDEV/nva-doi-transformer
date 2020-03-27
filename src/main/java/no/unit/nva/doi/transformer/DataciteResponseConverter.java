@@ -1,6 +1,7 @@
 package no.unit.nva.doi.transformer;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -11,13 +12,16 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteAffiliation;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteTitle;
+import no.unit.nva.doi.transformer.model.internal.external.DateType;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
 import no.unit.nva.model.Identity;
+import no.unit.nva.model.License;
 import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationType;
+import no.unit.nva.model.ResearchProject;
 
 public class DataciteResponseConverter extends AbstractConverter {
 
@@ -31,7 +35,7 @@ public class DataciteResponseConverter extends AbstractConverter {
      */
     public Publication toPublication(DataciteResponse dataciteResponse, Instant now, UUID identifier, String owner,
                                      URI publisherId
-    ) {
+    ) throws URISyntaxException {
 
         return new Publication.Builder()
             .withCreatedDate(now)
@@ -40,6 +44,11 @@ public class DataciteResponseConverter extends AbstractConverter {
             .withPublisher(toPublisher(publisherId))
             .withIdentifier(identifier)
             .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
+            .withHandle(createHandle(dataciteResponse))
+            .withLink(createLink(dataciteResponse))
+            .withIndexedDate(createIndexedDate(dataciteResponse))
+            .withLicense(createLicence(dataciteResponse))
+            .withProject(createProject(dataciteResponse))
             .withEntityDescription(new EntityDescription.Builder()
                 .withContributors(toContributors(dataciteResponse.getCreators()))
                 .withDate(toDate(dataciteResponse.getPublicationYear()))
@@ -47,6 +56,26 @@ public class DataciteResponseConverter extends AbstractConverter {
                 .withPublicationType(PublicationType.lookup(dataciteResponse.getTypes().getResourceType()))
                 .build())
             .build();
+    }
+
+    private ResearchProject createProject(DataciteResponse dataciteResponse) {
+        return null;
+    }
+
+    private License createLicence(DataciteResponse dataciteResponse) {
+        return null;
+    }
+
+    private Instant createIndexedDate(DataciteResponse dataciteResponse) {
+        return null;
+    }
+
+    private URI createLink(DataciteResponse dataciteResponse) throws URISyntaxException {
+        return dataciteResponse.getUrl().toURI();
+    }
+
+    private URI createHandle(DataciteResponse dataciteResponse) {
+        return null;
     }
 
     protected String getMainTitle(List<DataciteTitle> titles) {
