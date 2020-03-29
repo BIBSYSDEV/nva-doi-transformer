@@ -18,8 +18,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.time.Instant;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
@@ -87,7 +90,10 @@ public class MainHandler implements RequestStreamHandler {
         String body;
         String contentLocation;
         try {
-            JsonNode event = objectMapper.readTree(input);
+            String result = new BufferedReader(new InputStreamReader(input))
+                .lines().collect(Collectors.joining("\n"));
+            JsonNode event = objectMapper.readTree(result);
+
             body = extractRequestBody(event);
             contentLocation = extractContentLocationHeader(event);
             owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
