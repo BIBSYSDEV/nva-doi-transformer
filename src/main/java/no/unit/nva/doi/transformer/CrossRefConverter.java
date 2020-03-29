@@ -84,8 +84,8 @@ public class CrossRefConverter extends AbstractConverter {
 
     protected List<Contributor> toContributors(List<Author> authors) {
         if (authors != null) {
-            return IntStream.range(0, authors.size()).mapToObj(i -> toContributor(authors.get(i), i+1))
-                                                    .collect(Collectors.toList());
+            return IntStream.range(0, authors.size()).mapToObj(i -> toContributor(authors.get(i), i + 1))
+                            .collect(Collectors.toList());
         } else {
             return Collections.emptyList();
         }

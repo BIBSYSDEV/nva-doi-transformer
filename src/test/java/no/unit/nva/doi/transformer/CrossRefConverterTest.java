@@ -112,7 +112,7 @@ public class CrossRefConverterTest extends ConversionTest {
     public void toPublicationSetsThrowsExceptionWhenTheInputDoesNotHaveTheTagJournalArticle() {
         sampleInputDocument.setType(NOT_JOURNAL_ARTICLE);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                          () -> toPublication(sampleInputDocument));
+            () -> toPublication(sampleInputDocument));
         assertThat(exception.getMessage(), is(equalTo(CrossRefConverter.NOT_A_JOURNAL_ARTICLE_ERROR)));
     }
 
