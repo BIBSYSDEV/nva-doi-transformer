@@ -1,6 +1,7 @@
 package no.unit.nva.doi.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -9,9 +10,12 @@ import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
@@ -40,6 +44,7 @@ public class CrossRefConverterTest extends ConversionTest {
     private static final UUID DOC_ID = UUID.randomUUID();
     private static final String OWNER = "TheOwner";
     private static final String INVALID_ORDINAL = "invalid ordinal";
+    public static final String SECOND_AUTHOR = "second";
 
     private CrossRefDocument sampleInputDocument = createSampleDocument();
     private final CrossRefConverter converter = new CrossRefConverter();
@@ -55,8 +60,7 @@ public class CrossRefConverterTest extends ConversionTest {
     @DisplayName("An empty CrossRef document throws IllegalArgument exception")
     public void anEmptyCrossRefDocumentThrowsIllegalArgumentException() throws IllegalArgumentException {
         CrossRefDocument doc = new CrossRefDocument();
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> toPublication(doc));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> toPublication(doc));
         assertThat(exception.getMessage(), is(CrossRefConverter.INVALID_ENTRY_ERROR));
     }
 
@@ -100,26 +104,38 @@ public class CrossRefConverterTest extends ConversionTest {
     @DisplayName("toPublication sets PublicationType to JournalArticle when the input has the tag \"journal-article\"")
     public void toPublicationSetsPublicationTypeToJournalArticleWhenTheInputHasTheTagJournalArticle() {
         assertThat(samplePublication.getEntityDescription().getPublicationType(),
-            is(equalTo(PublicationType.JOURNAL_ARTICLE)));
+                   is(equalTo(PublicationType.JOURNAL_ARTICLE)));
     }
 
     @Test
     @DisplayName("toPublication throws Exception when the input does not have the tag \"journal-article\"")
     public void toPublicationSetsThrowsExceptionWhenTheInputDoesNotHaveTheTagJournalArticle() {
         sampleInputDocument.setType(NOT_JOURNAL_ARTICLE);
-        IllegalArgumentException exception =
-            assertThrows(IllegalArgumentException.class, () -> toPublication(sampleInputDocument));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                                                          () -> toPublication(sampleInputDocument));
         assertThat(exception.getMessage(), is(equalTo(CrossRefConverter.NOT_A_JOURNAL_ARTICLE_ERROR)));
     }
 
     @Test
-    @DisplayName("toPublication throws Exception when the sequence ordinal is not valid")
-    public void toPublicationThrowsExceptionWhenTheOrdinalIsNotValid() {
-        Author author = sampleInputDocument.getAuthor().stream().findFirst().get();
-        author.setSequence(INVALID_ORDINAL);
-        IllegalArgumentException exception =
-            assertThrows(IllegalArgumentException.class, () -> toPublication(sampleInputDocument));
-        assertThat(exception.getMessage(), containsString(INVALID_ORDINAL));
+    @DisplayName("toPublication sets as sequence the position of the author in the list when ordinal is not numerical")
+    public void toPublicationSetsOrdinalAsSecondAuthorIfInputOrdinalIsNotAValidOrdinal() {
+        int numberOfAuthors=sampleInputDocument.getAuthor().size();
+        sampleInputDocument.getAuthor().forEach(a -> {
+            a.setSequence(INVALID_ORDINAL);
+        });
+        Publication publication = toPublication(sampleInputDocument);
+        List<Integer> ordinals = publication.getEntityDescription().getContributors().stream()
+                                            .map(Contributor::getSequence).collect(Collectors.toList());
+        assertThat(ordinals.size(),is(numberOfAuthors));
+        List<Integer> expectedValues = IntStream.range(0, numberOfAuthors)
+                                                .map(this::startCountingFromOne)
+                                                .boxed()
+                                                .collect(Collectors.toList());
+        assertThat(ordinals,contains(expectedValues.toArray()));
+    }
+
+    private int startCountingFromOne(int i) {
+        return i + 1;
     }
 
     @Test
@@ -130,8 +146,8 @@ public class CrossRefConverterTest extends ConversionTest {
         int expected = 2;
         author.setSequence(validOrdinal);
 
-        int actual = toPublication(sampleInputDocument).getEntityDescription().getContributors()
-                                                       .stream().findFirst().get().getSequence();
+        int actual = toPublication(sampleInputDocument).getEntityDescription().getContributors().stream().findFirst()
+                                                       .get().getSequence();
         assertThat(actual, is(equalTo(expected)));
     }
 
@@ -167,12 +183,12 @@ public class CrossRefConverterTest extends ConversionTest {
     }
 
     private CrossRefDocument setAuthor(CrossRefDocument document) {
-        Author author = new Author.Builder()
-            .withGivenName(AUTHOR_GIVEN_NAME)
-            .withFamilyName(AUTHOR_FAMILY_NAME)
-            .withSequence(FIRST_AUTHOR)
-            .build();
-        document.setAuthor(Collections.singletonList(author));
+        Author author = new Author.Builder().withGivenName(AUTHOR_GIVEN_NAME).withFamilyName(AUTHOR_FAMILY_NAME)
+                                            .withSequence(FIRST_AUTHOR).build();
+        Author secondAuthor = new Author.Builder().withGivenName(AUTHOR_GIVEN_NAME).withFamilyName(AUTHOR_FAMILY_NAME)
+                                                  .withSequence(SECOND_AUTHOR).build();
+        List<Author> authors = Arrays.asList(author, secondAuthor);
+        document.setAuthor(authors);
         return document;
     }
 }

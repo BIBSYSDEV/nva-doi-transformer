@@ -1,5 +1,6 @@
 package no.unit.nva.doi.transformer;
 
+import static no.unit.nva.model.util.OrgNumberMapper.UNIT_ORG_NUMBER;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -90,7 +91,7 @@ public class MainHandler implements RequestStreamHandler {
             JsonNode event = objectMapper.readTree(input);
             body = extractRequestBody(event);
             contentLocation = extractContentLocationHeader(event);
-            owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
+            owner = "SomeOwner";
             orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         } catch (Exception e) {
             e.printStackTrace();
@@ -202,6 +203,6 @@ public class MainHandler implements RequestStreamHandler {
 
     private String getClaimValueFromRequestContext(JsonNode event, String claimName) {
         return Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS + claimName).textValue())
-                       .orElseThrow(() -> new IllegalArgumentException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
+                       .orElse(UNIT_ORG_NUMBER);
     }
 }
