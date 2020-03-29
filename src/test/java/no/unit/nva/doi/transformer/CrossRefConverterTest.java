@@ -38,7 +38,7 @@ public class CrossRefConverterTest extends ConversionTest {
     public static final Integer EXPECTED_YEAR = 2019;
     public static final int UNEXPECTED_YEAR = EXPECTED_YEAR + 1;
     private static final String SAMPLE_DOCUMENT_TITLE = "Sample document title";
-    private static final Integer NUMBER_OF_SAMPLE_AUTHORS = 1;
+    private static final Integer NUMBER_OF_SAMPLE_AUTHORS = 2;
     public static final String SURNAME_COMMA_FIRSTNAME = "%s,.*%s";
     public static final String NOT_JOURNAL_ARTICLE = "book";
     private static final UUID DOC_ID = UUID.randomUUID();
@@ -119,19 +119,17 @@ public class CrossRefConverterTest extends ConversionTest {
     @Test
     @DisplayName("toPublication sets as sequence the position of the author in the list when ordinal is not numerical")
     public void toPublicationSetsOrdinalAsSecondAuthorIfInputOrdinalIsNotAValidOrdinal() {
-        int numberOfAuthors=sampleInputDocument.getAuthor().size();
+        int numberOfAuthors = sampleInputDocument.getAuthor().size();
         sampleInputDocument.getAuthor().forEach(a -> {
             a.setSequence(INVALID_ORDINAL);
         });
         Publication publication = toPublication(sampleInputDocument);
         List<Integer> ordinals = publication.getEntityDescription().getContributors().stream()
                                             .map(Contributor::getSequence).collect(Collectors.toList());
-        assertThat(ordinals.size(),is(numberOfAuthors));
-        List<Integer> expectedValues = IntStream.range(0, numberOfAuthors)
-                                                .map(this::startCountingFromOne)
-                                                .boxed()
+        assertThat(ordinals.size(), is(numberOfAuthors));
+        List<Integer> expectedValues = IntStream.range(0, numberOfAuthors).map(this::startCountingFromOne).boxed()
                                                 .collect(Collectors.toList());
-        assertThat(ordinals,contains(expectedValues.toArray()));
+        assertThat(ordinals, contains(expectedValues.toArray()));
     }
 
     private int startCountingFromOne(int i) {
