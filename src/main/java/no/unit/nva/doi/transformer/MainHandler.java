@@ -90,7 +90,7 @@ public class MainHandler implements RequestStreamHandler {
             JsonNode event = objectMapper.readTree(input);
             body = extractRequestBody(event);
             contentLocation = extractContentLocationHeader(event);
-            owner = "SomeUser";
+            owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
             orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         } catch (Exception e) {
             e.printStackTrace();
