@@ -3,13 +3,14 @@ package no.unit.nva.doi.transformer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum MetadataLocation {
-    CROSSREF("https://api.crossref.org"),
-    DATACITE("https://data.datacite.org");
+    CROSSREF("https://api.crossref.org"), DATACITE("https://data.datacite.org");
 
+    public static final String CROSSREF_STRING = "crossref";
     private static String ILLEGAL_ARGUMENT_ERROR = "Illegal MetadataLocation value. Valid values are:";
     private static Map<String, MetadataLocation> valuesMap;
     private final String value;
@@ -35,15 +36,19 @@ public enum MetadataLocation {
      * @return a {@link MetadataLocation} object
      */
     public static MetadataLocation lookup(String location) {
-        if (valuesMap.containsKey(location)) {
-            return valuesMap.get(location);
+        if (locationContainsCrossref(location)) {
+            return valuesMap.get(CROSSREF);
+        } else {
+            return valuesMap.get(DATACITE);
         }
-        throw new IllegalArgumentException(errorMessage());
+    }
+
+    private static boolean locationContainsCrossref(String location) {
+        return location.toLowerCase(Locale.getDefault()).contains(CROSSREF_STRING.toLowerCase(Locale.getDefault()));
     }
 
     private static String errorMessage() {
-        List<String> valueList = Arrays.stream(MetadataLocation.values())
-                                       .map(MetadataLocation::getValue)
+        List<String> valueList = Arrays.stream(MetadataLocation.values()).map(MetadataLocation::getValue)
                                        .collect(Collectors.toList());
         String valuesString = String.join(",", valueList);
         return ILLEGAL_ARGUMENT_ERROR + valuesString;
