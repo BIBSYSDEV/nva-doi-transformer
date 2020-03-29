@@ -1,5 +1,6 @@
 package no.unit.nva.doi.transformer;
 
+import static no.unit.nva.model.util.OrgNumberMapper.UNIT_ORG_NUMBER;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -202,6 +203,6 @@ public class MainHandler implements RequestStreamHandler {
 
     private String getClaimValueFromRequestContext(JsonNode event, String claimName) {
         return Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS + claimName).textValue())
-                       .orElseThrow(() -> new IllegalArgumentException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
+                       .orElse(UNIT_ORG_NUMBER);
     }
 }
