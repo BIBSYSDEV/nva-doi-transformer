@@ -24,7 +24,6 @@ public class CrossRefConverter extends AbstractConverter {
 
     public static final String NOT_A_JOURNAL_ARTICLE_ERROR = "The entry is not a journal article";
     public static final String INVALID_ENTRY_ERROR = "The entry is empty or has no title";
-    private static final int ARBITRARY_ORDINAL = 2;
     // The "journal" publication type in the crossref entries
     public static String JOURNAL_ARTICLE = "journal-article";
 
