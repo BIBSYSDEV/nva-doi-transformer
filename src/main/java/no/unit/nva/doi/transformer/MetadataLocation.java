@@ -37,9 +37,9 @@ public enum MetadataLocation {
      */
     public static MetadataLocation lookup(String location) {
         if (locationContainsCrossref(location)) {
-            return valuesMap.get(CROSSREF);
+            return valuesMap.get(CROSSREF.getValue());
         } else {
-            return valuesMap.get(DATACITE);
+            return valuesMap.get(DATACITE.getValue());
         }
     }
 

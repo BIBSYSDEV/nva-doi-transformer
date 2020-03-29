@@ -1,6 +1,7 @@
 package no.unit.nva.doi.transformer;
 
 import static no.unit.nva.model.util.OrgNumberMapper.UNIT_ORG_NUMBER;
+import static org.apache.http.HttpHeaders.CONTENT_LOCATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +33,6 @@ import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.util.OrgNumberMapper;
-import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemModule;
@@ -57,6 +58,7 @@ public class MainHandler implements RequestStreamHandler {
     private final CrossRefConverter crossRefConverter;
     private final transient String allowedOrigin;
 
+    @JacocoGenerated
     public MainHandler() {
         this(createObjectMapper(), new DataciteResponseConverter(), new CrossRefConverter(), new Environment());
     }
@@ -69,16 +71,13 @@ public class MainHandler implements RequestStreamHandler {
      * @param crossRefConverter crossref converter
      * @param environment       environment variables.
      */
-    public MainHandler(ObjectMapper objectMapper,
-                       DataciteResponseConverter dataciteConverter,
-                       CrossRefConverter crossRefConverter,
-                       Environment environment) {
+    public MainHandler(ObjectMapper objectMapper, DataciteResponseConverter dataciteConverter,
+                       CrossRefConverter crossRefConverter, Environment environment) {
         this.objectMapper = objectMapper;
         this.dataciteConverter = dataciteConverter;
         this.crossRefConverter = crossRefConverter;
-        this.allowedOrigin = environment.get(ALLOWED_ORIGIN)
-                                        .orElseThrow(() -> new IllegalStateException(
-                                            ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
+        this.allowedOrigin = environment.get(ALLOWED_ORIGIN).orElseThrow(
+            () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
     }
 
     @Override
@@ -91,12 +90,13 @@ public class MainHandler implements RequestStreamHandler {
             JsonNode event = objectMapper.readTree(input);
             body = extractRequestBody(event);
             contentLocation = extractContentLocationHeader(event);
-            owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
+            owner = "SomeUser";
             orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         } catch (Exception e) {
             e.printStackTrace();
-            objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
-                Problem.valueOf(BAD_REQUEST, e.getMessage())), failureResponseHeaders(), SC_BAD_REQUEST));
+            objectMapper.writeValue(output,
+                new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())),
+                    failureResponseHeaders(), SC_BAD_REQUEST));
             return;
         }
 
@@ -107,13 +107,13 @@ public class MainHandler implements RequestStreamHandler {
             Publication publication = convertInputToPublication(body, contentLocation, now, owner, uuid, publisherID);
 
             log(objectMapper.writeValueAsString(publication));
-            objectMapper.writeValue(output, new GatewayResponse<>(
-                objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
+            objectMapper.writeValue(output,
+                new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
         } catch (Exception e) {
             e.printStackTrace();
-            objectMapper.writeValue(output, new GatewayResponse<>(objectMapper.writeValueAsString(
-                Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())), failureResponseHeaders(),
-                SC_INTERNAL_SERVER_ERROR));
+            objectMapper.writeValue(output, new GatewayResponse<>(
+                objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
+                failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -143,21 +143,29 @@ public class MainHandler implements RequestStreamHandler {
         return dataciteConverter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
     }
 
-    private Publication convertFromCrossRef(String body, Instant now, String owner, UUID identifier,
-                                            URI publisherId) throws JsonProcessingException {
+    private Publication convertFromCrossRef(String body, Instant now, String owner, UUID identifier, URI publisherId)
+        throws JsonProcessingException {
 
         CrossRefDocument document = objectMapper.readValue(body, CrossrefApiResponse.class).getMessage();
         return crossRefConverter.toPublication(document, now, owner, identifier, publisherId);
     }
 
     private String extractContentLocationHeader(JsonNode event) {
-        Map<String, String> headers = requestHeaders(event);
-        return headers.get(HttpHeaders.CONTENT_LOCATION);
+        JsonNode headers = requestHeaders(event);
+        JsonNode contentLocation = headers.get(CONTENT_LOCATION);
+        if (contentLocation.isArray()) {
+            List<String> contentLocations = objectMapper.convertValue(contentLocation, List.class);
+            if (!contentLocations.isEmpty()) {
+                return contentLocations.get(0);
+            }
+        } else {
+            return contentLocation.textValue();
+        }
+        return null;
     }
 
-    private Map<String, String> requestHeaders(JsonNode root) {
-        JsonNode headersNode = root.get(HEADERS);
-        return (Map<String, String>) objectMapper.convertValue(headersNode, Map.class);
+    private JsonNode requestHeaders(JsonNode root) {
+        return root.get(HEADERS);
     }
 
     private Map<String, String> sucessResponseHeaders() {
@@ -180,13 +188,11 @@ public class MainHandler implements RequestStreamHandler {
      * @return objectMapper
      */
     public static ObjectMapper createObjectMapper() {
-        return new ObjectMapper()
-            .registerModule(new ProblemModule())
-            .registerModule(new JavaTimeModule())
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        return new ObjectMapper().registerModule(new ProblemModule()).registerModule(new JavaTimeModule())
+                                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
 
     public static void log(String message) {
