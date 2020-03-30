@@ -32,7 +32,7 @@ public class PublicationTransformer {
     }
 
     /**
-     * Constructor with paramters.
+     * Constructor with parameters.
      *
      * @param dataciteConverter dataciteConverter.
      * @param crossRefConverter crossrefConverter.
