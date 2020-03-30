@@ -16,15 +16,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import no.unit.nva.model.Publication;
 import org.apache.http.entity.ContentType;
 import org.zalando.problem.Problem;
@@ -41,9 +38,8 @@ public class MainHandler implements RequestStreamHandler {
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable not set: ";
 
     private final transient ObjectMapper objectMapper;
-    private final transient DataciteResponseConverter dataciteConverter;
-    private final CrossRefConverter crossRefConverter;
     private final transient String allowedOrigin;
+    private final PublicationTransformer publicationTransformer;
 
     @JacocoGenerated
     public MainHandler() {
@@ -61,8 +57,8 @@ public class MainHandler implements RequestStreamHandler {
     public MainHandler(ObjectMapper objectMapper, DataciteResponseConverter dataciteConverter,
                        CrossRefConverter crossRefConverter, Environment environment) {
         this.objectMapper = objectMapper;
-        this.dataciteConverter = dataciteConverter;
-        this.crossRefConverter = crossRefConverter;
+        this.publicationTransformer = new PublicationTransformer(dataciteConverter, crossRefConverter,
+            createObjectMapper());
         this.allowedOrigin = environment.get(ALLOWED_ORIGIN).orElseThrow(
             () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
     }
@@ -73,8 +69,7 @@ public class MainHandler implements RequestStreamHandler {
         String body;
         String contentLocation;
         try {
-            String result = new BufferedReader(new InputStreamReader(input)).lines().collect(Collectors.joining("\n"));
-            event = objectMapper.readTree(result);
+            event = objectMapper.readTree(input);
             body = extractRequestBody(event);
             contentLocation = extractContentLocationHeader(event);
         } catch (Exception e) {
@@ -86,9 +81,7 @@ public class MainHandler implements RequestStreamHandler {
         }
 
         try {
-            PublicationTransformer transformer = new PublicationTransformer(dataciteConverter, crossRefConverter,
-                createObjectMapper());
-            Publication publication = transformer.transformPublication(event, body, contentLocation);
+            Publication publication = publicationTransformer.transformPublication(event, body, contentLocation);
             log(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output,
                 new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
