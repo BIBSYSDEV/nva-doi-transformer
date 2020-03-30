@@ -9,6 +9,7 @@ import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -40,6 +41,7 @@ public class MainHandler implements RequestStreamHandler {
     private final transient ObjectMapper objectMapper;
     private final transient String allowedOrigin;
     private final PublicationTransformer publicationTransformer;
+    private LambdaLogger logger;
 
     @JacocoGenerated
     public MainHandler() {
@@ -65,6 +67,8 @@ public class MainHandler implements RequestStreamHandler {
 
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+        init(context);
+        logger.log("This is a test message testing logging. Phase 1. Phase 2 is to add log4j2.xml configuration");
         JsonNode event;
         String body;
         String contentLocation;
@@ -91,6 +95,10 @@ public class MainHandler implements RequestStreamHandler {
                 objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
                 failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
         }
+    }
+
+    private void init(Context context) {
+        logger = context.getLogger();
     }
 
     private String extractRequestBody(JsonNode event) {

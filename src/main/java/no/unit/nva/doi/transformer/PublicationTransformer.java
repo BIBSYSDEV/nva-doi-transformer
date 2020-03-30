@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,9 +54,11 @@ public class PublicationTransformer {
      * @param contentLocation crossref or datacite.
      * @return a Publication.
      * @throws JsonProcessingException when cannot process json.
-     */
+     * @throws MisingClaimException    when the event does not contain claims
+     * @throws URISyntaxException      when URI is invalid
+     **/
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
-        throws JsonProcessingException, MisingClaimException {
+        throws JsonProcessingException, MisingClaimException, URISyntaxException {
         String owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
         String orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         UUID uuid = UUID.randomUUID();
@@ -65,7 +68,8 @@ public class PublicationTransformer {
     }
 
     protected Publication convertInputToPublication(String body, String contentLocation, Instant now, String owner,
-                                                    UUID identifier, URI publisher) throws JsonProcessingException {
+                                                    UUID identifier, URI publisher)
+        throws JsonProcessingException, URISyntaxException {
 
         MetadataLocation metadataLocation = MetadataLocation.lookup(contentLocation);
         if (metadataLocation.equals(MetadataLocation.CROSSREF)) {
@@ -76,7 +80,7 @@ public class PublicationTransformer {
     }
 
     private Publication convertFromDatacite(String body, Instant now, String owner, UUID uuid, URI publisherId)
-        throws JsonProcessingException {
+        throws JsonProcessingException, URISyntaxException {
         DataciteResponse dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
         return dataciteConverter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
     }

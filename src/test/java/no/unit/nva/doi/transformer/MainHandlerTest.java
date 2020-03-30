@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -36,6 +37,7 @@ import no.bibsys.aws.tools.IoUtils;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
+import no.unit.nva.doi.transformer.utils.TestLambdaLogger;
 import no.unit.nva.model.Publication;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
@@ -111,9 +113,9 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Test
-    public void convertInputToPublicationShouldParseCrossrefWhenMetadataLocationIsCrossRef() throws IOException {
+    public void convertInputToPublicationShouldParseCrossrefWhenMetadataLocationIsCrossRef()
+        throws IOException, URISyntaxException {
 
-        MainHandlerWithAttachedOutputStream mainHandlerWithOutput = new MainHandlerWithAttachedOutputStream();
         PublicationTransformer publicationTransformer = new PublicationTransformer();
         String jsonString = IoUtils.resourceAsString(Paths.get(SAMPLE_CROSSREF_FILE));
         Instant now = Instant.now();
@@ -127,7 +129,8 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Test
-    public void convertInputToPublicationShouldParseDataciteWhenMetadataLocationIsDatacite() throws IOException {
+    public void convertInputToPublicationShouldParseDataciteWhenMetadataLocationIsDatacite()
+        throws IOException, URISyntaxException {
 
         PublicationTransformer transformer = new PublicationTransformer();
         String jsonString = IoUtils.resourceAsString(Paths.get(DATACITE_RESPONSE_JSON));
@@ -170,7 +173,9 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     private Context getMockContext() {
-        return mock(Context.class);
+        Context context = mock(Context.class);
+        when(context.getLogger()).thenReturn(new TestLambdaLogger());
+        return context;
     }
 
     private InputStream inputStream() throws IOException {
