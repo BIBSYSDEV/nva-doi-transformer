@@ -2,6 +2,9 @@ package no.unit.nva.doi.transformer.utils;
 
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 
+/**
+ * Class for testing log messages.
+ */
 public class TestLambdaLogger implements LambdaLogger {
 
     StringBuilder buffer = new StringBuilder();
