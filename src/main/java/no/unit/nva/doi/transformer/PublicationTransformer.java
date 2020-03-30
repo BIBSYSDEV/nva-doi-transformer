@@ -1,7 +1,5 @@
 package no.unit.nva.doi.transformer;
 
-import static no.unit.nva.model.util.OrgNumberMapper.UNIT_ORG_NUMBER;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +7,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import no.unit.nva.doi.transformer.excpetions.MisingClaimException;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
@@ -56,7 +55,7 @@ public class PublicationTransformer {
      * @throws JsonProcessingException when cannot process json.
      */
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
-        throws JsonProcessingException {
+        throws JsonProcessingException, MisingClaimException {
         String owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
         String orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         UUID uuid = UUID.randomUUID();
@@ -89,9 +88,9 @@ public class PublicationTransformer {
         return crossRefConverter.toPublication(document, now, owner, identifier, publisherId);
     }
 
-    private String getClaimValueFromRequestContext(JsonNode event, String claimName) {
+    private String getClaimValueFromRequestContext(JsonNode event, String claimName) throws MisingClaimException {
         return Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS + claimName).textValue())
-                       .orElse(UNIT_ORG_NUMBER);
+                       .orElseThrow(() -> new MisingClaimException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
     }
 
     private URI toPublisherId(String orgNumber) {
