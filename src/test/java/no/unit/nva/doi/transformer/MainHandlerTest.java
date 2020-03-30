@@ -11,7 +11,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -40,7 +39,6 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
-
 import org.junit.Assert;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,16 +53,18 @@ public class MainHandlerTest extends ConversionTest {
     public static final String DATACITE_RESPONSE_JSON = "datacite_response.json";
 
     private ObjectMapper objectMapper = MainHandler.createObjectMapper();
-    public  EnvironmentVariables environmentVariables;
+    public EnvironmentVariables environmentVariables;
     private Environment environment;
 
+    /**
+     * setup.
+     */
     @BeforeEach
     public void setUp() {
         environmentVariables = new EnvironmentVariables();
         environment = Mockito.mock(Environment.class);
         Mockito.when(environment.get("ALLOWED_ORIGIN")).thenReturn(Optional.of("*"));
     }
-
 
     @Test
     public void testOkResponse() throws IOException {
@@ -114,10 +114,11 @@ public class MainHandlerTest extends ConversionTest {
     public void convertInputToPublicationShouldParseCrossrefWhenMetadataLocationIsCrossRef() throws IOException {
 
         MainHandlerWithAttachedOutputStream mainHandlerWithOutput = new MainHandlerWithAttachedOutputStream();
+        PublicationTransformer publicationTransformer = new PublicationTransformer();
         String jsonString = IoUtils.resourceAsString(Paths.get(SAMPLE_CROSSREF_FILE));
         Instant now = Instant.now();
 
-        Publication actualPublication = mainHandlerWithOutput.mainHandler
+        Publication actualPublication = publicationTransformer
             .convertInputToPublication(jsonString, MetadataLocation.CROSSREF.getValue(), now, SOME_OWNER, SOME_UUID,
                 SOME_PUBLISHER_URI);
 
@@ -128,11 +129,11 @@ public class MainHandlerTest extends ConversionTest {
     @Test
     public void convertInputToPublicationShouldParseDataciteWhenMetadataLocationIsDatacite() throws IOException {
 
-        MainHandlerWithAttachedOutputStream mainHandlerWithOutput = new MainHandlerWithAttachedOutputStream();
+        PublicationTransformer transformer = new PublicationTransformer();
         String jsonString = IoUtils.resourceAsString(Paths.get(DATACITE_RESPONSE_JSON));
         Instant now = Instant.now();
 
-        Publication actualPublication = mainHandlerWithOutput.mainHandler
+        Publication actualPublication = transformer
             .convertInputToPublication(jsonString, MetadataLocation.DATACITE.getValue(), now, SOME_OWNER, SOME_UUID,
                 SOME_PUBLISHER_URI);
 
