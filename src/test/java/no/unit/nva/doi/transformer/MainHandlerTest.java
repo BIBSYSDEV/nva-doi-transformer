@@ -37,6 +37,7 @@ import no.bibsys.aws.tools.IoUtils;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
+import no.unit.nva.doi.transformer.utils.TestLambdaLogger;
 import no.unit.nva.model.Publication;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
@@ -115,7 +116,6 @@ public class MainHandlerTest extends ConversionTest {
     public void convertInputToPublicationShouldParseCrossrefWhenMetadataLocationIsCrossRef()
         throws IOException, URISyntaxException {
 
-        MainHandlerWithAttachedOutputStream mainHandlerWithOutput = new MainHandlerWithAttachedOutputStream();
         PublicationTransformer publicationTransformer = new PublicationTransformer();
         String jsonString = IoUtils.resourceAsString(Paths.get(SAMPLE_CROSSREF_FILE));
         Instant now = Instant.now();
@@ -173,7 +173,9 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     private Context getMockContext() {
-        return mock(Context.class);
+        Context context = mock(Context.class);
+        when(context.getLogger()).thenReturn(new TestLambdaLogger());
+        return context;
     }
 
     private InputStream inputStream() throws IOException {

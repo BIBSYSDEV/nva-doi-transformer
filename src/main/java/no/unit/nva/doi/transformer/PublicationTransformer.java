@@ -57,6 +57,7 @@ public class PublicationTransformer {
      * @throws MisingClaimException    when request does not have the required claims.
      * @throws URISyntaxException      when the input contains invalid URIs
      */
+
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
         throws JsonProcessingException, MisingClaimException, URISyntaxException {
         String owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
