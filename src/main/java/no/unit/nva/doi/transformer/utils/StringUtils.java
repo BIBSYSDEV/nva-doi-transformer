@@ -9,12 +9,24 @@ public final class StringUtils {
     public static final String NOT_DIGIT = "\\D";
     public static final String DOUBLE_WHITESPACE = "\\s\\s";
 
+    /**
+     * Removes XML-style tags from String.
+     *
+     * @param input A string input with or without XML tags.
+     * @return A string without XML tags
+     */
     public static String removeXmlTags(String input) {
         String noXmlTags = input.replaceAll(XML_TAG_REGEX_GREEDY_MATCHER, SPACE);
         String removeMultipleWhitespaces = removeMultipleWhiteSpaces(noXmlTags);
         return removeMultipleWhitespaces.trim();
     }
 
+    /**
+     * Replaces all consecutive whitespaces with a single space.
+     *
+     * @param input A string with or without consecutive whitespaces.
+     * @return A string without consecutive whitespaces.
+     */
     public static String removeMultipleWhiteSpaces(String input) {
         String buffer = input.trim();
         String result = buffer.replaceAll(DOUBLE_WHITESPACE, SPACE);
@@ -25,6 +37,12 @@ public final class StringUtils {
         return result;
     }
 
+    /**
+     * Parses "pages" strings to Pages object.
+     *
+     * @param pages A "pages" string
+     * @return A {@link Pages} object with the respective pages.
+     */
     public static Pages parsePage(String pages) {
         if (pages == null) {
             return null;

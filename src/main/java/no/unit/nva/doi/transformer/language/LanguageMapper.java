@@ -34,11 +34,11 @@ public final class LanguageMapper {
      * @return a language URI if this mapping is available or an empty {@link Optional} if there is no such mapping.
      */
     public static Optional<URI> getUriOpt(String iso6393) {
-        if(iso6393!=null) {
+        if (iso6393 != null) {
             return Optional.ofNullable(ISO2URI.get(iso6393));
-        }
-        else
+        } else {
             return Optional.empty();
+        }
     }
 
     /**

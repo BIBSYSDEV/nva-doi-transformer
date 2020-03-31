@@ -25,6 +25,38 @@ public class StringUtilsTest {
         String pageString = String.join(delimiter, begins, ends);
         Pages expected = new Pages.Builder().withBegins(begins).withEnds(ends).build();
         Pages actual = StringUtils.parsePage(pageString);
-        assertThat(actual,is(equalTo(expected)));
+        assertThat(actual, is(equalTo(expected)));
+    }
+
+    @Test
+    public void parsePageShouldReturnABeginWithoutAnEndPageForPagesBeingASingleNumber() {
+        String pagesString = "12";
+        Pages expected = new Pages.Builder().withBegins(pagesString).withEnds(null).build();
+        Pages actual = StringUtils.parsePage(pagesString);
+        assertThat(actual, is(equalTo(expected)));
+    }
+
+    @Test
+    public void parsePageShouldReturnABeginAndEndPageForPagesThatHaveAPrefix() {
+        String prefix = "p.";
+        String begins = "12";
+        String ends = "34";
+        String delimiter = "-";
+        String pageString = prefix + begins + delimiter + ends;
+        Pages expected = new Pages.Builder().withBegins(begins).withEnds(ends).build();
+        Pages actual = StringUtils.parsePage(pageString);
+        assertThat(actual, is(equalTo(expected)));
+    }
+
+    @Test
+    public void parsePageShouldReturnABeginAndEndPageForPagesThatHaveAPrefixWordWithSpace() {
+        String prefix = "pages ";
+        String begins = "12";
+        String ends = "34";
+        String delimiter = "-";
+        String pageString = prefix + begins + delimiter + ends;
+        Pages expected = new Pages.Builder().withBegins(begins).withEnds(ends).build();
+        Pages actual = StringUtils.parsePage(pageString);
+        assertThat(actual, is(equalTo(expected)));
     }
 }

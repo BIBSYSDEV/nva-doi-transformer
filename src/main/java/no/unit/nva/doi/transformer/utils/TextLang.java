@@ -4,12 +4,12 @@ import java.net.URI;
 
 public class TextLang {
 
-    private String text;
-    private URI language;
+    private final String text;
+    private final URI language;
 
     public TextLang(String text, URI language) {
-        this.text=text;
-        this.language=language;
+        this.text = text;
+        this.language = language;
     }
 
     public String getText() {

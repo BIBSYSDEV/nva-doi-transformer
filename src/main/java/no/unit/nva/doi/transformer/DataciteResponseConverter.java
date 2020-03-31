@@ -83,8 +83,6 @@ public class DataciteResponseConverter extends AbstractConverter {
             .build();
     }
 
-
-
     private Map<String, String> createAlternativeTitles(DataciteResponse dataciteResponse) {
         String mainTitle = getMainTitle(dataciteResponse.getTitles());
         return dataciteResponse.getTitles().stream().filter(t -> !t.getTitle().equals(mainTitle))
@@ -113,13 +111,9 @@ public class DataciteResponseConverter extends AbstractConverter {
         return null;
     }
 
-
-
     private String uriToString(SimpleEntry<String, URI> e) {
         return e.getValue().toString();
     }
-
-
 
     private PublicationSubtype createPublicationSubType() {
         return null;
@@ -128,7 +122,6 @@ public class DataciteResponseConverter extends AbstractConverter {
     private PublicationType createPublicationType(DataciteResponse dataciteResponse) {
         return PublicationType.lookup(dataciteResponse.getTypes().getResourceType());
     }
-
 
     private Instant createPublishedDate() {
         return null;

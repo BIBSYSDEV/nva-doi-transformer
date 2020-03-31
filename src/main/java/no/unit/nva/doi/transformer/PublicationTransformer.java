@@ -54,8 +54,8 @@ public class PublicationTransformer {
      * @param contentLocation crossref or datacite.
      * @return a Publication.
      * @throws JsonProcessingException when cannot process json.
-     * @throws MisingClaimException when request does not have the required claims.
-     * @throws URISyntaxException when the input contains invalid URIs
+     * @throws MisingClaimException    when request does not have the required claims.
+     * @throws URISyntaxException      when the input contains invalid URIs
      */
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
         throws JsonProcessingException, MisingClaimException, URISyntaxException {

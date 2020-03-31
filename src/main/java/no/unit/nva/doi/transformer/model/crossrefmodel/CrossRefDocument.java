@@ -369,6 +369,7 @@ public class CrossRefDocument {
     public void setScore(float score) {
         this.score = score;
     }
+
     public String getAbstractText() {
         return abstractText;
     }

@@ -37,11 +37,14 @@ public class CrossRefConverter extends AbstractConverter {
 
     public static final String NOT_A_JOURNAL_ARTICLE_ERROR = "The entry is not a journal article";
     public static final String INVALID_ENTRY_ERROR = "The entry is empty or has no title";
+    public static final URI CROSSEF_URI = URI.create("https://www.crossref.org/");
+    public static final String CROSSREF = "crossref";
     // The "journal" publication type in the crossref entries
     public static String JOURNAL_ARTICLE = "journal-article";
     private final SimpleLanguageDetector languageDetector;
 
     public CrossRefConverter() {
+        super();
         this.languageDetector = new SimpleLanguageDetector();
     }
 
@@ -54,7 +57,10 @@ public class CrossRefConverter extends AbstractConverter {
      * @param identifier the publication identifier.
      * @return a internal representation of the publication.
      */
-    public Publication toPublication(CrossRefDocument document, Instant now, String owner, UUID identifier,
+    public Publication toPublication(CrossRefDocument document,
+                                     Instant now,
+                                     String owner,
+                                     UUID identifier,
                                      URI publisherId) {
 
         if (document != null && hasTitle(document)) {
@@ -86,11 +92,34 @@ public class CrossRefConverter extends AbstractConverter {
                     .withTags(extractTags())
                     .withDescription(extractDescription())
                     .withReference(extractReference(document))
+                    .withMetadataSource(extractMetadataSource(document))
                     .build())
-
                 .build();
         }
         throw new IllegalArgumentException(INVALID_ENTRY_ERROR);
+    }
+
+    private URI extractMetadataSource(CrossRefDocument document) {
+        if (containsCrossrefAsSource(document)) {
+            return CROSSEF_URI;
+        } else {
+            return tryCreatingUri(document.getSource()).orElse(null);
+        }
+    }
+
+    private boolean containsCrossrefAsSource(CrossRefDocument document) {
+        return Optional.ofNullable(document.getSource())
+                       .map(str -> str.toLowerCase(Locale.getDefault()))
+                       .filter(str -> str.contains(CROSSREF))
+                       .isPresent();
+    }
+
+    private Optional<URI> tryCreatingUri(String source) {
+        try {
+            return Optional.of(URI.create(source));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     private Reference extractReference(CrossRefDocument document) {
@@ -146,13 +175,6 @@ public class CrossRefConverter extends AbstractConverter {
     private PublicationSubtype extractPublicationSubtype() {
         return null;
     }
-
-    
-    /*
-
-    private Reference reference;
-    private URI metadataSource;
-     */
 
     private boolean hasTitle(CrossRefDocument document) {
         return document.getTitle() != null && !document.getTitle().isEmpty();
