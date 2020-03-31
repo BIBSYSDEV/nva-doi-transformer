@@ -46,7 +46,7 @@ public class CrossRefDocument {
     @JsonProperty("member")
     private String member;
     @JsonProperty("reference")
-    private List<Reference> reference;
+    private List<CrossRefReference> reference;
     @JsonProperty("container-title")
     private List<String> containerTitle;
     @JsonProperty("original-title")
@@ -79,6 +79,8 @@ public class CrossRefDocument {
     private List<String> issn;
     @JsonProperty("issn-type")
     private List<Issn> issnType;
+    @JsonProperty("abstract")
+    private String abstractText;
 
     public void setIndexed(CrossrefDate indexed) {
         this.indexed = indexed;
@@ -356,16 +358,23 @@ public class CrossRefDocument {
         this.member = member;
     }
 
-    public List<Reference> getReference() {
+    public List<CrossRefReference> getReference() {
         return reference;
     }
 
-    public void setReference(List<Reference> reference) {
+    public void setReference(List<CrossRefReference> reference) {
         this.reference = reference;
     }
 
     public void setScore(float score) {
         this.score = score;
+    }
+    public String getAbstractText() {
+        return abstractText;
+    }
+
+    public void setAbstractText(String abstractText) {
+        this.abstractText = abstractText;
     }
 }
 

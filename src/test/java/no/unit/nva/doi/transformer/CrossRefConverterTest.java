@@ -4,20 +4,31 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import no.bibsys.aws.tools.IoUtils;
+import no.unit.nva.doi.transformer.language.LanguageMapper;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
+import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.Publication;
@@ -45,10 +56,14 @@ public class CrossRefConverterTest extends ConversionTest {
     private static final String OWNER = "TheOwner";
     private static final String INVALID_ORDINAL = "invalid ordinal";
     public static final String SECOND_AUTHOR = "second";
+    public static final String CROSSREF_WITH_ABSTRACT_JSON = "crossrefWithAbstract.json";
+    private static final String PROCESSED_ABSTRACT = "processedAbstract.txt";
+    public static final String ENG_ISO_639_3 = "eng";
 
     private CrossRefDocument sampleInputDocument = createSampleDocument();
     private final CrossRefConverter converter = new CrossRefConverter();
     private Publication samplePublication;
+    private static ObjectMapper objectMapper = MainHandler.createObjectMapper();
 
     @BeforeEach
     public void init() {
@@ -104,7 +119,7 @@ public class CrossRefConverterTest extends ConversionTest {
     @DisplayName("toPublication sets PublicationType to JournalArticle when the input has the tag \"journal-article\"")
     public void toPublicationSetsPublicationTypeToJournalArticleWhenTheInputHasTheTagJournalArticle() {
         assertThat(samplePublication.getEntityDescription().getPublicationType(),
-                   is(equalTo(PublicationType.JOURNAL_ARTICLE)));
+            is(equalTo(PublicationType.JOURNAL_ARTICLE)));
     }
 
     @Test
@@ -147,6 +162,28 @@ public class CrossRefConverterTest extends ConversionTest {
         int actual = toPublication(sampleInputDocument).getEntityDescription().getContributors().stream().findFirst()
                                                        .get().getSequence();
         assertThat(actual, is(equalTo(expected)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets abstract when input has non empty abstract")
+    public void toPublicationSetsAbstractWhenInputHasNonEmptyAbstract() throws IOException {
+        String json = IoUtils.resourceAsString(Path.of(CROSSREF_WITH_ABSTRACT_JSON));
+        CrossRefDocument docWithAbstract = objectMapper.readValue(json, CrossrefApiResponse.class).getMessage();
+        String abstractText = toPublication(docWithAbstract).getEntityDescription().getAbstract();
+        assertThat(abstractText, is(not(emptyString())));
+        String expectedAbstract = IoUtils.resourceAsString(Path.of(PROCESSED_ABSTRACT));
+        assertThat(abstractText, is(equalTo(expectedAbstract)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the language to a URI when the input is an ISO639-3 entry")
+    public void toPublicationSetsTheLanguageToAUriWhenTheInputFollowsTheIso3Standard() {
+        Locale sampleLanguage = Locale.ENGLISH;
+        sampleInputDocument.setLanguage(sampleLanguage.getISO3Language());
+        URI actualLanguage = toPublication(sampleInputDocument).getEntityDescription().getLanguage();
+        URI expectedLanguage = LanguageMapper.getURI(ENG_ISO_639_3);
+        assertThat(actualLanguage, is(equalTo(expectedLanguage)));
+        assertThat(actualLanguage, is(notNullValue()));
     }
 
     private Publication toPublication(CrossRefDocument doc) {

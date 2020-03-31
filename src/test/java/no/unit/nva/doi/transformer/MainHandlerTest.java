@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -93,7 +94,7 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Test
-    public void testInternalServerErrorResponse() throws IOException {
+    public void testInternalServerErrorResponse() throws IOException, URISyntaxException {
         DataciteResponseConverter dataciteConverter = mock(DataciteResponseConverter.class);
         CrossRefConverter crossRefConverter = new CrossRefConverter();
 
@@ -111,7 +112,8 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Test
-    public void convertInputToPublicationShouldParseCrossrefWhenMetadataLocationIsCrossRef() throws IOException {
+    public void convertInputToPublicationShouldParseCrossrefWhenMetadataLocationIsCrossRef()
+        throws IOException, URISyntaxException {
 
         MainHandlerWithAttachedOutputStream mainHandlerWithOutput = new MainHandlerWithAttachedOutputStream();
         PublicationTransformer publicationTransformer = new PublicationTransformer();
@@ -127,7 +129,8 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Test
-    public void convertInputToPublicationShouldParseDataciteWhenMetadataLocationIsDatacite() throws IOException {
+    public void convertInputToPublicationShouldParseDataciteWhenMetadataLocationIsDatacite()
+        throws IOException, URISyntaxException {
 
         PublicationTransformer transformer = new PublicationTransformer();
         String jsonString = IoUtils.resourceAsString(Paths.get(DATACITE_RESPONSE_JSON));
@@ -164,7 +167,7 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     private Publication createPublicationUsingDataciteConverterDirectly(String jsonString, Instant now)
-        throws com.fasterxml.jackson.core.JsonProcessingException {
+        throws com.fasterxml.jackson.core.JsonProcessingException, URISyntaxException {
         DataciteResponse doc = objectMapper.readValue(jsonString, DataciteResponse.class);
         return new DataciteResponseConverter().toPublication(doc, now, SOME_UUID, SOME_OWNER, SOME_PUBLISHER_URI);
     }

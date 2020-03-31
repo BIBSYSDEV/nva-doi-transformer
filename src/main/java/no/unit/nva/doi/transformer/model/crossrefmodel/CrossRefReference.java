@@ -2,7 +2,7 @@ package no.unit.nva.doi.transformer.model.crossrefmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Reference {
+public class CrossRefReference {
 
     @JsonProperty("key")
     private String key;

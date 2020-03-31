@@ -13,8 +13,8 @@ public enum DateType {
     WITHDRAWN,
     OTHER;
 
-
-    public String toString(){
+    @Override
+    public String toString() {
         return this.name();
     }
 }

@@ -3,16 +3,18 @@ package no.unit.nva.doi.transformer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import no.unit.nva.doi.transformer.model.internal.external.DataciteAffiliation;
+import no.unit.nva.doi.transformer.language.LanguageDetector;
+import no.unit.nva.doi.transformer.language.SimpleLanguageDetector;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteTitle;
-import no.unit.nva.doi.transformer.model.internal.external.DateType;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
 import no.unit.nva.model.Identity;
@@ -20,10 +22,23 @@ import no.unit.nva.model.License;
 import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
+import no.unit.nva.model.PublicationSubtype;
 import no.unit.nva.model.PublicationType;
+import no.unit.nva.model.Reference;
 import no.unit.nva.model.ResearchProject;
 
 public class DataciteResponseConverter extends AbstractConverter {
+
+    private final transient LanguageDetector languageDetector;
+
+    public DataciteResponseConverter() {
+        this(new SimpleLanguageDetector());
+    }
+
+    public DataciteResponseConverter(LanguageDetector languageDetector) {
+        super();
+        this.languageDetector = languageDetector;
+    }
 
     /**
      * Convert Datacite response data to NVA Publication.
@@ -32,41 +47,102 @@ public class DataciteResponseConverter extends AbstractConverter {
      * @param identifier       identifier
      * @param owner            owner
      * @return publication
+     * @throws URISyntaxException when dataciteResponse contains invalid URIs
      */
     public Publication toPublication(DataciteResponse dataciteResponse, Instant now, UUID identifier, String owner,
-                                     URI publisherId
-    ) throws URISyntaxException {
+                                     URI publisherId) throws URISyntaxException {
 
         return new Publication.Builder()
             .withCreatedDate(now)
             .withModifiedDate(now)
+            .withPublishedDate(createPublishedDate())
             .withOwner(owner)
             .withPublisher(toPublisher(publisherId))
             .withIdentifier(identifier)
             .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
-            .withHandle(createHandle(dataciteResponse))
+            .withHandle(createHandle())
             .withLink(createLink(dataciteResponse))
-            .withIndexedDate(createIndexedDate(dataciteResponse))
-            .withLicense(createLicence(dataciteResponse))
-            .withProject(createProject(dataciteResponse))
-            .withEntityDescription(new EntityDescription.Builder()
-                .withContributors(toContributors(dataciteResponse.getCreators()))
-                .withDate(toDate(dataciteResponse.getPublicationYear()))
-                .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
-                .withPublicationType(PublicationType.lookup(dataciteResponse.getTypes().getResourceType()))
-                .build())
+            .withIndexedDate(createIndexedDate())
+            .withLicense(createLicence())
+            .withProject(createProject())
+            .withEntityDescription(
+                new EntityDescription.Builder()
+                    .withPublicationType(createPublicationType(dataciteResponse))
+                    .withContributors(toContributors(dataciteResponse.getCreators()))
+                    .withDate(toDate(dataciteResponse.getPublicationYear()))
+                    .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
+                    .withAbstract(createAbstract())
+                    .withAlternativeTitles(createAlternativeTitles(dataciteResponse))
+                    .withPublicationType(createPublicationType(dataciteResponse))
+                    .withPublicationSubtype(createPublicationSubType())
+                    .withLanguage(createLanguage())
+                    .withReference(createReference())
+                    .withTags(createTags())
+                    .withDescription(createDescription())
+                    .build())
             .build();
     }
 
-    private ResearchProject createProject(DataciteResponse dataciteResponse) {
+
+
+    private Map<String, String> createAlternativeTitles(DataciteResponse dataciteResponse) {
+        String mainTitle = getMainTitle(dataciteResponse.getTitles());
+        return dataciteResponse.getTitles().stream().filter(t -> !t.getTitle().equals(mainTitle))
+                               .map(this::extractTitleLangPair)
+                               .map(e -> new SimpleEntry<>(e.getKey(), uriToString(e)))
+                               .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+    }
+
+    private String createDescription() {
         return null;
     }
 
-    private License createLicence(DataciteResponse dataciteResponse) {
+    private List<String> createTags() {
         return null;
     }
 
-    private Instant createIndexedDate(DataciteResponse dataciteResponse) {
+    private Reference createReference() {
+        return null;
+    }
+
+    private String createAbstract() {
+        return null;
+    }
+
+    private URI createLanguage() {
+        return null;
+    }
+
+
+
+    private String uriToString(SimpleEntry<String, URI> e) {
+        return e.getValue().toString();
+    }
+
+
+
+    private PublicationSubtype createPublicationSubType() {
+        return null;
+    }
+
+    private PublicationType createPublicationType(DataciteResponse dataciteResponse) {
+        return PublicationType.lookup(dataciteResponse.getTypes().getResourceType());
+    }
+
+
+    private Instant createPublishedDate() {
+        return null;
+    }
+
+    private ResearchProject createProject() {
+        return null;
+    }
+
+    private License createLicence() {
+        return null;
+    }
+
+    private Instant createIndexedDate() {
         return null;
     }
 
@@ -74,7 +150,7 @@ public class DataciteResponseConverter extends AbstractConverter {
         return dataciteResponse.getUrl().toURI();
     }
 
-    private URI createHandle(DataciteResponse dataciteResponse) {
+    private URI createHandle() {
         return null;
     }
 
@@ -84,26 +160,18 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     protected List<Contributor> toContributors(List<DataciteCreator> creators) {
-        AtomicInteger counter = new AtomicInteger();
-        return creators
-            .stream()
-            .map(dataciteCreator -> toCreator(dataciteCreator, counter.getAndIncrement()))
-            .collect(Collectors.toList());
+        return IntStream.range(0, creators.size()).mapToObj(i -> toCreator(creators.get(i), i + 1)).collect(
+            Collectors.toList());
     }
 
     protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
-        return new Contributor.Builder()
-            .withIdentity(new Identity.Builder()
-                .withName(toName(dataciteCreator))
-                .withNameType(NameType.lookup(dataciteCreator.getNameType()))
-                .build()
-            )
-            .withAffiliations(toAffilitations(dataciteCreator.getAffiliation()))
-            .withSequence(sequence)
-            .build();
+        return new Contributor.Builder().withIdentity(
+            new Identity.Builder().withName(toName(dataciteCreator)).withNameType(
+                NameType.lookup(dataciteCreator.getNameType())).build()).withAffiliations(
+            toAffilitations()).withSequence(sequence).build();
     }
 
-    protected List<Organization> toAffilitations(List<DataciteAffiliation> affiliations) {
+    protected List<Organization> toAffilitations() {
         return null;
     }
 
@@ -113,5 +181,9 @@ public class DataciteResponseConverter extends AbstractConverter {
         } else {
             return super.toName(dataciteCreator.getFamilyName(), dataciteCreator.getGivenName());
         }
+    }
+
+    private SimpleEntry<String, URI> extractTitleLangPair(DataciteTitle title) {
+        return new SimpleEntry<>(title.getTitle(), languageDetector.detectLang(title.getTitle()));
     }
 }
