@@ -41,11 +41,9 @@ public class CrossRefConverter extends AbstractConverter {
     public static final String CROSSREF = "crossref";
     // The "journal" publication type in the crossref entries
     public static String JOURNAL_ARTICLE = "journal-article";
-    private final SimpleLanguageDetector languageDetector;
 
     public CrossRefConverter() {
-        super();
-        this.languageDetector = new SimpleLanguageDetector();
+        super(new SimpleLanguageDetector());
     }
 
     /**
@@ -168,7 +166,7 @@ public class CrossRefConverter extends AbstractConverter {
         String mainTitle = extractTitle(document);
         return document.getTitle().stream()
                        .filter(title -> !title.equals(mainTitle))
-                       .map(title -> new TextLang(title, languageDetector.detectLang(title)))
+                       .map(this::detectLanguage)
                        .collect(Collectors.toConcurrentMap(TextLang::getText, e -> e.getLanguage().toString()));
     }
 

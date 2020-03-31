@@ -14,13 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundException;
 
 public final class LanguageMapper {
 
     public static final String FIELD_DELIMITER = "\t";
-    private static final Map<String, URI> ISO2URI = isoToURI(Path.of("languages", "lexvo-iso639-3.tsv"));
+    private static final Map<String, URI> ISO2URI = isoToUri(Path.of("languages", "lexvo-iso639-3.tsv"));
+    private static final Map<URI, String> URI2ISO = uriToIso(Path.of("languages", "lexvo-iso639-3.tsv"));
     public static final String ERROR_READING_FILE = "Could not read resource file:";
     public static final String URI_NOT_FOUND_ERROR = "Could not find a URI for the language:";
 
@@ -42,17 +44,45 @@ public final class LanguageMapper {
     }
 
     /**
+     * Returns an ISO639-3 code for the specified URI.
+     *
+     * @param uri A language URI
+     * @return An ISO639-3 code or empty optional if there is no mapping for the input URI
+     */
+    public static Optional<String> getIsoOpt(URI uri) {
+        if (uri != null) {
+            return Optional.ofNullable(URI2ISO.get(uri));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    /**
      * Map an ISO639-3 language identifier to a Language URI.
      *
      * @param iso6393 An ISO639-3 identifier.
      * @return a language URI if this mapping is available or an empty {@link Optional} if there is no such mapping.
      * @throws LanguageUriNotFoundException when there is no mapping between the input string the available mappings.
      */
-    public static URI getURI(String iso6393) {
+    public static URI getUri(String iso6393) throws LanguageUriNotFoundException {
         if (!ISO2URI.containsKey(iso6393)) {
             throw new LanguageUriNotFoundException(URI_NOT_FOUND_ERROR + iso6393);
         }
         return ISO2URI.get(iso6393);
+    }
+
+    /**
+     * Map an Language URI to an ISO639-3 string.
+     *
+     * @param langUri A language URI from https://www.lexvo.org/.
+     * @return an ISO639-3 language code
+     * @throws LanguageUriNotFoundException when there is no mapping for the specified URI
+     */
+    public static URI getISO(URI langUri) throws LanguageUriNotFoundException {
+        if (!URI2ISO.containsKey(langUri)) {
+            throw new LanguageUriNotFoundException(URI_NOT_FOUND_ERROR + langUri);
+        }
+        return ISO2URI.get(langUri);
     }
 
     public static Collection<URI> languageUris() {
@@ -61,7 +91,7 @@ public final class LanguageMapper {
 
     // For some reason it does not like the mapping to SimpleEntry
     @SuppressWarnings("PMD.UseConcurrentHashMap")
-    private static Map<String, URI> isoToURI(Path path) {
+    private static Map<String, URI> isoToUri(Path path) {
 
         List<String> lines = linesfromResource(path);
         Map<String, URI> isoToUri = lines
@@ -72,6 +102,21 @@ public final class LanguageMapper {
             .map(e -> new ConcurrentHashMap.SimpleEntry<>(e.getKey(), URI.create(e.getValue())))
             .collect(Collectors.toConcurrentMap(SimpleEntry::getKey, SimpleEntry::getValue));
         return Collections.unmodifiableMap(isoToUri);
+    }
+
+    // For some reason it does not like the mapping to SimpleEntry
+    @SuppressWarnings("PMD.UseConcurrentHashMap")
+    private static Map<URI, String> uriToIso(Path path) {
+
+        List<String> lines = linesfromResource(path);
+        ConcurrentMap<URI, String> uriToIso = lines
+            .stream()
+            .map(line -> line.split(FIELD_DELIMITER))
+            .filter(array -> array.length >= 2)
+            .map(array -> new SimpleEntry<>(array[1], array[0]))
+            .map(e -> new SimpleEntry<>(URI.create(e.getKey()), e.getValue()))
+            .collect(Collectors.toConcurrentMap(SimpleEntry::getKey, SimpleEntry::getValue));
+        return Collections.unmodifiableMap(uriToIso);
     }
 
     private static InputStream inputStreamFromResources(Path path) {

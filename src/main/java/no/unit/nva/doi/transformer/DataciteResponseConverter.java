@@ -29,15 +29,12 @@ import no.unit.nva.model.ResearchProject;
 
 public class DataciteResponseConverter extends AbstractConverter {
 
-    private final transient LanguageDetector languageDetector;
-
     public DataciteResponseConverter() {
         this(new SimpleLanguageDetector());
     }
 
     public DataciteResponseConverter(LanguageDetector languageDetector) {
-        super();
-        this.languageDetector = languageDetector;
+        super(languageDetector);
     }
 
     /**
@@ -55,25 +52,24 @@ public class DataciteResponseConverter extends AbstractConverter {
         return new Publication.Builder()
             .withCreatedDate(now)
             .withModifiedDate(now)
-            .withPublishedDate(createPublishedDate())
+            .withPublishedDate(extractPublishedDate())
             .withOwner(owner)
             .withPublisher(toPublisher(publisherId))
             .withIdentifier(identifier)
             .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
-            .withHandle(createHandle())
-            .withLink(createLink(dataciteResponse))
-            .withIndexedDate(createIndexedDate())
-            .withLicense(createLicence())
-            .withProject(createProject())
+            .withHandle(extractHandle())
+            .withLink(extractLink(dataciteResponse))
+            .withIndexedDate(extractIndexedDate())
+            .withLicense(extractLicence())
+            .withProject(extractProject())
             .withEntityDescription(
                 new EntityDescription.Builder()
-                    .withPublicationType(createPublicationType(dataciteResponse))
                     .withContributors(toContributors(dataciteResponse.getCreators()))
                     .withDate(toDate(dataciteResponse.getPublicationYear()))
-                    .withMainTitle(getMainTitle(dataciteResponse.getTitles()))
-                    .withAbstract(createAbstract())
-                    .withAlternativeTitles(createAlternativeTitles(dataciteResponse))
-                    .withPublicationType(createPublicationType(dataciteResponse))
+                    .withMainTitle(extractMainTitle(dataciteResponse))
+                    .withAbstract(extractAbstract())
+                    .withAlternativeTitles(extractAlternativeTitles(dataciteResponse))
+                    .withPublicationType(extractPublicationType(dataciteResponse))
                     .withPublicationSubtype(createPublicationSubType())
                     .withLanguage(createLanguage())
                     .withReference(createReference())
@@ -83,11 +79,12 @@ public class DataciteResponseConverter extends AbstractConverter {
             .build();
     }
 
-    private Map<String, String> createAlternativeTitles(DataciteResponse dataciteResponse) {
-        String mainTitle = getMainTitle(dataciteResponse.getTitles());
-        return dataciteResponse.getTitles().stream().filter(t -> !t.getTitle().equals(mainTitle))
-                               .map(this::extractTitleLangPair)
-                               .map(e -> new SimpleEntry<>(e.getKey(), uriToString(e)))
+    private Map<String, String> extractAlternativeTitles(DataciteResponse dataciteResponse) {
+        String mainTitle = extractMainTitle(dataciteResponse);
+        return dataciteResponse.getTitles().stream()
+                               .filter(t -> !t.getTitle().equals(mainTitle))
+                               .map(t -> detectLanguage(t.getTitle()))
+                               .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
                                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
@@ -103,7 +100,7 @@ public class DataciteResponseConverter extends AbstractConverter {
         return null;
     }
 
-    private String createAbstract() {
+    private String extractAbstract() {
         return null;
     }
 
@@ -111,44 +108,40 @@ public class DataciteResponseConverter extends AbstractConverter {
         return null;
     }
 
-    private String uriToString(SimpleEntry<String, URI> e) {
-        return e.getValue().toString();
-    }
-
     private PublicationSubtype createPublicationSubType() {
         return null;
     }
 
-    private PublicationType createPublicationType(DataciteResponse dataciteResponse) {
+    private PublicationType extractPublicationType(DataciteResponse dataciteResponse) {
         return PublicationType.lookup(dataciteResponse.getTypes().getResourceType());
     }
 
-    private Instant createPublishedDate() {
+    private Instant extractPublishedDate() {
         return null;
     }
 
-    private ResearchProject createProject() {
+    private ResearchProject extractProject() {
         return null;
     }
 
-    private License createLicence() {
+    private License extractLicence() {
         return null;
     }
 
-    private Instant createIndexedDate() {
+    private Instant extractIndexedDate() {
         return null;
     }
 
-    private URI createLink(DataciteResponse dataciteResponse) throws URISyntaxException {
+    private URI extractLink(DataciteResponse dataciteResponse) throws URISyntaxException {
         return dataciteResponse.getUrl().toURI();
     }
 
-    private URI createHandle() {
+    private URI extractHandle() {
         return null;
     }
 
-    protected String getMainTitle(List<DataciteTitle> titles) {
-        Stream<String> titleStrings = titles.stream().map(DataciteTitle::getTitle);
+    protected String extractMainTitle(DataciteResponse response) {
+        Stream<String> titleStrings = response.getTitles().stream().map(DataciteTitle::getTitle);
         return getMainTitle(titleStrings);
     }
 
@@ -174,9 +167,5 @@ public class DataciteResponseConverter extends AbstractConverter {
         } else {
             return super.toName(dataciteCreator.getFamilyName(), dataciteCreator.getGivenName());
         }
-    }
-
-    private SimpleEntry<String, URI> extractTitleLangPair(DataciteTitle title) {
-        return new SimpleEntry<>(title.getTitle(), languageDetector.detectLang(title.getTitle()));
     }
 }

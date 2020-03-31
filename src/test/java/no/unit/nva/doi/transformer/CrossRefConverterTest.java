@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import no.bibsys.aws.tools.IoUtils;
 import no.unit.nva.doi.transformer.language.LanguageMapper;
+import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundException;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
@@ -175,11 +176,12 @@ public class CrossRefConverterTest extends ConversionTest {
 
     @Test
     @DisplayName("toPublication sets the language to a URI when the input is an ISO639-3 entry")
-    public void toPublicationSetsTheLanguageToAUriWhenTheInputFollowsTheIso3Standard() {
+    public void toPublicationSetsTheLanguageToAUriWhenTheInputFollowsTheIso3Standard()
+        throws LanguageUriNotFoundException {
         Locale sampleLanguage = Locale.ENGLISH;
         sampleInputDocument.setLanguage(sampleLanguage.getISO3Language());
         URI actualLanguage = toPublication(sampleInputDocument).getEntityDescription().getLanguage();
-        URI expectedLanguage = LanguageMapper.getURI(ENG_ISO_639_3);
+        URI expectedLanguage = LanguageMapper.getUri(ENG_ISO_639_3);
         assertThat(actualLanguage, is(equalTo(expectedLanguage)));
         assertThat(actualLanguage, is(notNullValue()));
     }
