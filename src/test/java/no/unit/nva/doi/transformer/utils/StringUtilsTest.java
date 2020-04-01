@@ -5,10 +5,12 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 import no.unit.nva.model.Pages;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class StringUtilsTest {
 
+    @DisplayName("removeXMl reuturns String with not XML tags.")
     @Test
     public void removeXmlTagsReturnsStringWithNoXmlTags() {
         String input = "<xmlTag> Hello world<jap>something else</jap> hello again</xmlTag>";
@@ -18,7 +20,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void parsePageShouldReturnABeginAndEndPageForPagesSplitWithDash() {
+    @DisplayName("parsePage returns a begin and end apge for pages split with dash")
+    public void parsePageReturnsABeginAndEndPageForPagesSplitWithDash() {
         String begins = "12";
         String ends = "34";
         String delimiter = "-";
@@ -29,7 +32,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void parsePageShouldReturnABeginWithoutAnEndPageForPagesBeingASingleNumber() {
+    @DisplayName("parsePage returns a \"begin\" without an \"end\" for page string with as single number")
+    public void parsePageReturnsABeginWithoutAnEndPageForPagesBeingASingleNumber() {
         String pagesString = "12";
         Pages expected = new Pages.Builder().withBegins(pagesString).withEnds(null).build();
         Pages actual = StringUtils.parsePage(pagesString);
@@ -37,7 +41,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void parsePageShouldReturnABeginAndEndPageForPagesThatHaveAPrefix() {
+    @DisplayName("parsePage returns a \"begin\" and \"end\" for page strings that have prefix.")
+    public void parsePageReturnsABeginAndEndPageForPagesThatHaveAPrefix() {
         String prefix = "p.";
         String begins = "12";
         String ends = "34";
@@ -49,7 +54,8 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void parsePageShouldReturnABeginAndEndPageForPagesThatHaveAPrefixWordWithSpace() {
+    @DisplayName("parsePage returns a \"begin\" and \"end\" for page strings that have prefix word with space.")
+    public void parsePageReturnsABeginAndEndPageForPagesThatHaveAPrefixWordWithSpace() {
         String prefix = "pages ";
         String begins = "12";
         String ends = "34";
