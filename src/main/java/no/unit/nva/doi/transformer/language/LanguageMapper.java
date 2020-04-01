@@ -35,7 +35,7 @@ public final class LanguageMapper {
      * @param iso6393 An ISO639-3 identifier.
      * @return a language URI if this mapping is available or an empty {@link Optional} if there is no such mapping.
      */
-    public static Optional<URI> getUriOpt(String iso6393) {
+    public static Optional<URI> getUriFromIso639AsOptional(String iso6393) {
         if (iso6393 != null) {
             return Optional.ofNullable(ISO2URI.get(iso6393));
         } else {
@@ -49,7 +49,7 @@ public final class LanguageMapper {
      * @param uri A language URI
      * @return An ISO639-3 code or empty optional if there is no mapping for the input URI
      */
-    public static Optional<String> getIsoOpt(URI uri) {
+    public static Optional<String> getIsoAsOptional(URI uri) {
         if (uri != null) {
             return Optional.ofNullable(URI2ISO.get(uri));
         } else {
@@ -64,7 +64,7 @@ public final class LanguageMapper {
      * @return a language URI if this mapping is available or an empty {@link Optional} if there is no such mapping.
      * @throws LanguageUriNotFoundException when there is no mapping between the input string the available mappings.
      */
-    public static URI getUri(String iso6393) throws LanguageUriNotFoundException {
+    public static URI getUriFromIso639(String iso6393) throws LanguageUriNotFoundException {
         if (!ISO2URI.containsKey(iso6393)) {
             throw new LanguageUriNotFoundException(URI_NOT_FOUND_ERROR + iso6393);
         }
@@ -78,7 +78,7 @@ public final class LanguageMapper {
      * @return an ISO639-3 language code
      * @throws LanguageUriNotFoundException when there is no mapping for the specified URI
      */
-    public static URI getISO(URI langUri) throws LanguageUriNotFoundException {
+    public static URI getIso(URI langUri) throws LanguageUriNotFoundException {
         if (!URI2ISO.containsKey(langUri)) {
             throw new LanguageUriNotFoundException(URI_NOT_FOUND_ERROR + langUri);
         }
@@ -96,12 +96,25 @@ public final class LanguageMapper {
         List<String> lines = linesfromResource(path);
         Map<String, URI> isoToUri = lines
             .stream()
-            .map(line -> line.split(FIELD_DELIMITER))
-            .filter(array -> array.length >= 2)
-            .map(array -> new ConcurrentHashMap.SimpleEntry<>(array[0], array[1]))
-            .map(e -> new ConcurrentHashMap.SimpleEntry<>(e.getKey(), URI.create(e.getValue())))
+            .map(LanguageMapper::splitLineToArray)
+            .filter(LanguageMapper::keepOnlyLinesWithTwoEntries)
+            .map(array -> createMapEntry(array[0],array[1]) )
+            .map(e -> createMapEntry(e.getKey(),URI.create(e.getValue())))
             .collect(Collectors.toConcurrentMap(SimpleEntry::getKey, SimpleEntry::getValue));
         return Collections.unmodifiableMap(isoToUri);
+    }
+
+
+    private static <K,V> SimpleEntry<K,V> createMapEntry(K key,V value){
+        return new ConcurrentHashMap.SimpleEntry<>(key, value);
+    }
+
+    private static boolean keepOnlyLinesWithTwoEntries(String[] array) {
+        return array.length >= 2;
+    }
+
+    private static String[] splitLineToArray(String line) {
+        return line.split(FIELD_DELIMITER);
     }
 
     // For some reason it does not like the mapping to SimpleEntry
@@ -111,7 +124,7 @@ public final class LanguageMapper {
         List<String> lines = linesfromResource(path);
         ConcurrentMap<URI, String> uriToIso = lines
             .stream()
-            .map(line -> line.split(FIELD_DELIMITER))
+            .map(line -> splitLineToArray(line))
             .filter(array -> array.length >= 2)
             .map(array -> new SimpleEntry<>(array[1], array[0]))
             .map(e -> new SimpleEntry<>(URI.create(e.getKey()), e.getValue()))

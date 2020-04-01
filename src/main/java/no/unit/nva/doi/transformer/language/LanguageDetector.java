@@ -14,13 +14,13 @@ public interface LanguageDetector {
     Locale detectLocale(String input);
 
     default URI detectLang(String input) throws LanguageUriNotFoundException {
-        return LanguageMapper.getUri(detectLocale(input).getISO3Language());
+        return LanguageMapper.getUriFromIso639(detectLocale(input).getISO3Language());
     }
 
     default URI detectLangWithDefault(String input)  {
          try{
              return detectLangOpt(detectLocale(input).getISO3Language())
-                 .orElse(LanguageMapper.getUri(DEFAULT_LOCALE.getISO3Language()));
+                 .orElse(LanguageMapper.getUriFromIso639(DEFAULT_LOCALE.getISO3Language()));
          }
          catch(LanguageUriNotFoundException e){
              throw new IllegalStateException(UNEXPECTED_LANGUAGE_ERROR,e);
@@ -30,7 +30,7 @@ public interface LanguageDetector {
 
 
     default Optional<URI> detectLangOpt(String input)  {
-        return LanguageMapper.getUriOpt(detectLocale(input).getISO3Language());
+        return LanguageMapper.getUriFromIso639AsOptional(detectLocale(input).getISO3Language());
     }
 }
 

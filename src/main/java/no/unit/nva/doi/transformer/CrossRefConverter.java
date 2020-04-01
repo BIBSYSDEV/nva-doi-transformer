@@ -158,7 +158,7 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private URI extractLanguage(CrossRefDocument document) {
-        return LanguageMapper.getUriOpt(document.getLanguage()).orElse(null);
+        return LanguageMapper.getUriFromIso639AsOptional(document.getLanguage()).orElse(null);
     }
 
     private String extractAbstract(CrossRefDocument document) {
