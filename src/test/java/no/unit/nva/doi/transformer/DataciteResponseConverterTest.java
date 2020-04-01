@@ -65,7 +65,7 @@ public class DataciteResponseConverterTest {
     @Test
     @DisplayName("Publication contains alternativeTitles with non null langauge tags when datacite document has "
         + "many titles")
-    public void PublicationContainsAlternativeTitlesWithNonNullLanguageTagsWhenDatataciteDocumentHasManyTitkes()
+    public void publicationContainsAlternativeTitlesWithNonNullLanguageTagsWhenDatataciteDocumentHasManyTitkes()
         throws IOException, URISyntaxException {
         Publication publication = readPublicationWithMutlipleTitles();
         Map<String, String> alternativeTitles = publication.getEntityDescription().getAlternativeTitles();
@@ -76,7 +76,7 @@ public class DataciteResponseConverterTest {
     @Test
     @DisplayName("Publication does not contain the main title in the alternative titles when the datacite document"
         + " has many titles")
-    public void PublicationDoesNotContainMainTitleInAlternativeTItleWhenDataciteDocHasManyTitles()
+    public void publicationDoesNotContainMainTitleInAlternativeTItleWhenDataciteDocHasManyTitles()
         throws IOException, URISyntaxException {
         Publication publication = readPublicationWithMutlipleTitles();
         String mainTitle = publication.getEntityDescription().getMainTitle();
@@ -87,7 +87,7 @@ public class DataciteResponseConverterTest {
     @Test
     @DisplayName("Publication contains alternative titles with valid language URIs when the datacite document has "
         + " many titles")
-    public void PublicationContainsAlternativeTtitlesWithValidLanguageURisWhenDataciteDocHasManyTitles()
+    public void publicationContainsAlternativeTtitlesWithValidLanguageURisWhenDataciteDocHasManyTitles()
         throws IOException, URISyntaxException {
         Publication publication = readPublicationWithMutlipleTitles();
         Map<String, String> alternativeTitles = publication.getEntityDescription().getAlternativeTitles();
