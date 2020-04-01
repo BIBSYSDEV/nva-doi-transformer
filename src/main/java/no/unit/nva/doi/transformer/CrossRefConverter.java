@@ -3,6 +3,7 @@ package no.unit.nva.doi.transformer;
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -142,10 +143,12 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private String extractJournalTitle(CrossRefDocument document) {
-        if (document.getContainerTitle() != null) {
-            return document.getContainerTitle().stream().findFirst().orElse(null);
-        }
-        return null;
+        return Optional.ofNullable(document.getContainerTitle())
+                .stream()
+                .flatMap(Collection::stream)
+                .findFirst()
+                .orElse(null);
+
     }
 
     private String extractDescription() {
