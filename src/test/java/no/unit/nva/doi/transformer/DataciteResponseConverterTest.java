@@ -23,6 +23,7 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
 import org.junit.Assert;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class DataciteResponseConverterTest {
@@ -62,7 +63,10 @@ public class DataciteResponseConverterTest {
     }
 
     @Test
-    public void alternativeTitlesContainLanguageTag() throws IOException, URISyntaxException {
+    @DisplayName("Publication contains alternativeTitles with non null langauge tags when datacite document has "
+        + "many titles")
+    public void PublicationContainsAlternativeTitlesWithNonNullLanguageTagsWhenDatataciteDocumentHasManyTitkes()
+        throws IOException, URISyntaxException {
         Publication publication = readPublicationWithMutlipleTitles();
         Map<String, String> alternativeTitles = publication.getEntityDescription().getAlternativeTitles();
         Collection<String> languageTags = alternativeTitles.values();
@@ -70,7 +74,10 @@ public class DataciteResponseConverterTest {
     }
 
     @Test
-    public void alternativeTitlesDoNotContainTheOriginalTitle() throws IOException, URISyntaxException {
+    @DisplayName("Publication does not contain the main title in the alternative titles when the datacite document"
+        + " has many titles")
+    public void PublicationDoesNotContainMainTitleInAlternativeTItleWhenDataciteDocHasManyTitles()
+        throws IOException, URISyntaxException {
         Publication publication = readPublicationWithMutlipleTitles();
         String mainTitle = publication.getEntityDescription().getMainTitle();
         Set<String> altTitles = publication.getEntityDescription().getAlternativeTitles().keySet();
@@ -78,7 +85,10 @@ public class DataciteResponseConverterTest {
     }
 
     @Test
-    public void alternativeTitlesLanguageTagsAreValidUris() throws IOException, URISyntaxException {
+    @DisplayName("Publication contains alternative titles with valid language URIs when the datacite document has "
+        + " many titles")
+    public void PublicationContainsAlternativeTtitlesWithValidLanguageURisWhenDataciteDocHasManyTitles()
+        throws IOException, URISyntaxException {
         Publication publication = readPublicationWithMutlipleTitles();
         Map<String, String> alternativeTitles = publication.getEntityDescription().getAlternativeTitles();
         Collection<String> languageTags = alternativeTitles.values();
