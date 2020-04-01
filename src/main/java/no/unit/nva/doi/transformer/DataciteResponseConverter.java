@@ -1,5 +1,7 @@
 package no.unit.nva.doi.transformer;
 
+import static java.util.function.Predicate.not;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -82,7 +84,7 @@ public class DataciteResponseConverter extends AbstractConverter {
     private Map<String, String> extractAlternativeTitles(DataciteResponse dataciteResponse) {
         String mainTitle = extractMainTitle(dataciteResponse);
         return dataciteResponse.getTitles().stream()
-                               .filter(t -> !t.getTitle().equals(mainTitle))
+                               .filter(not(t -> t.getTitle().equals(mainTitle)))
                                .map(t -> detectLanguage(t.getTitle()))
                                .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
                                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));

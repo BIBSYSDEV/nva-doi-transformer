@@ -1,5 +1,7 @@
 package no.unit.nva.doi.transformer;
 
+import static java.util.function.Predicate.not;
+
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import java.net.URI;
 import java.time.Instant;
@@ -168,7 +170,7 @@ public class CrossRefConverter extends AbstractConverter {
     private Map<String, String> extractAlternativeTitles(CrossRefDocument document) {
         String mainTitle = extractTitle(document);
         return document.getTitle().stream()
-                       .filter(title -> !title.equals(mainTitle))
+                       .filter(not(title -> title.equals(mainTitle)))
                        .map(this::detectLanguage)
                        .collect(Collectors.toConcurrentMap(TextLang::getText, e -> e.getLanguage().toString()));
     }
