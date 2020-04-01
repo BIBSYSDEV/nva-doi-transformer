@@ -17,19 +17,21 @@ public interface LanguageDetector {
         return LanguageMapper.getUriFromIso639(detectLocale(input).getISO3Language());
     }
 
-    default URI detectLangWithDefault(String input)  {
-         try{
-             return detectLangOpt(detectLocale(input).getISO3Language())
-                 .orElse(LanguageMapper.getUriFromIso639(DEFAULT_LOCALE.getISO3Language()));
-         }
-         catch(LanguageUriNotFoundException e){
-             throw new IllegalStateException(UNEXPECTED_LANGUAGE_ERROR,e);
-         }
-
+    /**
+     * Tries to detect a language and returns English as a language if it fails.
+     * @param input the text we want to detect its language.
+     * @return a language URI.
+     */
+    default URI detectLangWithDefault(String input) {
+        try {
+            return detectLangOpt(detectLocale(input).getISO3Language())
+                .orElse(LanguageMapper.getUriFromIso639(DEFAULT_LOCALE.getISO3Language()));
+        } catch (LanguageUriNotFoundException e) {
+            throw new IllegalStateException(UNEXPECTED_LANGUAGE_ERROR, e);
+        }
     }
 
-
-    default Optional<URI> detectLangOpt(String input)  {
+    default Optional<URI> detectLangOpt(String input) {
         return LanguageMapper.getUriFromIso639AsOptional(detectLocale(input).getISO3Language());
     }
 }

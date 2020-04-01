@@ -98,14 +98,13 @@ public final class LanguageMapper {
             .stream()
             .map(LanguageMapper::splitLineToArray)
             .filter(LanguageMapper::keepOnlyLinesWithTwoEntries)
-            .map(array -> createMapEntry(array[0],array[1]) )
-            .map(e -> createMapEntry(e.getKey(),URI.create(e.getValue())))
+            .map(array -> createMapEntry(array[0], array[1]))
+            .map(e -> createMapEntry(e.getKey(), URI.create(e.getValue())))
             .collect(Collectors.toConcurrentMap(SimpleEntry::getKey, SimpleEntry::getValue));
         return Collections.unmodifiableMap(isoToUri);
     }
 
-
-    private static <K,V> SimpleEntry<K,V> createMapEntry(K key,V value){
+    private static <K, V> SimpleEntry<K, V> createMapEntry(K key, V value) {
         return new ConcurrentHashMap.SimpleEntry<>(key, value);
     }
 
