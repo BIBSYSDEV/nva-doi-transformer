@@ -1,10 +1,27 @@
 package no.unit.nva.doi.transformer.utils;
 
+import static java.util.Objects.isNull;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import no.unit.nva.model.Pages;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public final class StringUtils {
 
-    public static final String XML_TAG_REGEX_GREEDY_MATCHER = "<[^<>]+>";
     public static final String SPACE = " ";
     public static final String NOT_DIGIT = "\\D";
     public static final String DOUBLE_WHITESPACE = "\\s\\s";
@@ -16,9 +33,47 @@ public final class StringUtils {
      * @return A string without XML tags
      */
     public static String removeXmlTags(String input) {
-        String noXmlTags = input.replaceAll(XML_TAG_REGEX_GREEDY_MATCHER, SPACE);
-        String removeMultipleWhitespaces = removeMultipleWhiteSpaces(noXmlTags);
-        return removeMultipleWhitespaces.trim();
+        String output = null;
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newDefaultInstance();
+        try {
+            Document document = createXmlDocumentFromInput(input, documentBuilderFactory);
+            NodeList nodeList = getDocumentNodes(document);
+            output = textWithoutXmlTags(nodeList);
+        } catch (XPathExpressionException | ParserConfigurationException | IOException | SAXException e) {
+            e.printStackTrace();
+        } finally {
+            if (isNull(output)) {
+                output = input;
+            }
+        }
+        return StringUtils.removeMultipleWhiteSpaces(output).trim();
+    }
+
+    private static String textWithoutXmlTags(NodeList nodeList) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int counter = 0; counter < nodeList.getLength(); counter++) {
+            stringBuilder.append(SPACE).append(nodeList.item(counter).getTextContent());
+        }
+        return stringBuilder.toString();
+    }
+
+    private static NodeList getDocumentNodes(Document document) throws XPathExpressionException {
+        XPathFactory xpathFactory = XPathFactory.newDefaultInstance();
+        XPath xpath = xpathFactory.newXPath();
+        XPathExpression expr = xpath.compile("//text()");
+        return (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+    }
+
+    private static Document createXmlDocumentFromInput(String input, DocumentBuilderFactory documentBuilderFactory)
+        throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        try (Reader reader = new StringReader(input)) {
+            InputSource inputSource = new InputSource(reader);
+            inputSource.setEncoding(StandardCharsets.UTF_8.name());
+            Document document = documentBuilder.parse(inputSource);
+            document.getDocumentElement().normalize();
+            return document;
+        }
     }
 
     /**

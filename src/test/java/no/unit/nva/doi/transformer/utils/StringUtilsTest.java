@@ -11,8 +11,8 @@ public class StringUtilsTest {
 
     @Test
     public void removeXmlTagsReturnsStringWithNoXmlTags() {
-        String input = "<xmlTag> hello world<jap>something else</jap> hello again</xmlTag>";
-        String expectedOutput = "hello world something else hello again";
+        String input = "<xmlTag> Hello world<jap>something else</jap> hello again</xmlTag>";
+        String expectedOutput = "Hello world something else hello again";
         String actualOutput = StringUtils.removeXmlTags(input);
         assertThat(actualOutput, is(equalTo(expectedOutput)));
     }
