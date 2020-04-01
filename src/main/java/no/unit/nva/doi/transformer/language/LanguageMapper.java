@@ -21,8 +21,9 @@ import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundExcept
 public final class LanguageMapper {
 
     public static final String FIELD_DELIMITER = "\t";
-    private static final Map<String, URI> ISO2URI = isoToUri(Path.of("languages", "lexvo-iso639-3.tsv"));
-    private static final Map<URI, String> URI2ISO = uriToIso(Path.of("languages", "lexvo-iso639-3.tsv"));
+    public static final Path LANGUAGE_URIS_RESOURCE = Path.of("languages", "lexvo-iso639-3.tsv");
+    private static final Map<String, URI> ISO2URI = isoToUri(LANGUAGE_URIS_RESOURCE);
+    private static final Map<URI, String> URI2ISO = uriToIso(LANGUAGE_URIS_RESOURCE);
     public static final String ERROR_READING_FILE = "Could not read resource file:";
     public static final String URI_NOT_FOUND_ERROR = "Could not find a URI for the language:";
 
