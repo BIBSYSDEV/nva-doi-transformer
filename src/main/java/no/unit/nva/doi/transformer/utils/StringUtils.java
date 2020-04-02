@@ -25,6 +25,7 @@ public final class StringUtils {
     public static final String SPACE = " ";
     public static final String NOT_DIGIT = "\\D";
     public static final String DOUBLE_WHITESPACE = "\\s\\s";
+    public static final String PATH_TO_TEXT = "//text()";
 
     /**
      * Removes XML-style tags from String.
@@ -60,7 +61,7 @@ public final class StringUtils {
     private static NodeList getDocumentNodes(Document document) throws XPathExpressionException {
         XPathFactory xpathFactory = XPathFactory.newDefaultInstance();
         XPath xpath = xpathFactory.newXPath();
-        XPathExpression expr = xpath.compile("//text()");
+        XPathExpression expr = xpath.compile(PATH_TO_TEXT);
         return (NodeList) expr.evaluate(document, XPathConstants.NODESET);
     }
 
