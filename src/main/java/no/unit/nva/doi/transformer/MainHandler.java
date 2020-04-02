@@ -38,7 +38,7 @@ public class MainHandler implements RequestStreamHandler {
     public static final String APPLICATION_PROBLEM = "application/problem+json";
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable not set: ";
 
-    private final transient ObjectMapper objectMapper;
+    public final transient ObjectMapper objectMapper;
     private final transient String allowedOrigin;
     private final PublicationTransformer publicationTransformer;
     private LambdaLogger logger;

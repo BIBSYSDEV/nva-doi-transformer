@@ -2,6 +2,8 @@ package no.unit.nva.doi.transformer;
 
 import java.net.URI;
 import java.util.stream.Stream;
+import no.unit.nva.doi.transformer.language.LanguageDetector;
+import no.unit.nva.doi.transformer.utils.TextLang;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationStatus;
@@ -10,6 +12,12 @@ public class AbstractConverter {
 
     public static final PublicationStatus DEFAULT_NEW_PUBLICATION_STATUS = PublicationStatus.NEW;
     public static final String FAMILY_NAME_GIVEN_NAME_SEPARATOR = ", ";
+
+    protected LanguageDetector languageDetector;
+
+    public AbstractConverter(LanguageDetector detector) {
+        this.languageDetector = detector;
+    }
 
     protected String toName(String familyName, String givenName) {
         return String.join(FAMILY_NAME_GIVEN_NAME_SEPARATOR, familyName, givenName);
@@ -29,5 +37,9 @@ public class AbstractConverter {
         return new Organization.Builder()
             .withId(publisherId)
             .build();
+    }
+
+    protected TextLang detectLanguage(String title) {
+        return new TextLang(title, languageDetector.detectLangWithDefault(title));
     }
 }

@@ -4,22 +4,35 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import no.bibsys.aws.tools.IoUtils;
+import no.unit.nva.doi.transformer.language.LanguageMapper;
+import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundException;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
+import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
 import no.unit.nva.model.Contributor;
+import no.unit.nva.model.Pages;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationType;
@@ -45,10 +58,15 @@ public class CrossRefConverterTest extends ConversionTest {
     private static final String OWNER = "TheOwner";
     private static final String INVALID_ORDINAL = "invalid ordinal";
     public static final String SECOND_AUTHOR = "second";
+    public static final String CROSSREF_WITH_ABSTRACT_JSON = "crossrefWithAbstract.json";
+    private static final String PROCESSED_ABSTRACT = "processedAbstract.txt";
+    public static final String ENG_ISO_639_3 = "eng";
+    public static final String SOME_DOI = "10.1000/182";
 
     private CrossRefDocument sampleInputDocument = createSampleDocument();
     private final CrossRefConverter converter = new CrossRefConverter();
     private Publication samplePublication;
+    private static ObjectMapper objectMapper = MainHandler.createObjectMapper();
 
     @BeforeEach
     public void init() {
@@ -104,7 +122,7 @@ public class CrossRefConverterTest extends ConversionTest {
     @DisplayName("toPublication sets PublicationType to JournalArticle when the input has the tag \"journal-article\"")
     public void toPublicationSetsPublicationTypeToJournalArticleWhenTheInputHasTheTagJournalArticle() {
         assertThat(samplePublication.getEntityDescription().getPublicationType(),
-                   is(equalTo(PublicationType.JOURNAL_ARTICLE)));
+            is(equalTo(PublicationType.JOURNAL_ARTICLE)));
     }
 
     @Test
@@ -132,10 +150,6 @@ public class CrossRefConverterTest extends ConversionTest {
         assertThat(ordinals, contains(expectedValues.toArray()));
     }
 
-    private int startCountingFromOne(int i) {
-        return i + 1;
-    }
-
     @Test
     @DisplayName("toPublication sets the correct number when the sequence ordinal is valid")
     public void toPublicationSetsCorrectNumberForValidOrdinal() {
@@ -147,6 +161,114 @@ public class CrossRefConverterTest extends ConversionTest {
         int actual = toPublication(sampleInputDocument).getEntityDescription().getContributors().stream().findFirst()
                                                        .get().getSequence();
         assertThat(actual, is(equalTo(expected)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets abstract when input has non empty abstract")
+    public void toPublicationSetsAbstractWhenInputHasNonEmptyAbstract() throws IOException {
+        String json = IoUtils.resourceAsString(Path.of(CROSSREF_WITH_ABSTRACT_JSON));
+        CrossRefDocument docWithAbstract = objectMapper.readValue(json, CrossrefApiResponse.class).getMessage();
+        String abstractText = toPublication(docWithAbstract).getEntityDescription().getAbstract();
+        assertThat(abstractText, is(not(emptyString())));
+        String expectedAbstract = IoUtils.resourceAsString(Path.of(PROCESSED_ABSTRACT));
+        assertThat(abstractText, is(equalTo(expectedAbstract)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the language to a URI when the input is an ISO639-3 entry")
+    public void toPublicationSetsTheLanguageToAUriWhenTheInputFollowsTheIso3Standard()
+        throws LanguageUriNotFoundException {
+        Locale sampleLanguage = Locale.ENGLISH;
+        sampleInputDocument.setLanguage(sampleLanguage.getISO3Language());
+        URI actualLanguage = toPublication(sampleInputDocument).getEntityDescription().getLanguage();
+        URI expectedLanguage = LanguageMapper.getUriFromIso639(ENG_ISO_639_3);
+        assertThat(actualLanguage, is(equalTo(expectedLanguage)));
+        assertThat(actualLanguage, is(notNullValue()));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the doi of the Reference when the Crossref document has a \"DOI\" value ")
+    public void toPublicationSetsTheDoiOfTheReferenceWhenTheCrossrefDocHasADoiValue() {
+        sampleInputDocument.setDoi(SOME_DOI);
+        String actualDoi = toPublication(sampleInputDocument).getEntityDescription().getReference().getDoi();
+        assertThat(actualDoi, is(equalTo(SOME_DOI)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the doi of the Reference when the Crossref document has at least one"
+        + " \"Container\" value ")
+    public void toPublicationSetsTheNameOfTheReferenceWhenTheCrossrefDocHasAtLeatOneContainterTitle() {
+        String firstNameOfJournal = "Journal 1st Name";
+        String secondNameOfJournal = "Journal 2nd Name";
+        sampleInputDocument.setContainerTitle(Arrays.asList(firstNameOfJournal, secondNameOfJournal));
+
+        String actualJournalName = toPublication(sampleInputDocument).getEntityDescription().getReference()
+                                                                     .getPublicationContext().getName();
+        assertThat(actualJournalName, is(equalTo(firstNameOfJournal)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the volume of the Reference when the Crosref document has a \"Volume\" value")
+    public void toPublicationSetsTheVolumeOfTheReferenceWhentheCrossrefDocHasAVolume() {
+        String expectedVolume = "Vol. 1";
+        sampleInputDocument.setVolume(expectedVolume);
+        String actualVolume = toPublication(sampleInputDocument).getEntityDescription().getReference()
+                                                                .getPublicationInstance()
+                                                                .getVolume();
+        assertThat(actualVolume, is(equalTo(expectedVolume)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the pages of the Reference when the Crosref document has a \"Pages\" value")
+    public void toPublicationSetsThePagesOfTheReferenceWhentheCrossrefDocHasPages() {
+        String pages = "45-89";
+
+        sampleInputDocument.setPage(pages);
+        Pages actualPages = toPublication(sampleInputDocument).getEntityDescription().getReference()
+                                                              .getPublicationInstance()
+                                                              .getPages();
+        Pages expectedPages = new Pages.Builder().withBegins("45").withEnds("89").build();
+        assertThat(actualPages, is(equalTo(expectedPages)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the issue of the Reference when the Crosref document has a \"Issue\" value")
+    public void toPublicationSetsTheIssueOfTheReferenceWhentheCrossrefDocHasAnIssueValue() {
+        String expectedIssue = "SomeIssue";
+
+        sampleInputDocument.setIssue(expectedIssue);
+        String actualIssue = toPublication(sampleInputDocument).getEntityDescription()
+                                                               .getReference()
+                                                               .getPublicationInstance()
+                                                               .getIssue();
+
+        assertThat(actualIssue, is(equalTo(expectedIssue)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the MetadataSource to the CrossRef URL when the Crossref "
+        + "document has a \"source\" containing the word crossref")
+    public void toPublicationSetsTheMetadataSourceToTheCrossRefUrlWhenTheCrossrefDocHasCrossrefAsSource() {
+        String source = "Crossref";
+        URI expectedURI = CrossRefConverter.CROSSEF_URI;
+
+        sampleInputDocument.setSource(source);
+        URI actualSource = toPublication(sampleInputDocument).getEntityDescription().getMetadataSource();
+
+        assertThat(actualSource, is(equalTo(expectedURI)));
+    }
+
+    @Test
+    @DisplayName("toPublication sets the MetadataSource to the specfied URL when the Crossref "
+        + "document has as \"source\" a valid URL")
+    public void toPublicationSetsTheMetadataSourceToTheSourceUrlIfTheDocHasAsSourceAValidUrl() {
+        String source = "http://www.something.com";
+        URI expectedURI = URI.create(source);
+
+        sampleInputDocument.setSource(source);
+        URI actualSource = toPublication(sampleInputDocument).getEntityDescription().getMetadataSource();
+
+        assertThat(actualSource, is(equalTo(expectedURI)));
     }
 
     private Publication toPublication(CrossRefDocument doc) {
@@ -188,5 +310,9 @@ public class CrossRefConverterTest extends ConversionTest {
         List<Author> authors = Arrays.asList(author, secondAuthor);
         document.setAuthor(authors);
         return document;
+    }
+
+    private int startCountingFromOne(int i) {
+        return i + 1;
     }
 }
