@@ -38,5 +38,4 @@ public class DataciteRelatedIdentifier {
     public void setRelatedIdentifierType(String relatedIdentifierType) {
         this.relatedIdentifierType = relatedIdentifierType;
     }
-
 }
