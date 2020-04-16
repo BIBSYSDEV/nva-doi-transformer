@@ -110,12 +110,12 @@ public class CrossRefConverterTest extends ConversionTest {
     }
 
     @Test
-    @DisplayName("toPublication sets null EntityDescription date when input has no \"published-print\" date")
-    public void entityDescriptionDateIsNullWhenInputDataHasNoPublicationDate() {
+    @DisplayName("toPublication sets empty EntityDescription date when input has no \"published-print\" date")
+    public void entityDescriptionDateIsEmptyWhenInputDataHasNoPublicationDate() {
         sampleInputDocument.setPublishedPrint(null);
         Publication publicationWithoutDate = toPublication(sampleInputDocument);
         PublicationDate actualDate = publicationWithoutDate.getEntityDescription().getDate();
-        assertThat(actualDate, is(nullValue()));
+        assertThat(actualDate, is(new PublicationDate()));
     }
 
     @Test

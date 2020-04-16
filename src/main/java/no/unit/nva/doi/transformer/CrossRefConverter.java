@@ -82,7 +82,7 @@ public class CrossRefConverter extends AbstractConverter {
                 .withFileSet(createFilseSet())
                 .withEntityDescription(new EntityDescription.Builder()
                     .withContributors(toContributors(document.getAuthor()))
-                    .withDate(extractDate(document).orElse(null))
+                    .withDate(extractDate(document).orElse(new PublicationDate()))
                     .withMainTitle(extractTitle(document))
                     .withAlternativeTitles(extractAlternativeTitles(document))
                     .withPublicationType(extractPublicationType(document))
