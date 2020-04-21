@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import no.bibsys.aws.tools.IoUtils;
 import no.unit.nva.doi.transformer.language.LanguageMapper;
 import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundException;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
@@ -38,6 +37,7 @@ import no.unit.nva.model.PublicationType;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.pages.Pages;
 import no.unit.nva.model.pages.Range;
+import nva.commons.utils.IoUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -168,11 +168,11 @@ public class CrossRefConverterTest extends ConversionTest {
     @Test
     @DisplayName("toPublication sets abstract when input has non empty abstract")
     public void toPublicationSetsAbstractWhenInputHasNonEmptyAbstract() throws IOException {
-        String json = IoUtils.resourceAsString(Path.of(CROSSREF_WITH_ABSTRACT_JSON));
+        String json = IoUtils.stringFromResources(Path.of(CROSSREF_WITH_ABSTRACT_JSON));
         CrossRefDocument docWithAbstract = objectMapper.readValue(json, CrossrefApiResponse.class).getMessage();
         String abstractText = toPublication(docWithAbstract).getEntityDescription().getAbstract();
         assertThat(abstractText, is(not(emptyString())));
-        String expectedAbstract = IoUtils.resourceAsString(Path.of(PROCESSED_ABSTRACT));
+        String expectedAbstract = IoUtils.stringFromResources(Path.of(PROCESSED_ABSTRACT));
         assertThat(abstractText, is(equalTo(expectedAbstract)));
     }
 

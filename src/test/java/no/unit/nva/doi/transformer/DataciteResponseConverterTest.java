@@ -17,11 +17,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import no.bibsys.aws.tools.IoUtils;
 import no.unit.nva.doi.transformer.language.LanguageMapper;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
+import nva.commons.utils.IoUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -100,7 +100,7 @@ public class DataciteResponseConverterTest {
     }
 
     private Publication readPublicationWithMutlipleTitles() throws IOException, URISyntaxException {
-        String input = IoUtils.resourceAsString(Path.of(ENTRY_WITH_ALTERNATIVE_TITLE));
+        String input = IoUtils.stringFromResources(Path.of(ENTRY_WITH_ALTERNATIVE_TITLE));
         DataciteResponseConverter converter = new DataciteResponseConverter();
         DataciteResponse response = objectMapper.readValue(input, DataciteResponse.class);
         return converter.toPublication(response, now(), SOME_ID,

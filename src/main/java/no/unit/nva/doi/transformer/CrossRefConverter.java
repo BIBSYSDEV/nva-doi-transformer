@@ -1,6 +1,7 @@
 package no.unit.nva.doi.transformer;
 
 import static java.util.function.Predicate.not;
+import static nva.commons.utils.attempt.Try.attempt;
 
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import java.net.URI;
@@ -10,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,6 +39,7 @@ import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
+import nva.commons.utils.attempt.Try;
 
 public class CrossRefConverter extends AbstractConverter {
 
@@ -224,22 +225,37 @@ public class CrossRefConverter extends AbstractConverter {
 
     protected List<Contributor> toContributors(List<Author> authors) {
         if (authors != null) {
-            return IntStream.range(0, authors.size())
-                            .mapToObj(i -> {
-                                try {
-                                    return toContributor(authors.get(i), i + 1);
-                                } catch (MalformedContributorException e) {
-                                    e.printStackTrace();
-                                    return null;
-                                }
-                            })
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList());
+            List<Try<Contributor>> contributorMappings =
+                IntStream.range(0, authors.size())
+                         .boxed()
+                         .map(attempt(index -> toContributor(authors.get(index), index + 1)))
+                         .collect(Collectors.toList());
+
+            reportFailures(contributorMappings);
+            return successfulMappings(contributorMappings);
         } else {
             return Collections.emptyList();
         }
     }
 
+    private List<Contributor> successfulMappings(List<Try<Contributor>> contributorMappings) {
+        return contributorMappings.stream()
+                                  .filter(Try::isSuccess)
+                                  .map(Try::get)
+                                  .collect(Collectors.toList());
+    }
+
+    private void reportFailures(List<Try<Contributor>> contributors) {
+        contributors.stream().filter(Try::isFailure).forEach(failure -> failure.getException().printStackTrace());
+    }
+
+    /**
+     * Coverts an author to a Conatributor (from external model to internal).
+     * @param author the Author.
+     * @param alternativeSequence sequence in case where the Author object does not contain a valid sequence entry
+     * @return a Contributor object.
+     * @throws MalformedContributorException when the contributer cannot be built.
+     */
     private Contributor toContributor(Author author, int alternativeSequence) throws MalformedContributorException {
 
         Identity identity = new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName()))
