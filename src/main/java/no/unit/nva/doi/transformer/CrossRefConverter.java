@@ -1,19 +1,6 @@
 package no.unit.nva.doi.transformer;
 
-import static java.util.function.Predicate.not;
-
 import com.ibm.icu.text.RuleBasedNumberFormat;
-import java.net.URI;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import no.unit.nva.doi.transformer.language.LanguageMapper;
 import no.unit.nva.doi.transformer.language.SimpleLanguageDetector;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
@@ -25,16 +12,34 @@ import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
 import no.unit.nva.model.FileSet;
 import no.unit.nva.model.Identity;
-import no.unit.nva.model.License;
-import no.unit.nva.model.Pages;
+import no.unit.nva.model.Journal;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationContext;
 import no.unit.nva.model.PublicationDate;
-import no.unit.nva.model.PublicationInstance;
 import no.unit.nva.model.PublicationSubtype;
 import no.unit.nva.model.PublicationType;
 import no.unit.nva.model.Reference;
 import no.unit.nva.model.ResearchProject;
+import no.unit.nva.model.exceptions.InvalidIssnException;
+import no.unit.nva.model.exceptions.MalformedContributorException;
+import no.unit.nva.model.instancetypes.JournalArticle;
+import no.unit.nva.model.instancetypes.PublicationInstance;
+import no.unit.nva.model.pages.Range;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static java.util.function.Predicate.not;
 
 public class CrossRefConverter extends AbstractConverter {
 
@@ -65,7 +70,6 @@ public class CrossRefConverter extends AbstractConverter {
                                      URI publisherId) {
 
         if (document != null && hasTitle(document)) {
-
             return new Publication.Builder()
                 .withCreatedDate(now)
                 .withModifiedDate(now)
@@ -78,7 +82,6 @@ public class CrossRefConverter extends AbstractConverter {
                 .withHandle(createHandle())
                 .withLink(createLink())
                 .withProject(createProject())
-                .withLicense(createLicense())
                 .withFileSet(createFilseSet())
                 .withEntityDescription(new EntityDescription.Builder()
                     .withContributors(toContributors(document.getAuthor()))
@@ -110,9 +113,9 @@ public class CrossRefConverter extends AbstractConverter {
 
     private boolean containsCrossrefAsSource(CrossRefDocument document) {
         return Optional.ofNullable(document.getSource())
-                       .map(str -> str.toLowerCase(Locale.getDefault()))
-                       .filter(str -> str.contains(CROSSREF))
-                       .isPresent();
+                .map(str -> str.toLowerCase(Locale.getDefault()))
+                .filter(str -> str.contains(CROSSREF))
+                .isPresent();
     }
 
     private Optional<URI> tryCreatingUri(String source) {
@@ -124,24 +127,37 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private Reference extractReference(CrossRefDocument document) {
-        PublicationContext context = new PublicationContext.Builder()
-            .withLevel(null)
-            .withName(extractJournalTitle(document))
-            .build();
-        PublicationInstance instance = new PublicationInstance.Builder()
-            .withVolume(document.getVolume())
-            .withIssue(document.getIssue())
-            .withPages(extractPages(document))
-            .build();
+        PublicationInstance instance = extractPublicationInstance(document);
+        PublicationContext context = extractPublicationContext(document);
         return new Reference.Builder()
-            .withDoi(document.getDoi())
-            .withPublishingContext(context)
-            .withPublicationInstance(instance)
-            .build();
+                .withDoi(document.getDoi())
+                .withPublishingContext(context)
+                .withPublicationInstance(instance)
+                .build();
     }
 
-    private Pages extractPages(CrossRefDocument document) {
+    private Range extractPages(CrossRefDocument document) {
         return StringUtils.parsePage(document.getPage());
+    }
+
+    private PublicationContext extractPublicationContext(CrossRefDocument document) {
+        try {
+            return new Journal.Builder()
+                    .withLevel(null)
+                    .withTitle(extractJournalTitle(document))
+                    .build();
+        } catch (InvalidIssnException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private PublicationInstance extractPublicationInstance(CrossRefDocument document) {
+        return new JournalArticle.Builder()
+                .withVolume(document.getVolume())
+                .withIssue(document.getIssue())
+                .withPages(extractPages(document))
+                .build();
     }
 
     private String extractJournalTitle(CrossRefDocument document) {
@@ -150,7 +166,6 @@ public class CrossRefConverter extends AbstractConverter {
                 .flatMap(Collection::stream)
                 .findFirst()
                 .orElse(null);
-
     }
 
     private String extractDescription() {
@@ -185,7 +200,7 @@ public class CrossRefConverter extends AbstractConverter {
 
     protected PublicationType extractPublicationType(CrossRefDocument document) {
         if (document.getType().equalsIgnoreCase(JOURNAL_ARTICLE)) {
-            return PublicationType.JOURNAL_ARTICLE;
+            return PublicationType.JOURNAL_CONTENT;
         } else {
             throw new IllegalArgumentException(NOT_A_JOURNAL_ARTICLE_ERROR);
         }
@@ -210,14 +225,23 @@ public class CrossRefConverter extends AbstractConverter {
 
     protected List<Contributor> toContributors(List<Author> authors) {
         if (authors != null) {
-            return IntStream.range(0, authors.size()).mapToObj(i -> toContributor(authors.get(i), i + 1))
+            return IntStream.range(0, authors.size())
+                            .mapToObj(i -> {
+                                try {
+                                    return toContributor(authors.get(i), i + 1);
+                                } catch (MalformedContributorException e) {
+                                    e.printStackTrace();
+                                    return null;
+                                }
+                            })
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toList());
         } else {
             return Collections.emptyList();
         }
     }
 
-    private Contributor toContributor(Author author, int alternativeSequence) {
+    private Contributor toContributor(Author author, int alternativeSequence) throws MalformedContributorException {
 
         Identity identity = new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName()))
                                                   .build();
@@ -250,10 +274,6 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private FileSet createFilseSet() {
-        return null;
-    }
-
-    private License createLicense() {
         return null;
     }
 

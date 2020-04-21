@@ -4,9 +4,12 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
-import no.unit.nva.model.Pages;
+import no.unit.nva.model.pages.Pages;
+import no.unit.nva.model.pages.Range;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import javax.print.attribute.standard.PageRanges;
 
 public class StringUtilsTest {
 
@@ -26,7 +29,7 @@ public class StringUtilsTest {
         String ends = "34";
         String delimiter = "-";
         String pageString = String.join(delimiter, begins, ends);
-        Pages expected = new Pages.Builder().withBegins(begins).withEnds(ends).build();
+        Pages expected = new Range.Builder().withBegin(begins).withEnd(ends).build();
         Pages actual = StringUtils.parsePage(pageString);
         assertThat(actual, is(equalTo(expected)));
     }
@@ -35,7 +38,7 @@ public class StringUtilsTest {
     @DisplayName("parsePage returns a \"begin\" without an \"end\" for page string with as single number")
     public void parsePageReturnsABeginWithoutAnEndPageForPagesBeingASingleNumber() {
         String pagesString = "12";
-        Pages expected = new Pages.Builder().withBegins(pagesString).withEnds(null).build();
+        Pages expected = new Range.Builder().withBegin(pagesString).withEnd(null).build();
         Pages actual = StringUtils.parsePage(pagesString);
         assertThat(actual, is(equalTo(expected)));
     }
@@ -48,7 +51,7 @@ public class StringUtilsTest {
         String ends = "34";
         String delimiter = "-";
         String pageString = prefix + begins + delimiter + ends;
-        Pages expected = new Pages.Builder().withBegins(begins).withEnds(ends).build();
+        Pages expected = new Range.Builder().withBegin(begins).withEnd(ends).build();
         Pages actual = StringUtils.parsePage(pageString);
         assertThat(actual, is(equalTo(expected)));
     }
@@ -61,7 +64,7 @@ public class StringUtilsTest {
         String ends = "34";
         String delimiter = "-";
         String pageString = prefix + begins + delimiter + ends;
-        Pages expected = new Pages.Builder().withBegins(begins).withEnds(ends).build();
+        Pages expected = new Range.Builder().withBegin(begins).withEnd(ends).build();
         Pages actual = StringUtils.parsePage(pageString);
         assertThat(actual, is(equalTo(expected)));
     }

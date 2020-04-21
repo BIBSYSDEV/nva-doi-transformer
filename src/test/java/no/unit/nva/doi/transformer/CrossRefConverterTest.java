@@ -32,10 +32,12 @@ import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
 import no.unit.nva.model.Contributor;
-import no.unit.nva.model.Pages;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationType;
+import no.unit.nva.model.instancetypes.JournalArticle;
+import no.unit.nva.model.pages.Pages;
+import no.unit.nva.model.pages.Range;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -119,10 +121,10 @@ public class CrossRefConverterTest extends ConversionTest {
     }
 
     @Test
-    @DisplayName("toPublication sets PublicationType to JournalArticle when the input has the tag \"journal-article\"")
-    public void toPublicationSetsPublicationTypeToJournalArticleWhenTheInputHasTheTagJournalArticle() {
+    @DisplayName("toPublication sets PublicationType to JournalContent when the input has the tag \"journal-article\"")
+    public void toPublicationSetsPublicationTypeToJournalContentWhenTheInputHasTheTagJournalArticle() {
         assertThat(samplePublication.getEntityDescription().getPublicationType(),
-            is(equalTo(PublicationType.JOURNAL_ARTICLE)));
+            is(equalTo(PublicationType.JOURNAL_CONTENT)));
     }
 
     @Test
@@ -203,7 +205,7 @@ public class CrossRefConverterTest extends ConversionTest {
         sampleInputDocument.setContainerTitle(Arrays.asList(firstNameOfJournal, secondNameOfJournal));
 
         String actualJournalName = toPublication(sampleInputDocument).getEntityDescription().getReference()
-                                                                     .getPublicationContext().getName();
+                                                                     .getPublicationContext().getTitle();
         assertThat(actualJournalName, is(equalTo(firstNameOfJournal)));
     }
 
@@ -212,9 +214,10 @@ public class CrossRefConverterTest extends ConversionTest {
     public void toPublicationSetsTheVolumeOfTheReferenceWhentheCrossrefDocHasAVolume() {
         String expectedVolume = "Vol. 1";
         sampleInputDocument.setVolume(expectedVolume);
-        String actualVolume = toPublication(sampleInputDocument).getEntityDescription().getReference()
-                                                                .getPublicationInstance()
-                                                                .getVolume();
+        String actualVolume = ((JournalArticle) (toPublication(sampleInputDocument)
+                .getEntityDescription().getReference()
+                .getPublicationInstance()))
+                .getVolume();
         assertThat(actualVolume, is(equalTo(expectedVolume)));
     }
 
@@ -227,7 +230,7 @@ public class CrossRefConverterTest extends ConversionTest {
         Pages actualPages = toPublication(sampleInputDocument).getEntityDescription().getReference()
                                                               .getPublicationInstance()
                                                               .getPages();
-        Pages expectedPages = new Pages.Builder().withBegins("45").withEnds("89").build();
+        Pages expectedPages = new Range.Builder().withBegin("45").withEnd("89").build();;
         assertThat(actualPages, is(equalTo(expectedPages)));
     }
 
@@ -237,11 +240,11 @@ public class CrossRefConverterTest extends ConversionTest {
         String expectedIssue = "SomeIssue";
 
         sampleInputDocument.setIssue(expectedIssue);
-        String actualIssue = toPublication(sampleInputDocument).getEntityDescription()
-                                                               .getReference()
-                                                               .getPublicationInstance()
-                                                               .getIssue();
-
+        String actualIssue = ((JournalArticle) (toPublication(sampleInputDocument)
+                .getEntityDescription()
+                .getReference()
+                .getPublicationInstance()))
+                .getIssue();
         assertThat(actualIssue, is(equalTo(expectedIssue)));
     }
 

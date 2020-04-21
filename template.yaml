@@ -88,7 +88,7 @@ Resources:
       CodeUri: .
       Handler: no.unit.nva.doi.transformer.MainHandler::handleRequest
       Runtime: java11
-      MemorySize: 512
+      MemorySize: 1400
       Environment:
         Variables:
           ALLOWED_ORIGIN: '*'
