@@ -105,7 +105,7 @@ public final class StringUtils {
         }
 
         String[] array = pages.replaceAll(NOT_DIGIT, SPACE)
-                              .trim()
+                              .strip()
                               .split(SPACE);
         String start = null;
         String end = null;

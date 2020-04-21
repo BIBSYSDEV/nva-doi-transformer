@@ -1,6 +1,20 @@
 package no.unit.nva.doi.transformer;
 
+import static java.util.function.Predicate.not;
+
 import com.ibm.icu.text.RuleBasedNumberFormat;
+import java.net.URI;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import no.unit.nva.doi.transformer.language.LanguageMapper;
 import no.unit.nva.doi.transformer.language.SimpleLanguageDetector;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
@@ -25,21 +39,6 @@ import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
-
-import java.net.URI;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static java.util.function.Predicate.not;
 
 public class CrossRefConverter extends AbstractConverter {
 
@@ -113,9 +112,9 @@ public class CrossRefConverter extends AbstractConverter {
 
     private boolean containsCrossrefAsSource(CrossRefDocument document) {
         return Optional.ofNullable(document.getSource())
-                .map(str -> str.toLowerCase(Locale.getDefault()))
-                .filter(str -> str.contains(CROSSREF))
-                .isPresent();
+                       .map(str -> str.toLowerCase(Locale.getDefault()))
+                       .filter(str -> str.contains(CROSSREF))
+                       .isPresent();
     }
 
     private Optional<URI> tryCreatingUri(String source) {
@@ -130,10 +129,10 @@ public class CrossRefConverter extends AbstractConverter {
         PublicationInstance instance = extractPublicationInstance(document);
         PublicationContext context = extractPublicationContext(document);
         return new Reference.Builder()
-                .withDoi(document.getDoi())
-                .withPublishingContext(context)
-                .withPublicationInstance(instance)
-                .build();
+            .withDoi(document.getDoi())
+            .withPublishingContext(context)
+            .withPublicationInstance(instance)
+            .build();
     }
 
     private Range extractPages(CrossRefDocument document) {
@@ -143,9 +142,9 @@ public class CrossRefConverter extends AbstractConverter {
     private PublicationContext extractPublicationContext(CrossRefDocument document) {
         try {
             return new Journal.Builder()
-                    .withLevel(null)
-                    .withTitle(extractJournalTitle(document))
-                    .build();
+                .withLevel(null)
+                .withTitle(extractJournalTitle(document))
+                .build();
         } catch (InvalidIssnException e) {
             e.printStackTrace();
             return null;
@@ -154,18 +153,18 @@ public class CrossRefConverter extends AbstractConverter {
 
     private PublicationInstance extractPublicationInstance(CrossRefDocument document) {
         return new JournalArticle.Builder()
-                .withVolume(document.getVolume())
-                .withIssue(document.getIssue())
-                .withPages(extractPages(document))
-                .build();
+            .withVolume(document.getVolume())
+            .withIssue(document.getIssue())
+            .withPages(extractPages(document))
+            .build();
     }
 
     private String extractJournalTitle(CrossRefDocument document) {
         return Optional.ofNullable(document.getContainerTitle())
-                .stream()
-                .flatMap(Collection::stream)
-                .findFirst()
-                .orElse(null);
+                       .stream()
+                       .flatMap(Collection::stream)
+                       .findFirst()
+                       .orElse(null);
     }
 
     private String extractDescription() {
