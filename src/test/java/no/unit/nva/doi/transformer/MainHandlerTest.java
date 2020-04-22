@@ -33,12 +33,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import no.bibsys.aws.tools.IoUtils;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.utils.TestLambdaLogger;
 import no.unit.nva.model.Publication;
+import nva.commons.utils.IoUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.junit.Assert;
@@ -117,7 +117,7 @@ public class MainHandlerTest extends ConversionTest {
         throws IOException, URISyntaxException {
 
         PublicationTransformer publicationTransformer = new PublicationTransformer();
-        String jsonString = IoUtils.resourceAsString(Paths.get(SAMPLE_CROSSREF_FILE));
+        String jsonString = IoUtils.stringFromResources(Paths.get(SAMPLE_CROSSREF_FILE));
         Instant now = Instant.now();
 
         Publication actualPublication = publicationTransformer
@@ -133,7 +133,7 @@ public class MainHandlerTest extends ConversionTest {
         throws IOException, URISyntaxException {
 
         PublicationTransformer transformer = new PublicationTransformer();
-        String jsonString = IoUtils.resourceAsString(Paths.get(DATACITE_RESPONSE_JSON));
+        String jsonString = IoUtils.stringFromResources(Paths.get(DATACITE_RESPONSE_JSON));
         Instant now = Instant.now();
 
         Publication actualPublication = transformer
