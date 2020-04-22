@@ -116,9 +116,10 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private PublicationType extractPublicationType(DataciteResponse dataciteResponse) {
-        String dataciteResourceType =
-                dataciteResponse.getTypes().getResourceType().equalsIgnoreCase(JOURNAL_ARTICLE.getValue())
-                        ? JOURNAL_CONTENT.getValue() : dataciteResponse.getTypes().getResourceType();
+        String dataciteResourceType = dataciteResponse.getTypes().getResourceType();
+        if (dataciteResourceType.equals(JOURNAL_ARTICLE.getValue())) {
+            dataciteResourceType = JOURNAL_CONTENT.getValue();
+        }
         return PublicationType.lookup(dataciteResourceType);
     }
 

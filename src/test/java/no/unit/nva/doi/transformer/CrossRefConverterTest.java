@@ -230,7 +230,7 @@ public class CrossRefConverterTest extends ConversionTest {
         Pages actualPages = toPublication(sampleInputDocument).getEntityDescription().getReference()
                                                               .getPublicationInstance()
                                                               .getPages();
-        Pages expectedPages = new Range.Builder().withBegin("45").withEnd("89").build();;
+        Pages expectedPages = new Range.Builder().withBegin("45").withEnd("89").build();
         assertThat(actualPages, is(equalTo(expectedPages)));
     }
 
