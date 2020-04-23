@@ -183,7 +183,7 @@ public class CrossRefConverterTest extends ConversionTest {
         Locale sampleLanguage = Locale.ENGLISH;
         sampleInputDocument.setLanguage(sampleLanguage.getISO3Language());
         URI actualLanguage = toPublication(sampleInputDocument).getEntityDescription().getLanguage();
-        URI expectedLanguage = LanguageMapper.getUriFromIso639(ENG_ISO_639_3);
+        URI expectedLanguage = LanguageMapper.getUriFromIso(ENG_ISO_639_3);
         assertThat(actualLanguage, is(equalTo(expectedLanguage)));
         assertThat(actualLanguage, is(notNullValue()));
     }

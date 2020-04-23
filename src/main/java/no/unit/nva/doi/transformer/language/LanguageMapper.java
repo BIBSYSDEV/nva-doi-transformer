@@ -10,11 +10,11 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundException;
 
@@ -23,7 +23,6 @@ public final class LanguageMapper {
     public static final String FIELD_DELIMITER = "\t";
     public static final Path LANGUAGE_URIS_RESOURCE = Path.of("languages", "lexvo-iso639-3.tsv");
     private static final Map<String, URI> ISO2URI = isoToUri(LANGUAGE_URIS_RESOURCE);
-    private static final Map<URI, String> URI2ISO = uriToIso(LANGUAGE_URIS_RESOURCE);
     public static final String ERROR_READING_FILE = "Could not read resource file:";
     public static final String URI_NOT_FOUND_ERROR = "Could not find a URI for the language:";
 
@@ -33,26 +32,12 @@ public final class LanguageMapper {
     /**
      * Map an ISO639-3 language identifier to a Language URI.
      *
-     * @param iso6393 An ISO639-3 identifier.
+     * @param iso An ISO639-3 identifier.
      * @return a language URI if this mapping is available or an empty {@link Optional} if there is no such mapping.
      */
-    public static Optional<URI> getUriFromIso639AsOptional(String iso6393) {
-        if (iso6393 != null) {
-            return Optional.ofNullable(ISO2URI.get(iso6393));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Returns an ISO639-3 code for the specified URI.
-     *
-     * @param uri A language URI
-     * @return An ISO639-3 code or empty optional if there is no mapping for the input URI
-     */
-    public static Optional<String> getIsoAsOptional(URI uri) {
-        if (uri != null) {
-            return Optional.ofNullable(URI2ISO.get(uri));
+    public static Optional<URI> getUriFromIsoAsOptional(String iso) {
+        if (iso != null) {
+            return Optional.ofNullable(ISO2URI.get(iso));
         } else {
             return Optional.empty();
         }
@@ -61,33 +46,19 @@ public final class LanguageMapper {
     /**
      * Map an ISO639-3 language identifier to a Language URI.
      *
-     * @param iso6393 An ISO639-3 identifier.
+     * @param iso An ISO639-3 identifier.
      * @return a language URI if this mapping is available or an empty {@link Optional} if there is no such mapping.
      * @throws LanguageUriNotFoundException when there is no mapping between the input string the available mappings.
      */
-    public static URI getUriFromIso639(String iso6393) throws LanguageUriNotFoundException {
-        if (!ISO2URI.containsKey(iso6393)) {
-            throw new LanguageUriNotFoundException(URI_NOT_FOUND_ERROR + iso6393);
+    public static URI getUriFromIso(String iso) throws LanguageUriNotFoundException {
+        if (!ISO2URI.containsKey(iso)) {
+            throw new LanguageUriNotFoundException(URI_NOT_FOUND_ERROR + iso);
         }
-        return ISO2URI.get(iso6393);
-    }
-
-    /**
-     * Map an Language URI to an ISO639-3 string.
-     *
-     * @param langUri A language URI from https://www.lexvo.org/.
-     * @return an ISO639-3 language code
-     * @throws LanguageUriNotFoundException when there is no mapping for the specified URI
-     */
-    public static URI getIso(URI langUri) throws LanguageUriNotFoundException {
-        if (!URI2ISO.containsKey(langUri)) {
-            throw new LanguageUriNotFoundException(URI_NOT_FOUND_ERROR + langUri);
-        }
-        return ISO2URI.get(langUri);
+        return ISO2URI.get(iso);
     }
 
     public static Collection<URI> languageUris() {
-        return ISO2URI.values();
+        return new HashSet<>(ISO2URI.values());
     }
 
     // For some reason it does not like the mapping to SimpleEntry
@@ -115,21 +86,6 @@ public final class LanguageMapper {
 
     private static String[] splitLineToArray(String line) {
         return line.split(FIELD_DELIMITER);
-    }
-
-    // For some reason it does not like the mapping to SimpleEntry
-    @SuppressWarnings("PMD.UseConcurrentHashMap")
-    private static Map<URI, String> uriToIso(Path path) {
-
-        List<String> lines = linesfromResource(path);
-        ConcurrentMap<URI, String> uriToIso = lines
-            .stream()
-            .map(line -> splitLineToArray(line))
-            .filter(array -> array.length >= 2)
-            .map(array -> new SimpleEntry<>(array[1], array[0]))
-            .map(e -> new SimpleEntry<>(URI.create(e.getKey()), e.getValue()))
-            .collect(Collectors.toConcurrentMap(SimpleEntry::getKey, SimpleEntry::getValue));
-        return Collections.unmodifiableMap(uriToIso);
     }
 
     private static InputStream inputStreamFromResources(Path path) {
