@@ -1,6 +1,8 @@
 package no.unit.nva.doi.transformer;
 
 import static java.util.function.Predicate.not;
+import static no.unit.nva.model.PublicationSubtype.JOURNAL_ARTICLE;
+import static no.unit.nva.model.PublicationType.JOURNAL_CONTENT;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,7 +22,6 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteTitle;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
 import no.unit.nva.model.Identity;
-import no.unit.nva.model.License;
 import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
@@ -28,6 +29,7 @@ import no.unit.nva.model.PublicationSubtype;
 import no.unit.nva.model.PublicationType;
 import no.unit.nva.model.Reference;
 import no.unit.nva.model.ResearchProject;
+import no.unit.nva.model.exceptions.MalformedContributorException;
 
 public class DataciteResponseConverter extends AbstractConverter {
 
@@ -62,7 +64,6 @@ public class DataciteResponseConverter extends AbstractConverter {
             .withHandle(extractHandle())
             .withLink(extractLink(dataciteResponse))
             .withIndexedDate(extractIndexedDate())
-            .withLicense(extractLicence())
             .withProject(extractProject())
             .withEntityDescription(
                 new EntityDescription.Builder()
@@ -115,7 +116,11 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private PublicationType extractPublicationType(DataciteResponse dataciteResponse) {
-        return PublicationType.lookup(dataciteResponse.getTypes().getResourceType());
+        String dataciteResourceType = dataciteResponse.getTypes().getResourceType();
+        if (dataciteResourceType.equals(JOURNAL_ARTICLE.getValue())) {
+            dataciteResourceType = JOURNAL_CONTENT.getValue();
+        }
+        return PublicationType.lookup(dataciteResourceType);
     }
 
     private Instant extractPublishedDate() {
@@ -123,10 +128,6 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private ResearchProject extractProject() {
-        return null;
-    }
-
-    private License extractLicence() {
         return null;
     }
 
@@ -153,10 +154,14 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
-        return new Contributor.Builder().withIdentity(
-            new Identity.Builder().withName(toName(dataciteCreator)).withNameType(
-                NameType.lookup(dataciteCreator.getNameType())).build()).withAffiliations(
-            toAffilitations()).withSequence(sequence).build();
+        try {
+            return new Contributor.Builder().withIdentity(
+                new Identity.Builder().withName(toName(dataciteCreator)).withNameType(
+                    NameType.lookup(dataciteCreator.getNameType())).build()).withAffiliations(
+                toAffilitations()).withSequence(sequence).build();
+        } catch (MalformedContributorException e) {
+            return null;
+        }
     }
 
     protected List<Organization> toAffilitations() {

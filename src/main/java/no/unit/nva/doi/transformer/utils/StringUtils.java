@@ -14,7 +14,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import no.unit.nva.model.Pages;
+import no.unit.nva.model.pages.Range;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -97,15 +97,15 @@ public final class StringUtils {
      * Parses "pages" strings to Pages object.
      *
      * @param pages A "pages" string
-     * @return A {@link Pages} object with the respective pages.
+     * @return A {@link Range} object with the respective pages.
      */
-    public static Pages parsePage(String pages) {
+    public static Range parsePage(String pages) {
         if (pages == null) {
             return null;
         }
 
         String[] array = pages.replaceAll(NOT_DIGIT, SPACE)
-                              .trim()
+                              .strip()
                               .split(SPACE);
         String start = null;
         String end = null;
@@ -115,7 +115,7 @@ public final class StringUtils {
                 end = array[1];
             }
         }
-        return new Pages.Builder().withBegins(start).withEnds(end).build();
+        return new Range.Builder().withBegin(start).withEnd(end).build();
     }
 
     private static boolean hasSecondArg(String[] array) {
