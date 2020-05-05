@@ -142,7 +142,6 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private URI createDoiUri(CrossRefDocument document) {
-
         return doiConverter.toUri(document.getDoi());
     }
 
@@ -256,9 +255,8 @@ public class CrossRefConverter extends AbstractConverter {
      * @throws MalformedContributorException when the contributer cannot be built.
      */
     private Contributor toContributor(Author author, int alternativeSequence) throws MalformedContributorException {
-
-        Identity identity = new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName()))
-            .build();
+        Identity identity =
+            new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName())).build();
         return new Contributor.Builder().withIdentity(identity)
             .withSequence(parseSequence(author.getSequence(), alternativeSequence)).build();
     }
