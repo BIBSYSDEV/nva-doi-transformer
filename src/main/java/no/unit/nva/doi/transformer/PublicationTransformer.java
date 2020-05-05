@@ -28,7 +28,8 @@ public class PublicationTransformer {
     private final ObjectMapper objectMapper;
 
     public PublicationTransformer() {
-        this(new DataciteResponseConverter(), new CrossRefConverter(), MainHandler.createObjectMapper());
+        this(new DataciteResponseConverter(),
+                new CrossRefConverter(), MainHandler.createObjectMapper());
     }
 
     /**
@@ -59,7 +60,7 @@ public class PublicationTransformer {
      */
 
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
-        throws JsonProcessingException, MisingClaimException, URISyntaxException {
+            throws JsonProcessingException, MisingClaimException, URISyntaxException {
         String owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
         String orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         UUID uuid = UUID.randomUUID();
@@ -70,7 +71,7 @@ public class PublicationTransformer {
 
     protected Publication convertInputToPublication(String body, String contentLocation, Instant now, String owner,
                                                     UUID identifier, URI publisher)
-        throws JsonProcessingException, URISyntaxException {
+            throws JsonProcessingException, URISyntaxException {
 
         MetadataLocation metadataLocation = MetadataLocation.lookup(contentLocation);
         if (metadataLocation.equals(MetadataLocation.CROSSREF)) {
@@ -81,13 +82,13 @@ public class PublicationTransformer {
     }
 
     private Publication convertFromDatacite(String body, Instant now, String owner, UUID uuid, URI publisherId)
-        throws JsonProcessingException, URISyntaxException {
+            throws JsonProcessingException, URISyntaxException {
         DataciteResponse dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
         return dataciteConverter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
     }
 
     private Publication convertFromCrossRef(String body, Instant now, String owner, UUID identifier, URI publisherId)
-        throws JsonProcessingException {
+            throws JsonProcessingException {
 
         CrossRefDocument document = objectMapper.readValue(body, CrossrefApiResponse.class).getMessage();
         return crossRefConverter.toPublication(document, now, owner, identifier, publisherId);
@@ -95,7 +96,7 @@ public class PublicationTransformer {
 
     private String getClaimValueFromRequestContext(JsonNode event, String claimName) throws MisingClaimException {
         return Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS + claimName).textValue())
-                       .orElseThrow(() -> new MisingClaimException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
+                .orElseThrow(() -> new MisingClaimException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
     }
 
     private URI toPublisherId(String orgNumber) {

@@ -30,8 +30,6 @@ import no.unit.nva.model.Journal;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationContext;
 import no.unit.nva.model.PublicationDate;
-import no.unit.nva.model.PublicationSubtype;
-import no.unit.nva.model.PublicationType;
 import no.unit.nva.model.Reference;
 import no.unit.nva.model.ResearchProject;
 import no.unit.nva.model.exceptions.InvalidIssnException;
@@ -40,6 +38,8 @@ import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
 import nva.commons.utils.attempt.Try;
+import nva.commons.utils.doi.DoiConverter;
+import nva.commons.utils.doi.DoiConverterImpl;
 
 public class CrossRefConverter extends AbstractConverter {
 
@@ -50,8 +50,11 @@ public class CrossRefConverter extends AbstractConverter {
     // The "journal" publication type in the crossref entries
     public static String JOURNAL_ARTICLE = "journal-article";
 
+    private final DoiConverter doiConverter;
+
     public CrossRefConverter() {
         super(new SimpleLanguageDetector());
+        this.doiConverter = new DoiConverterImpl();
     }
 
     /**
@@ -88,8 +91,6 @@ public class CrossRefConverter extends AbstractConverter {
                     .withDate(extractDate(document).orElse(null))
                     .withMainTitle(extractTitle(document))
                     .withAlternativeTitles(extractAlternativeTitles(document))
-                    .withPublicationType(extractPublicationType(document))
-                    .withPublicationSubtype(extractPublicationSubtype())
                     .withAbstract(extractAbstract(document))
                     .withLanguage(extractLanguage(document))
                     .withNpiSubjectHeading(extractNpiSubjectHeading())
@@ -113,9 +114,9 @@ public class CrossRefConverter extends AbstractConverter {
 
     private boolean containsCrossrefAsSource(CrossRefDocument document) {
         return Optional.ofNullable(document.getSource())
-                       .map(str -> str.toLowerCase(Locale.getDefault()))
-                       .filter(str -> str.contains(CROSSREF))
-                       .isPresent();
+            .map(str -> str.toLowerCase(Locale.getDefault()))
+            .filter(str -> str.contains(CROSSREF))
+            .isPresent();
     }
 
     private Optional<URI> tryCreatingUri(String source) {
@@ -130,10 +131,14 @@ public class CrossRefConverter extends AbstractConverter {
         PublicationInstance instance = extractPublicationInstance(document);
         PublicationContext context = extractPublicationContext(document);
         return new Reference.Builder()
-            .withDoi(document.getDoi())
+            .withDoi(createDoiUri(document))
             .withPublishingContext(context)
             .withPublicationInstance(instance)
             .build();
+    }
+
+    private URI createDoiUri(CrossRefDocument document) {
+        return doiConverter.toUri(document.getDoi());
     }
 
     private Range extractPages(CrossRefDocument document) {
@@ -162,10 +167,10 @@ public class CrossRefConverter extends AbstractConverter {
 
     private String extractJournalTitle(CrossRefDocument document) {
         return Optional.ofNullable(document.getContainerTitle())
-                       .stream()
-                       .flatMap(Collection::stream)
-                       .findFirst()
-                       .orElse(null);
+            .stream()
+            .flatMap(Collection::stream)
+            .findFirst()
+            .orElse(null);
     }
 
     private String extractDescription() {
@@ -178,32 +183,20 @@ public class CrossRefConverter extends AbstractConverter {
 
     private String extractAbstract(CrossRefDocument document) {
         return Optional.ofNullable(document.getAbstractText())
-                       .map(StringUtils::removeXmlTags)
-                       .orElse(null);
+            .map(StringUtils::removeXmlTags)
+            .orElse(null);
     }
 
     private Map<String, String> extractAlternativeTitles(CrossRefDocument document) {
         String mainTitle = extractTitle(document);
         return document.getTitle().stream()
-                       .filter(not(title -> title.equals(mainTitle)))
-                       .map(this::detectLanguage)
-                       .collect(Collectors.toConcurrentMap(TextLang::getText, e -> e.getLanguage().toString()));
-    }
-
-    private PublicationSubtype extractPublicationSubtype() {
-        return null;
+            .filter(not(title -> title.equals(mainTitle)))
+            .map(this::detectLanguage)
+            .collect(Collectors.toConcurrentMap(TextLang::getText, e -> e.getLanguage().toString()));
     }
 
     private boolean hasTitle(CrossRefDocument document) {
         return document.getTitle() != null && !document.getTitle().isEmpty();
-    }
-
-    protected PublicationType extractPublicationType(CrossRefDocument document) {
-        if (document.getType().equalsIgnoreCase(JOURNAL_ARTICLE)) {
-            return PublicationType.JOURNAL_CONTENT;
-        } else {
-            throw new IllegalArgumentException(NOT_A_JOURNAL_ARTICLE_ERROR);
-        }
     }
 
     private String extractTitle(CrossRefDocument document) {
@@ -218,7 +211,7 @@ public class CrossRefConverter extends AbstractConverter {
      */
     private Optional<PublicationDate> extractDate(CrossRefDocument document) {
         Optional<Integer> earliestYear = Optional.ofNullable(document.getPublishedPrint())
-                                                 .flatMap(CrossrefDate::extractEarliestYear);
+            .flatMap(CrossrefDate::extractEarliestYear);
 
         return earliestYear.map(this::toDate);
     }
@@ -227,9 +220,9 @@ public class CrossRefConverter extends AbstractConverter {
         if (authors != null) {
             List<Try<Contributor>> contributorMappings =
                 IntStream.range(0, authors.size())
-                         .boxed()
-                         .map(attempt(index -> toContributor(authors.get(index), index + 1)))
-                         .collect(Collectors.toList());
+                    .boxed()
+                    .map(attempt(index -> toContributor(authors.get(index), index + 1)))
+                    .collect(Collectors.toList());
 
             reportFailures(contributorMappings);
             return successfulMappings(contributorMappings);
@@ -240,9 +233,9 @@ public class CrossRefConverter extends AbstractConverter {
 
     private List<Contributor> successfulMappings(List<Try<Contributor>> contributorMappings) {
         return contributorMappings.stream()
-                                  .filter(Try::isSuccess)
-                                  .map(Try::get)
-                                  .collect(Collectors.toList());
+            .filter(Try::isSuccess)
+            .map(Try::get)
+            .collect(Collectors.toList());
     }
 
     private void reportFailures(List<Try<Contributor>> contributors) {
@@ -251,7 +244,8 @@ public class CrossRefConverter extends AbstractConverter {
 
     /**
      * Coverts an author to a Conatributor (from external model to internal).
-     * @param author the Author.
+     *
+     * @param author              the Author.
      * @param alternativeSequence sequence in case where the Author object does not contain a valid sequence entry
      * @return a Contributor object.
      * @throws MalformedContributorException when the contributer cannot be built.
@@ -259,9 +253,9 @@ public class CrossRefConverter extends AbstractConverter {
     private Contributor toContributor(Author author, int alternativeSequence) throws MalformedContributorException {
 
         Identity identity = new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName()))
-                                                  .build();
+            .build();
         return new Contributor.Builder().withIdentity(identity)
-                                        .withSequence(parseSequence(author.getSequence(), alternativeSequence)).build();
+            .withSequence(parseSequence(author.getSequence(), alternativeSequence)).build();
     }
 
     /**
