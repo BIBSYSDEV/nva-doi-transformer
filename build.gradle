@@ -32,7 +32,7 @@ dependencies {
 
 
     // map ordinals to numbers
-    implementation group: 'com.ibm.icu', name: 'icu4j', version: '66.1'
+    implementation group: 'com.ibm.icu', name: 'icu4j', version: '67.1'
 
     testImplementation group: 'com.github.BIBSYSDEV', name: 'nva-testutils', version: '0.1.6'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.2.4'
