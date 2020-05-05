@@ -25,7 +25,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.2'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.10.2'
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.10'
-    implementation group: 'org.zalando', name: 'problem', version: '0.23.0'
+    implementation group: 'org.zalando', name: 'problem', version: '0.24.0'
     implementation group: 'org.zalando', name: 'jackson-datatype-problem', version: '0.23.0'
 
     implementation group: 'com.github.BIBSYSDEV', name: 'nva-commons', version: '0.3.1'
