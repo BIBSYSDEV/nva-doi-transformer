@@ -9,7 +9,6 @@ import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import no.unit.nva.model.Publication;
 import org.apache.http.entity.ContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemModule;
 
@@ -41,7 +42,8 @@ public class MainHandler implements RequestStreamHandler {
     public final transient ObjectMapper objectMapper;
     private final transient String allowedOrigin;
     private final PublicationTransformer publicationTransformer;
-    private LambdaLogger logger;
+
+    private  static Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
     @JacocoGenerated
     public MainHandler() {
@@ -67,8 +69,6 @@ public class MainHandler implements RequestStreamHandler {
 
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
-        init(context);
-        logger.log("This is a test message testing logging. Phase 1. Phase 2 is to add log4j2.xml configuration");
         JsonNode event;
         String body;
         String contentLocation;
@@ -86,7 +86,7 @@ public class MainHandler implements RequestStreamHandler {
 
         try {
             Publication publication = publicationTransformer.transformPublication(event, body, contentLocation);
-            log(objectMapper.writeValueAsString(publication));
+            logger.info(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output,
                 new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
         } catch (Exception e) {
@@ -97,9 +97,6 @@ public class MainHandler implements RequestStreamHandler {
         }
     }
 
-    private void init(Context context) {
-        logger = context.getLogger();
-    }
 
     private String extractRequestBody(JsonNode event) {
         JsonNode body = event.get(BODY);
@@ -155,7 +152,5 @@ public class MainHandler implements RequestStreamHandler {
                                  .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
 
-    public static void log(String message) {
-        System.out.println(message);
-    }
+
 }
