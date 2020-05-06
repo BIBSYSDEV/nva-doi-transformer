@@ -43,7 +43,7 @@ public class MainHandler implements RequestStreamHandler {
     private final transient String allowedOrigin;
     private final PublicationTransformer publicationTransformer;
 
-    private final Logger logger = LoggerFactory.getLogger(MainHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
     @JacocoGenerated
     public MainHandler() {
