@@ -57,11 +57,6 @@ public class CrossRefConverter extends AbstractConverter {
         this.doiConverter = new DoiConverterImpl();
     }
 
-    //    public CrossRefConverter(DoiConverterInterface doiConverter) {
-    //        super(new SimpleLanguageDetector());
-    //        this.doiConverter = doiConverter;
-    //    }
-
     /**
      * Creates a publication.
      *
