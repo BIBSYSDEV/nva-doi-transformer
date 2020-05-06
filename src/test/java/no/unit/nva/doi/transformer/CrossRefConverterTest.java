@@ -38,7 +38,7 @@ import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.pages.Pages;
 import no.unit.nva.model.pages.Range;
 import nva.commons.utils.IoUtils;
-import nva.commons.utils.doi.DoiConverter;
+import nva.commons.utils.doi.DoiConverterImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -196,7 +196,7 @@ public class CrossRefConverterTest extends ConversionTest {
     @DisplayName("toPublication sets the doi of the Reference when the Crossref document has a \"DOI\" value ")
     public void toPublicationSetsTheDoiOfTheReferenceWhenTheCrossrefDocHasADoiValue() {
         sampleInputDocument.setDoi(SOME_DOI);
-        String expectedDoiUrl = "https://" + DoiConverter.DOI_HOST + "/" + SOME_DOI;
+        String expectedDoiUrl = "https://" + DoiConverterImpl.DOI_HOST + "/" + SOME_DOI;
         URI actualDoi = toPublication(sampleInputDocument).getEntityDescription().getReference().getDoi();
         assertThat(actualDoi.toString(), is(equalTo(expectedDoiUrl)));
     }
@@ -280,7 +280,7 @@ public class CrossRefConverterTest extends ConversionTest {
     }
 
     private Publication toPublication(CrossRefDocument doc) {
-        CrossRefConverter crossRefConverter = new CrossRefConverter(new DoiConverter());
+        CrossRefConverter crossRefConverter = new CrossRefConverter();
         return crossRefConverter.toPublication(doc, NOW, OWNER, DOC_ID, SOME_PUBLISHER_URI);
     }
 

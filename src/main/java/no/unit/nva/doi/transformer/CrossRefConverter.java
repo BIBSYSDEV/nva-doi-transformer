@@ -39,6 +39,7 @@ import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
 import nva.commons.utils.attempt.Try;
 import nva.commons.utils.doi.DoiConverter;
+import nva.commons.utils.doi.DoiConverterImpl;
 
 public class CrossRefConverter extends AbstractConverter {
 
@@ -53,13 +54,13 @@ public class CrossRefConverter extends AbstractConverter {
 
     public CrossRefConverter() {
         super(new SimpleLanguageDetector());
-        this.doiConverter = new DoiConverter();
+        this.doiConverter = new DoiConverterImpl();
     }
 
-    public CrossRefConverter(DoiConverter doiConverter) {
-        super(new SimpleLanguageDetector());
-        this.doiConverter = doiConverter;
-    }
+    //    public CrossRefConverter(DoiConverterInterface doiConverter) {
+    //        super(new SimpleLanguageDetector());
+    //        this.doiConverter = doiConverter;
+    //    }
 
     /**
      * Creates a publication.
