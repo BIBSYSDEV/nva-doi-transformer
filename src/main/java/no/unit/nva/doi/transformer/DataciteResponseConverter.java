@@ -1,5 +1,6 @@
 package no.unit.nva.doi.transformer;
 
+import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
 import static no.unit.nva.model.PublicationSubtype.JOURNAL_ARTICLE;
 import static no.unit.nva.model.PublicationType.JOURNAL_CONTENT;
@@ -16,29 +17,37 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.unit.nva.doi.transformer.language.LanguageDetector;
 import no.unit.nva.doi.transformer.language.SimpleLanguageDetector;
+import no.unit.nva.doi.transformer.model.internal.external.Creator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteTitle;
+import no.unit.nva.doi.transformer.utils.DataciteTypesUtil;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
 import no.unit.nva.model.Identity;
+import no.unit.nva.model.Journal;
 import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
+import no.unit.nva.model.PublicationContext;
 import no.unit.nva.model.PublicationSubtype;
 import no.unit.nva.model.PublicationType;
 import no.unit.nva.model.Reference;
 import no.unit.nva.model.ResearchProject;
+import no.unit.nva.model.exceptions.InvalidIssnException;
 import no.unit.nva.model.exceptions.MalformedContributorException;
+import no.unit.nva.model.instancetypes.PublicationInstance;
+import nva.commons.utils.doi.DoiConverter;
+import nva.commons.utils.doi.DoiConverterImpl;
 
 public class DataciteResponseConverter extends AbstractConverter {
 
     public DataciteResponseConverter() {
-        this(new SimpleLanguageDetector());
+        this(new SimpleLanguageDetector(), new DoiConverterImpl());
     }
 
-    public DataciteResponseConverter(LanguageDetector languageDetector) {
-        super(languageDetector);
+    public DataciteResponseConverter(LanguageDetector languageDetector, DoiConverter doiConverter) {
+        super(languageDetector, doiConverter);
     }
 
     /**
@@ -72,10 +81,8 @@ public class DataciteResponseConverter extends AbstractConverter {
                     .withMainTitle(extractMainTitle(dataciteResponse))
                     .withAbstract(extractAbstract())
                     .withAlternativeTitles(extractAlternativeTitles(dataciteResponse))
-                    .withPublicationType(extractPublicationType(dataciteResponse))
-                    .withPublicationSubtype(createPublicationSubType())
                     .withLanguage(createLanguage())
-                    .withReference(createReference())
+                    .withReference(createReference(dataciteResponse))
                     .withTags(createTags())
                     .withDescription(createDescription())
                     .build())
@@ -99,7 +106,28 @@ public class DataciteResponseConverter extends AbstractConverter {
         return null;
     }
 
-    private Reference createReference() {
+    private Reference createReference(DataciteResponse dataciteResponse) {
+        return new Reference.Builder()
+                .withDoi(doiConverter.toUri(dataciteResponse.getDoi()))
+                .withPublishingContext(extractPublicationContext(dataciteResponse))
+                .withPublicationInstance(extracPublicationInstance(dataciteResponse))
+                .build();
+    }
+
+    private PublicationInstance extracPublicationInstance(DataciteResponse dataciteResponse) {
+        return null;
+    }
+
+    private PublicationContext extractPublicationContext(DataciteResponse dataciteResponse) {
+        PublicationType type = DataciteTypesUtil.mapToType(dataciteResponse);
+        if (nonNull(type) && type.equals(JOURNAL_CONTENT)) {
+            try {
+                return new Journal.Builder()
+                        .build();
+            } catch (InvalidIssnException e) {
+                e.printStackTrace();
+            }
+        }
         return null;
     }
 

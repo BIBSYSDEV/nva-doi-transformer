@@ -1,5 +1,7 @@
 package no.unit.nva.doi.transformer.model.internal.external;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
 public class DataciteCreator {
@@ -9,6 +11,10 @@ public class DataciteCreator {
     private String givenName;
     private String familyName;
     private List<DataciteAffiliation> affiliation;
+
+    public DataciteCreator() {
+
+    }
 
     public String getName() {
         return name;

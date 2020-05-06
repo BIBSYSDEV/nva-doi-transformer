@@ -32,7 +32,7 @@ public class DataciteResponseConverterTest {
     private static final UUID SOME_ID = UUID.randomUUID();
     private static final String SOME_OWNER = "SomeOwner";
     private static final URI SOME_URI = URI.create("SomeUri");
-    private ObjectMapper objectMapper = MainHandler.createObjectMapper();
+    private final ObjectMapper objectMapper = MainHandler.createObjectMapper();
 
     @Test
     public void test() throws IOException, URISyntaxException {

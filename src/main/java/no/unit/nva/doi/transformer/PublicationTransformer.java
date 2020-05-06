@@ -13,6 +13,8 @@ import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
+import no.unit.nva.model.exceptions.InvalidIssnException;
+import no.unit.nva.model.exceptions.InvalidPageTypeException;
 import no.unit.nva.model.util.OrgNumberMapper;
 
 public class PublicationTransformer {
@@ -23,8 +25,8 @@ public class PublicationTransformer {
     public static final String MISSING_CLAIM_IN_REQUEST_CONTEXT = "Missing claim in requestContext: ";
     public static final String ORG_NUMBER_COUNTRY_PREFIX_NORWAY = "NO";
 
-    private DataciteResponseConverter dataciteConverter;
-    private CrossRefConverter crossRefConverter;
+    private final DataciteResponseConverter dataciteConverter;
+    private final CrossRefConverter crossRefConverter;
     private final ObjectMapper objectMapper;
 
     public PublicationTransformer() {
@@ -59,7 +61,8 @@ public class PublicationTransformer {
      */
 
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
-        throws JsonProcessingException, MisingClaimException, URISyntaxException {
+            throws JsonProcessingException, MisingClaimException, URISyntaxException, InvalidIssnException,
+            InvalidPageTypeException {
         String owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
         String orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         UUID uuid = UUID.randomUUID();
@@ -70,7 +73,7 @@ public class PublicationTransformer {
 
     protected Publication convertInputToPublication(String body, String contentLocation, Instant now, String owner,
                                                     UUID identifier, URI publisher)
-        throws JsonProcessingException, URISyntaxException {
+            throws JsonProcessingException, URISyntaxException, InvalidIssnException, InvalidPageTypeException {
 
         MetadataLocation metadataLocation = MetadataLocation.lookup(contentLocation);
         if (metadataLocation.equals(MetadataLocation.CROSSREF)) {
@@ -87,7 +90,7 @@ public class PublicationTransformer {
     }
 
     private Publication convertFromCrossRef(String body, Instant now, String owner, UUID identifier, URI publisherId)
-        throws JsonProcessingException {
+            throws JsonProcessingException, InvalidIssnException, InvalidPageTypeException {
 
         CrossRefDocument document = objectMapper.readValue(body, CrossrefApiResponse.class).getMessage();
         return crossRefConverter.toPublication(document, now, owner, identifier, publisherId);
