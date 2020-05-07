@@ -32,8 +32,7 @@ public enum CrossrefType {
         return Arrays.stream(values())
                 .filter(crossrefType -> !crossrefType.equals(NON_EXISTING_TYPE))
                 .filter(crossrefType -> crossrefType.getType().equals(type))
-                .findFirst()
-                .orElse(NON_EXISTING_TYPE);
+                .collect(SingletonCollector.collectOrElse(NON_EXISTING_TYPE));
     }
 
     public String getType() {

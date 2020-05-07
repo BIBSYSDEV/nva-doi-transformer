@@ -189,8 +189,7 @@ public enum SchemaOrgType {
         return Arrays.stream(values())
                 .filter(schemaOrgType -> !schemaOrgType.equals(SchemaOrgType.NON_EXISTING_TYPE))
                 .filter(s -> s.getType().equals(type))
-                .findFirst()
-                .orElse(NON_EXISTING_TYPE);
+                .collect(SingletonCollector.collectOrElse(NON_EXISTING_TYPE));
     }
 
     public PublicationType getPublicationType() {

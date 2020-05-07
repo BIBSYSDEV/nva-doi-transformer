@@ -67,8 +67,7 @@ public enum RisType {
         return Arrays.stream(values())
                 .filter(risType -> !risType.equals(RisType.NON_EXISTING_TYPE))
                 .filter(s -> s.name().equalsIgnoreCase(type))
-                .findFirst()
-                .orElse(NON_EXISTING_TYPE);
+                .collect(SingletonCollector.collectOrElse(NON_EXISTING_TYPE));
     }
 
     public PublicationType getPublicationType() {

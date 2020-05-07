@@ -16,12 +16,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import no.unit.nva.model.Publication;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -43,7 +45,7 @@ public class MainHandler implements RequestStreamHandler {
     private final transient String allowedOrigin;
     private final PublicationTransformer publicationTransformer;
 
-    private  static Logger logger = LoggerFactory.getLogger(MainHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
     @JacocoGenerated
     public MainHandler() {
@@ -62,9 +64,9 @@ public class MainHandler implements RequestStreamHandler {
                        CrossRefConverter crossRefConverter, Environment environment) {
         this.objectMapper = objectMapper;
         this.publicationTransformer = new PublicationTransformer(dataciteConverter, crossRefConverter,
-            createObjectMapper());
+                createObjectMapper());
         this.allowedOrigin = environment.get(ALLOWED_ORIGIN).orElseThrow(
-            () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
+                () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
     }
 
     @Override
@@ -79,8 +81,8 @@ public class MainHandler implements RequestStreamHandler {
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output,
-                new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())),
-                    failureResponseHeaders(), SC_BAD_REQUEST));
+                    new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())),
+                            failureResponseHeaders(), SC_BAD_REQUEST));
             return;
         }
 
@@ -88,12 +90,12 @@ public class MainHandler implements RequestStreamHandler {
             Publication publication = publicationTransformer.transformPublication(event, body, contentLocation);
             logger.info(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output,
-                new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
+                    new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(
-                objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
-                failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
+                    objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
+                    failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -146,11 +148,11 @@ public class MainHandler implements RequestStreamHandler {
      */
     public static ObjectMapper createObjectMapper() {
         return new ObjectMapper().registerModule(new ProblemModule()).registerModule(new JavaTimeModule())
-                                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                                 .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
-                                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
 
 
