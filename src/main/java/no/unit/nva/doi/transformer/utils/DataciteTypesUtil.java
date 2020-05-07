@@ -6,6 +6,7 @@ import no.unit.nva.model.PublicationType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,11 +18,19 @@ public class DataciteTypesUtil {
     public static final String TYPE_TEXT = "text";
     public static final String JOURNAL = "journal";
     public static final String ARTICLE = "article";
+    public static final int SINGLETON = 1;
+    public static final int ONLY_ELEMENT = 0;
 
+    /**
+     * Maps the potentially many content types found in a Datacite response to a PublicationType.
+     *
+     * @param dataciteResponse a DataciteResponse document.
+     * @return a PublicationType.
+     */
     public static PublicationType mapToType(DataciteResponse dataciteResponse) {
         DataciteTypes types = dataciteResponse.getTypes();
         String resourceType = Optional.ofNullable(types.getResourceTypeGeneral()).orElse(null);
-        if (nonNull(resourceType) && resourceType.toLowerCase().equals(TYPE_TEXT)) {
+        if (nonNull(resourceType) && resourceType.equalsIgnoreCase(TYPE_TEXT)) {
             return getAnalyzedType(types);
         }
         return null;
@@ -43,8 +52,8 @@ public class DataciteTypesUtil {
             return null;
         }
 
-        if (publicationTypeList.size() == 1) {
-            return publicationTypeList.get(0);
+        if (publicationTypeList.size() == SINGLETON) {
+            return publicationTypeList.get(ONLY_ELEMENT);
         }
 
         Map<PublicationType, Long> typeCounts = getTypeCounts(publicationTypeList);
@@ -60,7 +69,7 @@ public class DataciteTypesUtil {
     }
 
     private static boolean dataCiteResourceContainsJournalArticle(String resourceType) {
-        String uncontrolledResourceType = resourceType.toLowerCase();
+        String uncontrolledResourceType = resourceType.toLowerCase(Locale.ENGLISH);
         return uncontrolledResourceType.contains(JOURNAL) && uncontrolledResourceType.contains(ARTICLE);
     }
 }

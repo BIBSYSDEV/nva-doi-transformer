@@ -3,11 +3,13 @@ package no.unit.nva.doi.transformer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+
 import no.unit.nva.doi.transformer.excpetions.MisingClaimException;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
@@ -55,11 +57,13 @@ public class PublicationTransformer {
      * @param body            the request body as extracted from the event.
      * @param contentLocation crossref or datacite.
      * @return a Publication.
-     * @throws JsonProcessingException when cannot process json.
-     * @throws MisingClaimException    when request does not have the required claims.
-     * @throws URISyntaxException      when the input contains invalid URIs
+     * @throws JsonProcessingException  when cannot process json.
+     * @throws MisingClaimException     when request does not have the required claims.
+     * @throws URISyntaxException       when the input contains invalid URIs
+     * @throws InvalidIssnException     thrown if a provided ISSN is invalid.
+     * @throws InvalidPageTypeException thrown if the provided page type is incompatible with
+     *                                  the publication instance type.
      */
-
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
             throws JsonProcessingException, MisingClaimException, URISyntaxException, InvalidIssnException,
             InvalidPageTypeException {
@@ -84,7 +88,7 @@ public class PublicationTransformer {
     }
 
     private Publication convertFromDatacite(String body, Instant now, String owner, UUID uuid, URI publisherId)
-        throws JsonProcessingException, URISyntaxException {
+            throws JsonProcessingException, URISyntaxException {
         DataciteResponse dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
         return dataciteConverter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
     }
@@ -98,7 +102,7 @@ public class PublicationTransformer {
 
     private String getClaimValueFromRequestContext(JsonNode event, String claimName) throws MisingClaimException {
         return Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS + claimName).textValue())
-                       .orElseThrow(() -> new MisingClaimException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
+                .orElseThrow(() -> new MisingClaimException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
     }
 
     private URI toPublisherId(String orgNumber) {

@@ -1,7 +1,5 @@
 package no.unit.nva.doi.transformer.model.internal.external;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.List;
 
 public class DataciteCreator {

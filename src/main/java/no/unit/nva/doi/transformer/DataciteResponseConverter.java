@@ -1,23 +1,7 @@
 package no.unit.nva.doi.transformer;
 
-import static java.util.Objects.nonNull;
-import static java.util.function.Predicate.not;
-import static no.unit.nva.model.PublicationSubtype.JOURNAL_ARTICLE;
-import static no.unit.nva.model.PublicationType.JOURNAL_CONTENT;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Instant;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import no.unit.nva.doi.transformer.language.LanguageDetector;
 import no.unit.nva.doi.transformer.language.SimpleLanguageDetector;
-import no.unit.nva.doi.transformer.model.internal.external.Creator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteCreator;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteTitle;
@@ -30,7 +14,6 @@ import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.PublicationContext;
-import no.unit.nva.model.PublicationSubtype;
 import no.unit.nva.model.PublicationType;
 import no.unit.nva.model.Reference;
 import no.unit.nva.model.ResearchProject;
@@ -39,6 +22,21 @@ import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import nva.commons.utils.doi.DoiConverter;
 import nva.commons.utils.doi.DoiConverterImpl;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.Instant;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
+import static no.unit.nva.model.PublicationType.JOURNAL_CONTENT;
 
 public class DataciteResponseConverter extends AbstractConverter {
 
@@ -110,11 +108,11 @@ public class DataciteResponseConverter extends AbstractConverter {
         return new Reference.Builder()
                 .withDoi(doiConverter.toUri(dataciteResponse.getDoi()))
                 .withPublishingContext(extractPublicationContext(dataciteResponse))
-                .withPublicationInstance(extracPublicationInstance(dataciteResponse))
+                .withPublicationInstance(extractPublicationInstance())
                 .build();
     }
 
-    private PublicationInstance extracPublicationInstance(DataciteResponse dataciteResponse) {
+    private PublicationInstance extractPublicationInstance() {
         return null;
     }
 
@@ -137,18 +135,6 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private URI createLanguage() {
         return null;
-    }
-
-    private PublicationSubtype createPublicationSubType() {
-        return null;
-    }
-
-    private PublicationType extractPublicationType(DataciteResponse dataciteResponse) {
-        String dataciteResourceType = dataciteResponse.getTypes().getResourceType();
-        if (dataciteResourceType.equals(JOURNAL_ARTICLE.getValue())) {
-            dataciteResourceType = JOURNAL_CONTENT.getValue();
-        }
-        return PublicationType.lookup(dataciteResourceType);
     }
 
     private Instant extractPublishedDate() {

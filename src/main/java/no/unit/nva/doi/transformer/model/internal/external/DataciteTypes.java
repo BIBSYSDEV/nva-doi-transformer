@@ -15,6 +15,16 @@ public class DataciteTypes {
     private String resourceType;
     private String resourceTypeGeneral;
 
+    /**
+     * Constructor for Datacite types structures.
+     *
+     * @param ris the RIS type.
+     * @param bibtex the BibTeX type.
+     * @param citeproc the CiteProc type.
+     * @param schemaOrg the Schema.org type.
+     * @param resourceType the Datacite resource type.
+     * @param resourceTypeGeneral the Datacite resource type general.
+     */
     public DataciteTypes(
                          @JsonProperty("ris") String ris,
                          @JsonProperty("bibtex") String bibtex,
@@ -44,7 +54,7 @@ public class DataciteTypes {
         return ris;
     }
 
-    public void setRis(String ris) {
+    private void setRis(String ris) {
         this.ris = RisType.getByType(ris);
     }
 
@@ -52,7 +62,7 @@ public class DataciteTypes {
         return bibtex;
     }
 
-    public void setBibtex(String bibtex) {
+    private void setBibtex(String bibtex) {
         this.bibtex = BibTexType.getByType(bibtex);
     }
 
@@ -60,7 +70,7 @@ public class DataciteTypes {
         return citeproc;
     }
 
-    public void setCiteproc(String citeproc) {
+    private void setCiteproc(String citeproc) {
         this.citeproc = CiteProcType.getByType(citeproc);
     }
 
@@ -68,7 +78,7 @@ public class DataciteTypes {
         return schemaOrg;
     }
 
-    public void setSchemaOrg(String schemaOrg) {
+    private void setSchemaOrg(String schemaOrg) {
         this.schemaOrg = SchemaOrgType.getByType(schemaOrg);
     }
 

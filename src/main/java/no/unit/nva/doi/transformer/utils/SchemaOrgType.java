@@ -175,6 +175,12 @@ public enum SchemaOrgType {
         this.publicationType = publicationType;
     }
 
+    /**
+     * Retrieve the PublicationType based on a Schema.org type string.
+     *
+     * @param type the Schema.org type string.
+     * @return a PublicationType.
+     */
     public static SchemaOrgType getByType(String type) {
         if (isNull(type)) {
             return NON_EXISTING_TYPE;

@@ -18,6 +18,12 @@ public enum CrossrefType {
         this.publicationType = publicationType;
     }
 
+    /**
+     * Retrieve the PublicationType based on a Crossref type string.
+     *
+     * @param type the Crossref type string.
+     * @return a PublicationType.
+     */
     public static CrossrefType getByType(String type) {
         if (isNull(type)) {
             return NON_EXISTING_TYPE;

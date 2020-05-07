@@ -131,7 +131,7 @@ public class CrossRefConverterTest extends ConversionTest {
     @DisplayName("toPublication sets PublicationContext to Journal when the input has the tag \"journal-article\"")
     public void toPublicationSetsPublicationContextToJournalWhenTheInputHasTheTagJournalArticle() {
         assertThat(samplePublication.getEntityDescription().getReference().getPublicationContext().getClass(),
-            is(equalTo(Journal.class)));
+                is(equalTo(Journal.class)));
     }
 
     @Test
@@ -154,10 +154,10 @@ public class CrossRefConverterTest extends ConversionTest {
         });
         Publication publication = toPublication(sampleInputDocument);
         List<Integer> ordinals = publication.getEntityDescription().getContributors().stream()
-                                            .map(Contributor::getSequence).collect(Collectors.toList());
+                .map(Contributor::getSequence).collect(Collectors.toList());
         assertThat(ordinals.size(), is(numberOfAuthors));
         List<Integer> expectedValues = IntStream.range(0, numberOfAuthors).map(this::startCountingFromOne).boxed()
-                                                .collect(Collectors.toList());
+                .collect(Collectors.toList());
         assertThat(ordinals, contains(expectedValues.toArray()));
     }
 
@@ -170,7 +170,7 @@ public class CrossRefConverterTest extends ConversionTest {
         author.setSequence(validOrdinal);
 
         int actual = toPublication(sampleInputDocument).getEntityDescription().getContributors().stream().findFirst()
-                                                       .get().getSequence();
+                .get().getSequence();
         assertThat(actual, is(equalTo(expected)));
     }
 
@@ -210,7 +210,7 @@ public class CrossRefConverterTest extends ConversionTest {
 
     @Test
     @DisplayName("toPublication sets the doi of the Reference when the Crossref document has at least one"
-        + " \"Container\" value ")
+            + " \"Container\" value ")
     public void toPublicationSetsTheNameOfTheReferenceWhenTheCrossrefDocHasAtLeatOneContainterTitle() throws
             InvalidIssnException, InvalidPageTypeException {
         String firstNameOfJournal = "Journal 1st Name";
@@ -218,7 +218,7 @@ public class CrossRefConverterTest extends ConversionTest {
         sampleInputDocument.setContainerTitle(Arrays.asList(firstNameOfJournal, secondNameOfJournal));
 
         String actualJournalName = toPublication(sampleInputDocument).getEntityDescription().getReference()
-                                                                     .getPublicationContext().getTitle();
+                .getPublicationContext().getTitle();
         assertThat(actualJournalName, is(equalTo(firstNameOfJournal)));
     }
 
@@ -243,8 +243,8 @@ public class CrossRefConverterTest extends ConversionTest {
 
         sampleInputDocument.setPage(pages);
         Pages actualPages = toPublication(sampleInputDocument).getEntityDescription().getReference()
-                                                              .getPublicationInstance()
-                                                              .getPages();
+                .getPublicationInstance()
+                .getPages();
         Pages expectedPages = new Range.Builder().withBegin("45").withEnd("89").build();
         assertThat(actualPages, is(equalTo(expectedPages)));
     }
@@ -266,7 +266,7 @@ public class CrossRefConverterTest extends ConversionTest {
 
     @Test
     @DisplayName("toPublication sets the MetadataSource to the CrossRef URL when the Crossref "
-        + "document has a \"source\" containing the word crossref")
+            + "document has a \"source\" containing the word crossref")
     public void toPublicationSetsTheMetadataSourceToTheCrossRefUrlWhenTheCrossrefDocHasCrossrefAsSource() throws
             InvalidIssnException, InvalidPageTypeException {
         String source = "Crossref";
@@ -280,7 +280,7 @@ public class CrossRefConverterTest extends ConversionTest {
 
     @Test
     @DisplayName("toPublication sets the MetadataSource to the specfied URL when the Crossref "
-        + "document has as \"source\" a valid URL")
+            + "document has as \"source\" a valid URL")
     public void toPublicationSetsTheMetadataSourceToTheSourceUrlIfTheDocHasAsSourceAValidUrl() throws
             InvalidIssnException, InvalidPageTypeException {
         String source = "http://www.something.com";
@@ -324,10 +324,12 @@ public class CrossRefConverterTest extends ConversionTest {
     }
 
     private CrossRefDocument setAuthor(CrossRefDocument document) {
-        CrossrefAuthor author = new CrossrefAuthor.Builder().withGivenName(AUTHOR_GIVEN_NAME).withFamilyName(AUTHOR_FAMILY_NAME)
-                                            .withSequence(FIRST_AUTHOR).build();
-        CrossrefAuthor secondAuthor = new CrossrefAuthor.Builder().withGivenName(AUTHOR_GIVEN_NAME).withFamilyName(AUTHOR_FAMILY_NAME)
-                                                  .withSequence(SECOND_AUTHOR).build();
+        CrossrefAuthor author = new CrossrefAuthor.Builder().withGivenName(AUTHOR_GIVEN_NAME)
+                .withFamilyName(AUTHOR_FAMILY_NAME)
+                .withSequence(FIRST_AUTHOR).build();
+        CrossrefAuthor secondAuthor = new CrossrefAuthor.Builder().withGivenName(AUTHOR_GIVEN_NAME)
+                .withFamilyName(AUTHOR_FAMILY_NAME)
+                .withSequence(SECOND_AUTHOR).build();
         List<CrossrefAuthor> authors = Arrays.asList(author, secondAuthor);
         document.setAuthor(authors);
         return document;

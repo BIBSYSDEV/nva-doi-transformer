@@ -42,6 +42,12 @@ public enum BibTexType {
         return this.publicationType;
     }
 
+    /**
+     * Retrieve the PublicationType based on a BibTeX type string.
+     *
+     * @param type the BibTeX type string.
+     * @return a PublicationType.
+     */
     public static BibTexType getByType(String type) {
         if (isNull(type)) {
             return NON_EXISTING_TYPE;

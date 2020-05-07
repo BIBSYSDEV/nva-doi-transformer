@@ -56,6 +56,12 @@ public enum CiteProcType {
         return this.type;
     }
 
+    /**
+     * Retrieve the PublicationType based on a CiteProc type string.
+     *
+     * @param type the CiteProc type string.
+     * @return a PublicationType.
+     */
     public static CiteProcType getByType(String type) {
         if (isNull(type)) {
             return NON_EXISTING_TYPE;

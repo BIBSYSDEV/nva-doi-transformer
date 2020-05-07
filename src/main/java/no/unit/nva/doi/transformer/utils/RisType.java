@@ -2,6 +2,10 @@ package no.unit.nva.doi.transformer.utils;
 
 import no.unit.nva.model.PublicationType;
 
+import java.util.Arrays;
+
+import static java.util.Objects.isNull;
+
 public enum RisType {
     ABST("Abstract", null),
     ADVS("Audiovisual material", null),
@@ -48,15 +52,30 @@ public enum RisType {
         this.publicationType = publicationType;
     }
 
-    public static RisType getByType(String risType) {
-        try {
-            return valueOf(risType);
-        } catch (IllegalArgumentException | NullPointerException e) {
+    /**
+     * Retrieve the PublicationType based on a RIS type string.
+     *
+     * @param type the RIS type string.
+     * @return a PublicationType.
+     */
+    public static RisType getByType(String type) {
+
+        if (isNull(type)) {
             return NON_EXISTING_TYPE;
         }
+
+        return Arrays.stream(values())
+                .filter(risType -> !risType.equals(RisType.NON_EXISTING_TYPE))
+                .filter(s -> s.name().equalsIgnoreCase(type))
+                .findFirst()
+                .orElse(NON_EXISTING_TYPE);
     }
 
     public PublicationType getPublicationType() {
         return this.publicationType;
+    }
+
+    public String getType() {
+        return type;
     }
 }
