@@ -1,8 +1,6 @@
 package no.unit.nva.doi.transformer;
 
 import static java.util.function.Predicate.not;
-import static no.unit.nva.model.PublicationSubtype.JOURNAL_ARTICLE;
-import static no.unit.nva.model.PublicationType.JOURNAL_CONTENT;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,8 +23,6 @@ import no.unit.nva.model.Identity;
 import no.unit.nva.model.NameType;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.Publication;
-import no.unit.nva.model.PublicationSubtype;
-import no.unit.nva.model.PublicationType;
 import no.unit.nva.model.Reference;
 import no.unit.nva.model.ResearchProject;
 import no.unit.nva.model.exceptions.MalformedContributorException;
@@ -72,8 +68,6 @@ public class DataciteResponseConverter extends AbstractConverter {
                     .withMainTitle(extractMainTitle(dataciteResponse))
                     .withAbstract(extractAbstract())
                     .withAlternativeTitles(extractAlternativeTitles(dataciteResponse))
-                    .withPublicationType(extractPublicationType(dataciteResponse))
-                    .withPublicationSubtype(createPublicationSubType())
                     .withLanguage(createLanguage())
                     .withReference(createReference())
                     .withTags(createTags())
@@ -85,10 +79,10 @@ public class DataciteResponseConverter extends AbstractConverter {
     private Map<String, String> extractAlternativeTitles(DataciteResponse dataciteResponse) {
         String mainTitle = extractMainTitle(dataciteResponse);
         return dataciteResponse.getTitles().stream()
-                               .filter(not(t -> t.getTitle().equals(mainTitle)))
-                               .map(t -> detectLanguage(t.getTitle()))
-                               .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
-                               .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+            .filter(not(t -> t.getTitle().equals(mainTitle)))
+            .map(t -> detectLanguage(t.getTitle()))
+            .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
+            .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
     private String createDescription() {
@@ -109,18 +103,6 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private URI createLanguage() {
         return null;
-    }
-
-    private PublicationSubtype createPublicationSubType() {
-        return null;
-    }
-
-    private PublicationType extractPublicationType(DataciteResponse dataciteResponse) {
-        String dataciteResourceType = dataciteResponse.getTypes().getResourceType();
-        if (dataciteResourceType.equals(JOURNAL_ARTICLE.getValue())) {
-            dataciteResourceType = JOURNAL_CONTENT.getValue();
-        }
-        return PublicationType.lookup(dataciteResourceType);
     }
 
     private Instant extractPublishedDate() {

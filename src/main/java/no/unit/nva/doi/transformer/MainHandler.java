@@ -43,11 +43,12 @@ public class MainHandler implements RequestStreamHandler {
     private final transient String allowedOrigin;
     private final PublicationTransformer publicationTransformer;
 
-    private  static Logger logger = LoggerFactory.getLogger(MainHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
     @JacocoGenerated
     public MainHandler() {
-        this(createObjectMapper(), new DataciteResponseConverter(), new CrossRefConverter(), new Environment());
+        this(createObjectMapper(), new DataciteResponseConverter(),
+            new CrossRefConverter(), new Environment());
     }
 
     /**
@@ -97,7 +98,6 @@ public class MainHandler implements RequestStreamHandler {
         }
     }
 
-
     private String extractRequestBody(JsonNode event) {
         JsonNode body = event.get(BODY);
         if (body.isValueNode()) {
@@ -146,11 +146,9 @@ public class MainHandler implements RequestStreamHandler {
      */
     public static ObjectMapper createObjectMapper() {
         return new ObjectMapper().registerModule(new ProblemModule()).registerModule(new JavaTimeModule())
-                                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
-
-
 }
