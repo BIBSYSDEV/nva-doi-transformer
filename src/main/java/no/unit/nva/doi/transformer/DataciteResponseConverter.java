@@ -43,11 +43,11 @@ import static no.unit.nva.model.PublicationType.JOURNAL_CONTENT;
 public class DataciteResponseConverter extends AbstractConverter {
 
     public DataciteResponseConverter() {
-        this(new SimpleLanguageDetector(), new DoiConverterImpl());
+        this(new SimpleLanguageDetector());
     }
 
-    public DataciteResponseConverter(LanguageDetector languageDetector, DoiConverter doiConverter) {
-        super(languageDetector, doiConverter);
+    public DataciteResponseConverter(LanguageDetector languageDetector) {
+        super(languageDetector);
     }
 
     /**
@@ -63,39 +63,39 @@ public class DataciteResponseConverter extends AbstractConverter {
                                      URI publisherId) throws URISyntaxException {
 
         return new Publication.Builder()
-                .withCreatedDate(now)
-                .withModifiedDate(now)
-                .withPublishedDate(extractPublishedDate())
-                .withOwner(owner)
-                .withPublisher(toPublisher(publisherId))
-                .withIdentifier(identifier)
-                .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
-                .withHandle(extractHandle())
-                .withLink(extractLink(dataciteResponse))
-                .withIndexedDate(extractIndexedDate())
-                .withProject(extractProject())
-                .withEntityDescription(
-                        new EntityDescription.Builder()
-                                .withContributors(toContributors(dataciteResponse.getCreators()))
-                                .withDate(toDate(dataciteResponse.getPublicationYear()))
-                                .withMainTitle(extractMainTitle(dataciteResponse))
-                                .withAbstract(extractAbstract())
-                                .withAlternativeTitles(extractAlternativeTitles(dataciteResponse))
-                                .withLanguage(createLanguage())
-                                .withReference(createReference(dataciteResponse))
-                                .withTags(createTags())
-                                .withDescription(createDescription())
-                                .build())
-                .build();
+            .withCreatedDate(now)
+            .withModifiedDate(now)
+            .withPublishedDate(extractPublishedDate())
+            .withOwner(owner)
+            .withPublisher(toPublisher(publisherId))
+            .withIdentifier(identifier)
+            .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
+            .withHandle(extractHandle())
+            .withLink(extractLink(dataciteResponse))
+            .withIndexedDate(extractIndexedDate())
+            .withProject(extractProject())
+            .withEntityDescription(
+                new EntityDescription.Builder()
+                    .withContributors(toContributors(dataciteResponse.getCreators()))
+                    .withDate(toDate(dataciteResponse.getPublicationYear()))
+                    .withMainTitle(extractMainTitle(dataciteResponse))
+                    .withAbstract(extractAbstract())
+                    .withAlternativeTitles(extractAlternativeTitles(dataciteResponse))
+                    .withLanguage(createLanguage())
+                    .withReference(createReference())
+                    .withTags(createTags())
+                    .withDescription(createDescription())
+                    .build())
+            .build();
     }
 
     private Map<String, String> extractAlternativeTitles(DataciteResponse dataciteResponse) {
         String mainTitle = extractMainTitle(dataciteResponse);
         return dataciteResponse.getTitles().stream()
-                .filter(not(t -> t.getTitle().equals(mainTitle)))
-                .map(t -> detectLanguage(t.getTitle()))
-                .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
-                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+            .filter(not(t -> t.getTitle().equals(mainTitle)))
+            .map(t -> detectLanguage(t.getTitle()))
+            .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
+            .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
     private String createDescription() {

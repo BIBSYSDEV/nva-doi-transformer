@@ -1,41 +1,5 @@
 package no.unit.nva.doi.transformer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import no.unit.nva.doi.transformer.language.LanguageMapper;
-import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundException;
-import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefAuthor;
-import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
-import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
-import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
-import no.unit.nva.doi.transformer.utils.CrossrefType;
-import no.unit.nva.model.Contributor;
-import no.unit.nva.model.Journal;
-import no.unit.nva.model.Publication;
-import no.unit.nva.model.PublicationDate;
-import no.unit.nva.model.exceptions.InvalidIssnException;
-import no.unit.nva.model.exceptions.InvalidPageTypeException;
-import no.unit.nva.model.instancetypes.JournalArticle;
-import no.unit.nva.model.pages.Pages;
-import no.unit.nva.model.pages.Range;
-import nva.commons.utils.IoUtils;
-import nva.commons.utils.doi.DoiConverter;
-import nva.commons.utils.doi.DoiConverterImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
@@ -47,6 +11,42 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import no.unit.nva.doi.transformer.language.LanguageMapper;
+import no.unit.nva.doi.transformer.language.exceptions.LanguageUriNotFoundException;
+import no.unit.nva.doi.transformer.model.crossrefmodel.Author;
+import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
+import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
+import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
+import no.unit.nva.doi.transformer.utils.CrossrefType;
+import no.unit.nva.model.Contributor;
+import no.unit.nva.model.Journal;
+import no.unit.nva.model.Publication;
+import no.unit.nva.model.PublicationDate;
+import no.unit.nva.model.PublicationType;
+import no.unit.nva.model.instancetypes.JournalArticle;
+import no.unit.nva.model.pages.Pages;
+import no.unit.nva.model.pages.Range;
+import nva.commons.utils.IoUtils;
+import nva.commons.utils.doi.DoiConverterImpl;
+import nva.commons.utils.doi.DoiConverter;
+import nva.commons.utils.doi.DoiConverterImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 public class CrossRefConverterTest extends ConversionTest {
 
@@ -72,7 +72,7 @@ public class CrossRefConverterTest extends ConversionTest {
     public static final String SOME_DOI = "10.1000/182";
 
     private CrossRefDocument sampleInputDocument = createSampleDocument();
-    private final CrossRefConverter converter = new CrossRefConverter();
+
     private Publication samplePublication;
     private static final ObjectMapper objectMapper = MainHandler.createObjectMapper();
 
@@ -154,10 +154,10 @@ public class CrossRefConverterTest extends ConversionTest {
         });
         Publication publication = toPublication(sampleInputDocument);
         List<Integer> ordinals = publication.getEntityDescription().getContributors().stream()
-                .map(Contributor::getSequence).collect(Collectors.toList());
         assertThat(ordinals.size(), is(numberOfAuthors));
+            .map(Contributor::getSequence).collect(Collectors.toList());
         List<Integer> expectedValues = IntStream.range(0, numberOfAuthors).map(this::startCountingFromOne).boxed()
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
         assertThat(ordinals, contains(expectedValues.toArray()));
     }
 
@@ -170,7 +170,7 @@ public class CrossRefConverterTest extends ConversionTest {
         author.setSequence(validOrdinal);
 
         int actual = toPublication(sampleInputDocument).getEntityDescription().getContributors().stream().findFirst()
-                .get().getSequence();
+            .get().getSequence();
         assertThat(actual, is(equalTo(expected)));
     }
 
@@ -218,7 +218,7 @@ public class CrossRefConverterTest extends ConversionTest {
         sampleInputDocument.setContainerTitle(Arrays.asList(firstNameOfJournal, secondNameOfJournal));
 
         String actualJournalName = toPublication(sampleInputDocument).getEntityDescription().getReference()
-                .getPublicationContext().getTitle();
+            .getPublicationContext().getTitle();
         assertThat(actualJournalName, is(equalTo(firstNameOfJournal)));
     }
 
@@ -229,9 +229,9 @@ public class CrossRefConverterTest extends ConversionTest {
         String expectedVolume = "Vol. 1";
         sampleInputDocument.setVolume(expectedVolume);
         String actualVolume = ((JournalArticle) (toPublication(sampleInputDocument)
-                .getEntityDescription().getReference()
-                .getPublicationInstance()))
-                .getVolume();
+            .getEntityDescription().getReference()
+            .getPublicationInstance()))
+            .getVolume();
         assertThat(actualVolume, is(equalTo(expectedVolume)));
     }
 
@@ -243,8 +243,8 @@ public class CrossRefConverterTest extends ConversionTest {
 
         sampleInputDocument.setPage(pages);
         Pages actualPages = toPublication(sampleInputDocument).getEntityDescription().getReference()
-                .getPublicationInstance()
-                .getPages();
+            .getPublicationInstance()
+            .getPages();
         Pages expectedPages = new Range.Builder().withBegin("45").withEnd("89").build();
         assertThat(actualPages, is(equalTo(expectedPages)));
     }
@@ -257,10 +257,10 @@ public class CrossRefConverterTest extends ConversionTest {
 
         sampleInputDocument.setIssue(expectedIssue);
         String actualIssue = ((JournalArticle) (toPublication(sampleInputDocument)
-                .getEntityDescription()
-                .getReference()
-                .getPublicationInstance()))
-                .getIssue();
+            .getEntityDescription()
+            .getReference()
+            .getPublicationInstance()))
+            .getIssue();
         assertThat(actualIssue, is(equalTo(expectedIssue)));
     }
 
@@ -292,8 +292,9 @@ public class CrossRefConverterTest extends ConversionTest {
         assertThat(actualSource, is(equalTo(expectedURI)));
     }
 
-    private Publication toPublication(CrossRefDocument doc) throws InvalidIssnException, InvalidPageTypeException {
-        return converter.toPublication(doc, NOW, OWNER, DOC_ID, SOME_PUBLISHER_URI);
+    private Publication toPublication(CrossRefDocument doc) {
+        CrossRefConverter crossRefConverter = new CrossRefConverter();
+        return crossRefConverter.toPublication(doc, NOW, OWNER, DOC_ID, SOME_PUBLISHER_URI);
     }
 
     private CrossRefDocument createSampleDocument() {

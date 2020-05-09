@@ -32,7 +32,8 @@ public class PublicationTransformer {
     private final ObjectMapper objectMapper;
 
     public PublicationTransformer() {
-        this(new DataciteResponseConverter(), new CrossRefConverter(), MainHandler.createObjectMapper());
+        this(new DataciteResponseConverter(),
+                new CrossRefConverter(), MainHandler.createObjectMapper());
     }
 
     /**

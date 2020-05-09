@@ -55,10 +55,12 @@ public class CrossRefConverter extends AbstractConverter {
     public static final URI CROSSEF_URI = URI.create("https://www.crossref.org/");
     public static final String CROSSREF = "crossref";
     public static final String UNRECOGNIZED_TYPE_MESSAGE = "The publication type \"%s\" was not recognized";
-    public static DoiConverter doiConverter = new DoiConverterImpl();
+
+    private final DoiConverter doiConverter;
 
     public CrossRefConverter() {
-        super(new SimpleLanguageDetector(), new DoiConverterImpl());
+        super(new SimpleLanguageDetector());
+        this.doiConverter = new DoiConverterImpl();
     }
 
     /**
@@ -140,10 +142,14 @@ public class CrossRefConverter extends AbstractConverter {
         PublicationInstance instance = extractPublicationInstance(document);
         PublicationContext context = extractPublicationContext(document);
         return new Reference.Builder()
-                .withDoi(doiConverter.toUri(document.getDoi()))
-                .withPublishingContext(context)
-                .withPublicationInstance(instance)
-                .build();
+            .withDoi(createDoiUri(document))
+            .withPublishingContext(context)
+            .withPublicationInstance(instance)
+            .build();
+    }
+
+    private URI createDoiUri(CrossRefDocument document) {
+        return doiConverter.toUri(document.getDoi());
     }
 
     private Range extractPages(CrossRefDocument document) {
@@ -214,16 +220,16 @@ public class CrossRefConverter extends AbstractConverter {
 
     private String extractAbstract(CrossRefDocument document) {
         return Optional.ofNullable(document.getAbstractText())
-                .map(StringUtils::removeXmlTags)
-                .orElse(null);
+            .map(StringUtils::removeXmlTags)
+            .orElse(null);
     }
 
     private Map<String, String> extractAlternativeTitles(CrossRefDocument document) {
         String mainTitle = extractTitle(document);
         return document.getTitle().stream()
-                .filter(not(title -> title.equals(mainTitle)))
-                .map(this::detectLanguage)
-                .collect(Collectors.toConcurrentMap(TextLang::getText, e -> e.getLanguage().toString()));
+            .filter(not(title -> title.equals(mainTitle)))
+            .map(this::detectLanguage)
+            .collect(Collectors.toConcurrentMap(TextLang::getText, e -> e.getLanguage().toString()));
     }
 
     private boolean hasTitle(CrossRefDocument document) {
@@ -242,7 +248,7 @@ public class CrossRefConverter extends AbstractConverter {
      */
     private Optional<PublicationDate> extractDate(CrossRefDocument document) {
         Optional<Integer> earliestYear = Optional.ofNullable(document.getPublishedPrint())
-                .flatMap(CrossrefDate::extractEarliestYear);
+            .flatMap(CrossrefDate::extractEarliestYear);
 
         return earliestYear.map(this::toDate);
     }
@@ -250,10 +256,10 @@ public class CrossRefConverter extends AbstractConverter {
     protected List<Contributor> toContributors(List<CrossrefAuthor> authors) {
         if (authors != null) {
             List<Try<Contributor>> contributorMappings =
-                    IntStream.range(0, authors.size())
-                            .boxed()
-                            .map(attempt(index -> toContributor(authors.get(index), index + 1)))
-                            .collect(Collectors.toList());
+                IntStream.range(0, authors.size())
+                    .boxed()
+                    .map(attempt(index -> toContributor(authors.get(index), index + 1)))
+                    .collect(Collectors.toList());
 
             reportFailures(contributorMappings);
             return successfulMappings(contributorMappings);
@@ -264,9 +270,9 @@ public class CrossRefConverter extends AbstractConverter {
 
     private List<Contributor> successfulMappings(List<Try<Contributor>> contributorMappings) {
         return contributorMappings.stream()
-                .filter(Try::isSuccess)
-                .map(Try::get)
-                .collect(Collectors.toList());
+            .filter(Try::isSuccess)
+            .map(Try::get)
+            .collect(Collectors.toList());
     }
 
     private void reportFailures(List<Try<Contributor>> contributors) {
@@ -277,19 +283,16 @@ public class CrossRefConverter extends AbstractConverter {
     /**
      * Coverts an author to a Conatributor (from external model to internal).
      *
-     * @param author              the CrossrefAuthor.
-     * @param alternativeSequence sequence in case where the CrossrefAuthor object does not contain
-     *                            a valid sequence entry
+     * @param author              the Author.
+     * @param alternativeSequence sequence in case where the Author object does not contain a valid sequence entry
      * @return a Contributor object.
      * @throws MalformedContributorException when the contributer cannot be built.
      */
-    private Contributor toContributor(CrossrefAuthor author, int alternativeSequence) throws
-            MalformedContributorException {
-
-        Identity identity = new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName()))
-                .build();
+    private Contributor toContributor(Author author, int alternativeSequence) throws MalformedContributorException {
+        Identity identity =
+            new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName())).build();
         return new Contributor.Builder().withIdentity(identity)
-                .withSequence(parseSequence(author.getSequence(), alternativeSequence)).build();
+            .withSequence(parseSequence(author.getSequence(), alternativeSequence)).build();
     }
 
     /**

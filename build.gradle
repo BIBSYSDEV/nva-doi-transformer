@@ -18,6 +18,11 @@ targetCompatibility = JavaVersion.VERSION_11 // bytecode target version
 
 def junit5Version = '5.6.0'
 
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'checkstyle'
+apply plugin: 'pmd'
+
 dependencies {
     implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.2'
@@ -31,6 +36,8 @@ dependencies {
     implementation group: 'com.github.BIBSYSDEV', name: 'nva-testutils', version: 'v0.1.5'
     implementation group: 'com.github.BIBSYSDEV', name: 'nva-datamodel-java', version: '4eaf485'
 
+    implementation group: 'com.github.BIBSYSDEV', name: 'nva-commons', version: '0.3.2'
+
     // map ordinals to numbers
     implementation group: 'com.ibm.icu', name: 'icu4j', version: '66.1'
 
@@ -41,9 +48,9 @@ dependencies {
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.2.4'
     testImplementation group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
-    testImplementation group: 'org.junit.jupiter', name:'junit-jupiter', version:junit5Version
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: junit5Version
 
-    testImplementation group:"org.hamcrest", name:"hamcrest", version:"2.2"
+    testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
 }
 
 test {

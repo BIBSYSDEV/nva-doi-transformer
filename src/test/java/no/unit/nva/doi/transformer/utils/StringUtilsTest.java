@@ -9,8 +9,6 @@ import no.unit.nva.model.pages.Range;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.print.attribute.standard.PageRanges;
-
 public class StringUtilsTest {
 
     @DisplayName("removeXMl reuturns String with not XML tags.")
