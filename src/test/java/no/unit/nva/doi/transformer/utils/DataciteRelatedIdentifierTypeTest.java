@@ -8,14 +8,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class DataciteRelatedIdentifierTest {
+class DataciteRelatedIdentifierTypeTest {
 
     @DisplayName("DataciteRelatedIdentifiers exist")
     @ParameterizedTest
     @ValueSource(strings = {"ARK", "ARXIV", "BIBCODE", "DOI", "EAN13", "EISSN", "HANDLE", "IGSN", "ISBN", "ISSN",
             "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "W3ID", "UNKNOWN_IDENTIFIER"})
     void dataciteRelatedIdentifiersExist(String value) {
-        assertNotNull(DataciteRelatedIdentifier.getByCode(value));
+        assertNotNull(DataciteRelatedIdentifierType.getByCode(value));
     }
 
     @DisplayName("DataciteRelatedIdentifiers can be retrieved by code")
@@ -23,7 +23,7 @@ class DataciteRelatedIdentifierTest {
     @ValueSource(strings = {"ARK", "ARXIV", "BIBCODE", "DOI", "EAN13", "EISSN", "HANDLE", "IGSN", "ISBN", "ISSN",
             "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "W3ID"})
     void dataciteRelatedIdentifiersGetByCodeReturnCodeWhenInputCodeIsValid(String value) {
-        assertEquals(value, DataciteRelatedIdentifier.getByCode(value).getCode().toUpperCase());
+        assertEquals(value, DataciteRelatedIdentifierType.getByCode(value).getCode().toUpperCase());
     }
 
     @DisplayName("DataciteRelatedIdentifiers have description")
@@ -31,19 +31,19 @@ class DataciteRelatedIdentifierTest {
     @ValueSource(strings = {"ARK", "ARXIV", "BIBCODE", "DOI", "EAN13", "EISSN", "HANDLE", "IGSN", "ISBN", "ISSN",
             "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "W3ID"})
     void dataciteRelatedIdentifiersGetDescriptionReturnCodeWhenInputCodeIsValid(String value) {
-        assertNotNull(DataciteRelatedIdentifier.getByCode(value).getDescription());
+        assertNotNull(DataciteRelatedIdentifierType.getByCode(value).getDescription());
     }
 
     @DisplayName("DataciteRelatedIdentifiers.UNKNOWN_CODE is returned when code is not known")
     @ParameterizedTest
     @ValueSource(strings = {"FARK", "barXive", "BURL"})
     void dataciteRelatedIdentifiersGetByCodeReturnUnknownCodeWhenInputCodeIsInvalid(String value) {
-        assertEquals(DataciteRelatedIdentifier.UNKNOWN_IDENTIFIER, DataciteRelatedIdentifier.getByCode(value));
+        assertEquals(DataciteRelatedIdentifierType.UNKNOWN_IDENTIFIER, DataciteRelatedIdentifierType.getByCode(value));
     }
 
     @DisplayName("DataciteRelatedIdentifiers.UNKNOWN_CODE is returned when code is null")
     @Test
     void dataciteRelatedIdentifiersGetByCodeReturnUnknownCodeWhenInputCodeIsINull() {
-        assertEquals(DataciteRelatedIdentifier.UNKNOWN_IDENTIFIER, DataciteRelatedIdentifier.getByCode(null));
+        assertEquals(DataciteRelatedIdentifierType.UNKNOWN_IDENTIFIER, DataciteRelatedIdentifierType.getByCode(null));
     }
 }

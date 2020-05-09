@@ -89,7 +89,7 @@ public class PublicationTransformer {
     }
 
     private Publication convertFromDatacite(String body, Instant now, String owner, UUID uuid, URI publisherId)
-            throws JsonProcessingException, URISyntaxException {
+            throws JsonProcessingException, URISyntaxException, InvalidPageTypeException, InvalidIssnException {
         DataciteResponse dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
         return dataciteConverter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
     }

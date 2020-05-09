@@ -7,7 +7,6 @@ import no.unit.nva.doi.transformer.utils.TextLang;
 import no.unit.nva.model.Organization;
 import no.unit.nva.model.PublicationDate;
 import no.unit.nva.model.PublicationStatus;
-import nva.commons.utils.doi.DoiConverter;
 
 public class AbstractConverter {
 
@@ -15,11 +14,9 @@ public class AbstractConverter {
     public static final String FAMILY_NAME_GIVEN_NAME_SEPARATOR = ", ";
 
     protected LanguageDetector languageDetector;
-    protected DoiConverter doiConverter;
 
-    public AbstractConverter(LanguageDetector detector, DoiConverter doiConverter) {
+    public AbstractConverter(LanguageDetector detector) {
         this.languageDetector = detector;
-        this.doiConverter = doiConverter;
     }
 
     protected String toName(String familyName, String givenName) {

@@ -24,7 +24,7 @@ class SingletonCollectorTest {
     @Test
     void collectThrowsIllegalStateExceptionWhenInputContainsZeroElements() {
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () ->  Stream.empty().collect(SingletonCollector.collect())
+            () ->  Stream.empty().collect(SingletonCollector.collect())
         );
         String expected = String.format(SingletonCollector.SINGLETON_EXPECTED_ERROR_TEMPLATE, 0);
         assertEquals(expected, exception.getMessage());
@@ -34,7 +34,7 @@ class SingletonCollectorTest {
     @Test
     void collectThrowsIllegalStateExceptionWhenInputContainsMoreThanOneElements() {
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> List.of("A", "B").stream().collect(SingletonCollector.collect())
+            () -> List.of("A", "B").stream().collect(SingletonCollector.collect())
         );
         String expected = String.format(SingletonCollector.SINGLETON_EXPECTED_ERROR_TEMPLATE, 2);
         assertEquals(expected, exception.getMessage());
@@ -60,8 +60,9 @@ class SingletonCollectorTest {
     @Test
     void collectOrElseThrowsIllegalStateExceptionWhenInputListContainsMoreThanOneElement() {
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> List.of("A", "B").stream().collect(SingletonCollector.collectOrElse("alternative"))
+            () -> List.of("A", "B").stream().collect(SingletonCollector.collectOrElse("alternative"))
         );
         String expected = String.format(SingletonCollector.SINGLETON_OR_NULL_EXPECTED_ERROR_TEMPLATE, 2);
-        assertEquals(expected, exception.getMessage());    }
+        assertEquals(expected, exception.getMessage());
+    }
 }

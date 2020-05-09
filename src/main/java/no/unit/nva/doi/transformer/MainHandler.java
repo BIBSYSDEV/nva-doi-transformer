@@ -67,7 +67,7 @@ public class MainHandler implements RequestStreamHandler {
         this.publicationTransformer = new PublicationTransformer(dataciteConverter, crossRefConverter,
                 createObjectMapper());
         this.allowedOrigin = environment.get(ALLOWED_ORIGIN).orElseThrow(
-                () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
+            () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class MainHandler implements RequestStreamHandler {
             Publication publication = publicationTransformer.transformPublication(event, body, contentLocation);
             logger.info(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output,
-                    new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
+                new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(

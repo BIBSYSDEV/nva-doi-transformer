@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import static java.util.Objects.isNull;
 
-public enum DataciteRelatedIdentifier {
+public enum DataciteRelatedIdentifierType {
     ARK("ARK", "Archival Resource Key"),
     ARXIV("arXiv", "arXiv identifier"),
     BIBCODE("bibcode", "Astrophysics Data System bibliographic code"),
@@ -29,30 +29,43 @@ public enum DataciteRelatedIdentifier {
     private String code;
     private String description;
 
-    DataciteRelatedIdentifier(String code, String description) {
+    DataciteRelatedIdentifierType(String code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public static DataciteRelatedIdentifier getByCode(String code) {
+    /**
+     * Method returns a type based on input code, returns UNKNOWN_IDENTIFIER if type is unknown or null.
+     * @param code the string for the code
+     * @return a DataciteRelatedIdentifierType
+     */
+    public static DataciteRelatedIdentifierType getByCode(String code) {
         if (isNull(code)) {
             return UNKNOWN_IDENTIFIER;
         }
 
         return Arrays.stream(values())
-                .filter(DataciteRelatedIdentifier::isKnown)
-                .filter(dataciteRelatedIdentifier -> dataciteRelatedIdentifier.getCode().equalsIgnoreCase(code))
+                .filter(DataciteRelatedIdentifierType::isKnown)
+                .filter(dataciteRelatedIdentifierType -> dataciteRelatedIdentifierType.getCode().equalsIgnoreCase(code))
                 .collect(SingletonCollector.collectOrElse(UNKNOWN_IDENTIFIER));
     }
 
-    private static boolean isKnown(DataciteRelatedIdentifier dataciteRelatedIdentifier) {
-        return !dataciteRelatedIdentifier.equals(DataciteRelatedIdentifier.UNKNOWN_IDENTIFIER);
+    private static boolean isKnown(DataciteRelatedIdentifierType dataciteRelatedIdentifierType) {
+        return !dataciteRelatedIdentifierType.equals(DataciteRelatedIdentifierType.UNKNOWN_IDENTIFIER);
     }
 
+    /**
+     * Allows access to the string for the DataciteRelatedIdentifierType.
+     * @return the string of the DataciteRelatedIdentifierType.
+     */
     public String getCode() {
         return code;
     }
 
+    /**
+     * Allows access to the textual description of the DataciteRelatedIdentifierType.
+     * @return the string description of the DataciteRelatedIdentifierType.
+     */
     public String getDescription() {
         return description;
     }

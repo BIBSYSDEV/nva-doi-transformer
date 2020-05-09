@@ -96,7 +96,8 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Test
-    public void testInternalServerErrorResponse() throws IOException, URISyntaxException {
+    public void testInternalServerErrorResponse() throws IOException, URISyntaxException, InvalidPageTypeException,
+            InvalidIssnException {
         DataciteResponseConverter dataciteConverter = mock(DataciteResponseConverter.class);
         CrossRefConverter crossRefConverter = new CrossRefConverter();
 
@@ -169,7 +170,8 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     private Publication createPublicationUsingDataciteConverterDirectly(String jsonString, Instant now)
-        throws com.fasterxml.jackson.core.JsonProcessingException, URISyntaxException {
+            throws com.fasterxml.jackson.core.JsonProcessingException, URISyntaxException, InvalidPageTypeException,
+            InvalidIssnException {
         DataciteResponse doc = objectMapper.readValue(jsonString, DataciteResponse.class);
         return new DataciteResponseConverter().toPublication(doc, now, SOME_UUID, SOME_OWNER, SOME_PUBLISHER_URI);
     }

@@ -28,6 +28,7 @@ public class DataciteResponse {
     private String clientId;
     private String agency;
     private String state;
+    private List<DataciteRights> rightsList;
 
     public DataciteResponse() {
 
@@ -196,6 +197,10 @@ public class DataciteResponse {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public List<DataciteRights> getRightsList() {
+        return rightsList;
     }
 
 

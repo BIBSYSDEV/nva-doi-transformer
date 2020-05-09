@@ -8,6 +8,7 @@ import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Issn;
 import no.unit.nva.doi.transformer.utils.CrossrefType;
+import no.unit.nva.doi.transformer.utils.IssnCleaner;
 import no.unit.nva.doi.transformer.utils.SingletonCollector;
 import no.unit.nva.doi.transformer.utils.StringUtils;
 import no.unit.nva.doi.transformer.utils.TextLang;
@@ -56,11 +57,9 @@ public class CrossRefConverter extends AbstractConverter {
     public static final String CROSSREF = "crossref";
     public static final String UNRECOGNIZED_TYPE_MESSAGE = "The publication type \"%s\" was not recognized";
 
-    private final DoiConverter doiConverter;
 
     public CrossRefConverter() {
         super(new SimpleLanguageDetector());
-        this.doiConverter = new DoiConverterImpl();
     }
 
     /**
@@ -149,6 +148,7 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private URI createDoiUri(CrossRefDocument document) {
+        DoiConverter doiConverter = new DoiConverterImpl();
         return doiConverter.toUri(document.getDoi());
     }
 
@@ -176,11 +176,11 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private String getPrintIssn(CrossRefDocument document) {
-        return getIssn(document, Issn.IssnType.PRINT);
+        return IssnCleaner.clean(getIssn(document, Issn.IssnType.PRINT));
     }
 
     private String getOnlineIssn(CrossRefDocument document) {
-        return getIssn(document, Issn.IssnType.ELECTRONIC);
+        return IssnCleaner.clean(getIssn(document, Issn.IssnType.ELECTRONIC));
     }
 
     private String getIssn(CrossRefDocument crossRefDocument, Issn.IssnType type) {
@@ -288,7 +288,8 @@ public class CrossRefConverter extends AbstractConverter {
      * @return a Contributor object.
      * @throws MalformedContributorException when the contributer cannot be built.
      */
-    private Contributor toContributor(Author author, int alternativeSequence) throws MalformedContributorException {
+    private Contributor toContributor(CrossrefAuthor author, int alternativeSequence) throws
+            MalformedContributorException {
         Identity identity =
             new Identity.Builder().withName(toName(author.getFamilyName(), author.getGivenName())).build();
         return new Contributor.Builder().withIdentity(identity)
