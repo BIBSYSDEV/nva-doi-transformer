@@ -12,6 +12,7 @@ import no.unit.nva.doi.transformer.utils.DataciteRelatedIdentifierType;
 import no.unit.nva.doi.transformer.utils.DataciteRelationType;
 import no.unit.nva.doi.transformer.utils.DataciteTypesUtil;
 import no.unit.nva.doi.transformer.utils.IssnCleaner;
+import no.unit.nva.doi.transformer.utils.LicensingIndicator;
 import no.unit.nva.doi.transformer.utils.SingletonCollector;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
@@ -42,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -52,9 +52,6 @@ import static java.util.function.Predicate.not;
 import static no.unit.nva.model.PublicationType.JOURNAL_CONTENT;
 
 public class DataciteResponseConverter extends AbstractConverter {
-
-    public static final String CREATIVECOMMONS = "creativecommons";
-    public static final String INFO_EU_REPO_SEMANTICS_OPEN_ACCESS = "info:eu-repo/semantics/openAccess";
 
     public DataciteResponseConverter() {
         this(new SimpleLanguageDetector());
@@ -226,12 +223,8 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private boolean hasOpenAccessRights(DataciteRights dataciteRights) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        Optional.ofNullable(dataciteRights.getRightsUri()).ifPresentOrElse(
-            (r) -> result.set(r.contains(CREATIVECOMMONS)
-                || r.equals(INFO_EU_REPO_SEMANTICS_OPEN_ACCESS)),
-            () -> result.set(false));
-        return result.get();
+        return Optional.ofNullable(dataciteRights.getRightsUri())
+            .map(LicensingIndicator::isOpen).orElse(false);
     }
 
     private PublicationType getPublicationType(DataciteResponse dataciteResponse) {
