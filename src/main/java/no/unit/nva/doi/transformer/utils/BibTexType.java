@@ -56,7 +56,7 @@ public enum BibTexType {
 
         return Arrays.stream(values())
                 .filter(bibTexType -> !bibTexType.equals(BibTexType.NON_EXISTING_TYPE))
-                .filter(bibTexType -> bibTexType.getType().equals(type))
+                .filter(bibTexType -> bibTexType.getType().equalsIgnoreCase(type))
                 .collect(SingletonCollector.collectOrElse(NON_EXISTING_TYPE));
     }
 }
