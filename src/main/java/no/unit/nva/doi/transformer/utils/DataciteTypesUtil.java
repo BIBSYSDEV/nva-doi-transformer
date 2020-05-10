@@ -41,6 +41,25 @@ public class DataciteTypesUtil {
     }
 
     private static PublicationType getAnalyzedType(DataciteTypes types) {
+        List<PublicationType> publicationTypeList = populateTypeList(types);
+
+        if (publicationTypeList.isEmpty()) {
+            return null;
+        }
+
+        if (publicationTypeList.size() == SINGLETON) {
+            return publicationTypeList.get(ONLY_ELEMENT);
+        }
+
+        Map<PublicationType, Long> typeCounts = getTypeCounts(publicationTypeList);
+        return typeCounts.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .filter(m -> m.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    private static List<PublicationType> populateTypeList(DataciteTypes types) {
         List<PublicationType> publicationTypeList = new ArrayList<>();
 
         Optional.ofNullable(types.getBibtex())
@@ -59,21 +78,7 @@ public class DataciteTypesUtil {
         if (dataCiteResourceContainsJournalArticle(types.getResourceType())) {
             publicationTypeList.add(PublicationType.JOURNAL_CONTENT);
         }
-
-        if (publicationTypeList.isEmpty()) {
-            return null;
-        }
-
-        if (publicationTypeList.size() == SINGLETON) {
-            return publicationTypeList.get(ONLY_ELEMENT);
-        }
-
-        Map<PublicationType, Long> typeCounts = getTypeCounts(publicationTypeList);
-        return typeCounts.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .filter(m -> m.getValue() > 1)
-                .map(Map.Entry::getKey)
-                .orElse(null);
+        return publicationTypeList;
     }
 
     private static Map<PublicationType, Long> getTypeCounts(List<PublicationType> list) {
