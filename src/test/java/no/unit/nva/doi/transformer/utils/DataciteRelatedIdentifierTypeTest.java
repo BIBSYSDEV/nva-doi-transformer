@@ -26,11 +26,11 @@ class DataciteRelatedIdentifierTypeTest {
         assertEquals(value, DataciteRelatedIdentifierType.getByCode(value).getCode().toUpperCase());
     }
 
-    @DisplayName("DataciteRelatedIdentifiers have description")
+    @DisplayName("DataciteRelatedIdentifiers have a description")
     @ParameterizedTest
     @ValueSource(strings = {"ARK", "ARXIV", "BIBCODE", "DOI", "EAN13", "EISSN", "HANDLE", "IGSN", "ISBN", "ISSN",
             "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "W3ID"})
-    void dataciteRelatedIdentifiersGetDescriptionReturnCodeWhenInputCodeIsValid(String value) {
+    void dataciteRelatedIdentifiersGetDescriptionReturnsDescriptionWhenInputCodeIsValid(String value) {
         assertNotNull(DataciteRelatedIdentifierType.getByCode(value).getDescription());
     }
 
