@@ -68,9 +68,9 @@ public class DataciteResponseConverter extends AbstractConverter {
      * @param identifier       identifier
      * @param owner            owner
      * @return publication
-     * @throws URISyntaxException when dataciteResponse contains invalid URIs
+     * @throws URISyntaxException       when dataciteResponse contains invalid URIs
      * @throws InvalidPageTypeException when the mapping uses an incorrect page type related to the PublicationContext
-     * @throws InvalidIssnException when the ISSN is invalid
+     * @throws InvalidIssnException     when the ISSN is invalid
      */
     public Publication toPublication(DataciteResponse dataciteResponse, Instant now, UUID identifier, String owner,
                                      URI publisherId) throws URISyntaxException, InvalidPageTypeException,
@@ -224,7 +224,7 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private boolean hasOpenAccessRights(DataciteRights dataciteRights) {
         return Optional.ofNullable(dataciteRights.getRightsUri())
-            .map(LicensingIndicator::isOpen).orElse(false);
+                .map(LicensingIndicator::isOpen).orElse(false);
     }
 
     private PublicationType getPublicationType(DataciteResponse dataciteResponse) {
@@ -269,33 +269,25 @@ public class DataciteResponseConverter extends AbstractConverter {
                 Collectors.toList());
     }
 
+
     protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
         try {
-            return new Contributor.Builder().withIdentity(
-                    protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
-        try {
             return new Contributor.Builder()
-                .withIdentity(createCreatorIdentity(dataciteCreator))
-                .withAffiliations(toAffilitations())
-                .withSequence(sequence)
-                .build();
+                    .withIdentity(createCreatorIdentity(dataciteCreator))
+                    .withAffiliations(toAffiliations())
+                    .withSequence(sequence)
+                    .build();
         } catch (MalformedContributorException e) {
             return null;
         }
     }
 
     private Identity createCreatorIdentity(DataciteCreator dataciteCreator) {
-        return new Identity.Builder().withName(toName(dataciteCreator))
-            .withNameType(NameType.lookup(dataciteCreator.getNameType())).build();
-    }
-                            NameType.lookup(dataciteCreator.getNameType())).build()).withAffiliations(
-                    toAffilitations()).withSequence(sequence).build();
-        } catch (MalformedContributorException e) {
-            return null;
-        }
+        return new Identity.Builder().withName(toName(dataciteCreator.getFamilyName(), dataciteCreator.getGivenName()))
+                .withNameType(NameType.lookup(dataciteCreator.getNameType())).build();
     }
 
-    protected List<Organization> toAffilitations() {
+    protected List<Organization> toAffiliations() {
         return null;
     }
 
