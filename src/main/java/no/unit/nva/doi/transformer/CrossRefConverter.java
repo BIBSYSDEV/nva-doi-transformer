@@ -165,8 +165,8 @@ public class CrossRefConverter extends AbstractConverter {
             return new Journal.Builder()
                     .withLevel(null)
                     .withTitle(extractJournalTitle(document))
-                    .withOnlineIssn(getOnlineIssn(document))
-                    .withPrintIssn(getPrintIssn(document))
+                    .withOnlineIssn(extractOnlineIssn(document))
+                    .withPrintIssn(extractPrintIssn(document))
                     .withOpenAccess(false)
                     .withPeerReviewed(false)
                     .build();
@@ -175,15 +175,15 @@ public class CrossRefConverter extends AbstractConverter {
         }
     }
 
-    private String getPrintIssn(CrossRefDocument document) {
-        return IssnCleaner.clean(getIssn(document, Issn.IssnType.PRINT));
+    private String extractPrintIssn(CrossRefDocument document) {
+        return IssnCleaner.clean(filterIssnsByType(document, Issn.IssnType.PRINT));
     }
 
-    private String getOnlineIssn(CrossRefDocument document) {
-        return IssnCleaner.clean(getIssn(document, Issn.IssnType.ELECTRONIC));
+    private String extractOnlineIssn(CrossRefDocument document) {
+        return IssnCleaner.clean(filterIssnsByType(document, Issn.IssnType.ELECTRONIC));
     }
 
-    private String getIssn(CrossRefDocument crossRefDocument, Issn.IssnType type) {
+    private String filterIssnsByType(CrossRefDocument crossRefDocument, Issn.IssnType type) {
         List<Issn> issns = crossRefDocument.getIssnType();
         if (isNull(issns) || issns.isEmpty()) {
             return null;
