@@ -36,17 +36,25 @@ public class DataciteTypesUtil {
     }
 
     private static boolean isTextType(DataciteTypes dataciteTypes) {
-        return  nonNull(dataciteTypes.getResourceTypeGeneral())
+        return nonNull(dataciteTypes.getResourceTypeGeneral())
                 && dataciteTypes.getResourceTypeGeneral().equalsIgnoreCase(TYPE_TEXT);
     }
 
     private static PublicationType getAnalyzedType(DataciteTypes types) {
         List<PublicationType> publicationTypeList = new ArrayList<>();
 
-        Optional.ofNullable(types.getBibtex().getPublicationType()).ifPresent(publicationTypeList::add);
-        Optional.ofNullable(types.getCiteproc().getPublicationType()).ifPresent(publicationTypeList::add);
-        Optional.ofNullable(types.getRis().getPublicationType()).ifPresent(publicationTypeList::add);
-        Optional.ofNullable(types.getSchemaOrg().getPublicationType()).ifPresent(publicationTypeList::add);
+        Optional.ofNullable(types.getBibtex())
+                .map(BibTexType::getPublicationType)
+                .ifPresent(publicationTypeList::add);
+        Optional.ofNullable(types.getCiteproc())
+                .map(CiteProcType::getPublicationType)
+                .ifPresent(publicationTypeList::add);
+        Optional.ofNullable(types.getRis())
+                .map(RisType::getPublicationType)
+                .ifPresent(publicationTypeList::add);
+        Optional.ofNullable(types.getSchemaOrg())
+                .map(SchemaOrgType::getPublicationType)
+                .ifPresent(publicationTypeList::add);
 
         if (dataCiteResourceContainsJournalArticle(types.getResourceType())) {
             publicationTypeList.add(PublicationType.JOURNAL_CONTENT);
