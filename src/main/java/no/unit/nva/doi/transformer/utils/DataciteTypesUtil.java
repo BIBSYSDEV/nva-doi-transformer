@@ -51,8 +51,8 @@ public class DataciteTypesUtil {
             return publicationTypeList.get(ONLY_ELEMENT);
         }
 
-        Map<PublicationType, Long> typeCounts = getTypeCounts(publicationTypeList);
-        return typeCounts.entrySet().stream()
+        Map<PublicationType, Long> publicationCountTally = generatePublicationTypeOccurenceTally(publicationTypeList);
+        return publicationCountTally.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .filter(m -> m.getValue() > 1)
                 .map(Map.Entry::getKey)
@@ -81,7 +81,7 @@ public class DataciteTypesUtil {
         return publicationTypeList;
     }
 
-    private static Map<PublicationType, Long> getTypeCounts(List<PublicationType> list) {
+    private static Map<PublicationType, Long> generatePublicationTypeOccurenceTally(List<PublicationType> list) {
         return list.stream().collect(Collectors.groupingBy(type -> type, Collectors.counting()));
     }
 
