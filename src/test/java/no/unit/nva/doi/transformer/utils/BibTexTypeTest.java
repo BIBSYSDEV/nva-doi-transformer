@@ -10,9 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class BibTexTypeTest {
     @DisplayName("getByType returns NON_EXISTING_TYPE when the type does not exist")
+    @ParameterizedTest
+    @ValueSource(strings = {"", "X", "bøøk"})
+    void getByTypeReturnsNullWhenValueDoesNotExist(String candidate) {
+        assertEquals(BibTexType.NON_EXISTING_TYPE, BibTexType.getByType(candidate));
+    }
+
+    @DisplayName("getByType returns NON_EXISTING_TYPE when the type does not exist")
     @Test
-    void getByTypeReturnsNullWhenValueDoesNotExist() {
-        assertEquals(BibTexType.NON_EXISTING_TYPE, BibTexType.getByType("X"));
+    void getByTypeReturnsNullWhenValueIsNull() {
+        assertEquals(BibTexType.NON_EXISTING_TYPE, BibTexType.getByType(null));
     }
 
     @DisplayName("getByType returns BibTexType when type exists ")
