@@ -32,6 +32,8 @@ import no.unit.nva.model.pages.Range;
 import nva.commons.utils.attempt.Try;
 import nva.commons.utils.doi.DoiConverter;
 import nva.commons.utils.doi.DoiConverterImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.time.Instant;
@@ -56,7 +58,7 @@ public class CrossRefConverter extends AbstractConverter {
     public static final URI CROSSEF_URI = URI.create("https://www.crossref.org/");
     public static final String CROSSREF = "crossref";
     public static final String UNRECOGNIZED_TYPE_MESSAGE = "The publication type \"%s\" was not recognized";
-
+    private static final Logger logger = LoggerFactory.getLogger(CrossRefConverter.class);
 
     public CrossRefConverter() {
         super(new SimpleLanguageDetector());
@@ -276,12 +278,13 @@ public class CrossRefConverter extends AbstractConverter {
     }
 
     private void reportFailures(List<Try<Contributor>> contributors) {
-        // TODO implement logging
-        contributors.stream().filter(Try::isFailure).forEach(failure -> failure.getException().printStackTrace());
+        contributors.stream().filter(Try::isFailure)
+            .map(Try::getException)
+            .forEach(e -> logger.error(e.getMessage(),e));
     }
 
     /**
-     * Coverts an author to a Conatributor (from external model to internal).
+     * Coverts an author to a Contributor (from external model to internal).
      *
      * @param author              the Author.
      * @param alternativeSequence sequence in case where the Author object does not contain a valid sequence entry
