@@ -6,10 +6,11 @@ import java.util.Arrays;
 
 import static java.util.Objects.isNull;
 
+/**
+ * Provides constants and mappings to PublicationType for the various BibTeX types.
+ * @see <a href="https://en.wikipedia.org/wiki/BibTeX#Entry_types">https://en.wikipedia.org/wiki/BibTeX#Entry_types</a>
+ */
 public enum BibTexType {
-
-    // See https://en.wikipedia.org/wiki/BibTeX#Entry_types
-
     ARTICLE("article", PublicationType.JOURNAL_CONTENT),
     BOOK("book", null),
     BOOKLET("booklet", null),
