@@ -219,7 +219,7 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private boolean extractOpenAccess(DataciteResponse dataciteResponse) {
         List<DataciteRights> rights = Optional.ofNullable(dataciteResponse.getRightsList()).orElse(null);
-        if (nonNull(rights) && !rights.isEmpty()) {
+        if (nonNull(rights)) {
             return rights.stream().anyMatch(this::hasOpenAccessRights);
         }
         return false;
