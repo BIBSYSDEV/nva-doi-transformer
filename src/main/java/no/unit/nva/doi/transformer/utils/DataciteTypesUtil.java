@@ -20,6 +20,7 @@ public class DataciteTypesUtil {
     public static final String ARTICLE = "article";
     public static final int SINGLETON = 1;
     public static final int ONLY_ELEMENT = 0;
+    public static final int SINGLE_ELEMENT = 1;
 
     /**
      * Maps the potentially many content types found in a Datacite response to a PublicationType.
@@ -52,9 +53,28 @@ public class DataciteTypesUtil {
         }
 
         Map<PublicationType, Long> publicationCountTally = generatePublicationTypeOccurenceTally(publicationTypeList);
+        return findMostAppliedMapping(publicationCountTally);
+    }
+
+    /**
+     * This method takes the mapped valued and sorts them by occurrence in case there is disagreement regarding how
+     * the provided types should be mapped. If there is only one mapping, this is returned. If there are multiple
+     * mappings but no agreement between two-or-more of these, then null is returned.
+     *
+     * @param publicationCountTally a map of types and number of occurrences.
+     * @return the most mapped type.
+     */
+    private static PublicationType findMostAppliedMapping(Map<PublicationType, Long> publicationCountTally) {
+        if (publicationCountTally.size() == SINGLE_ELEMENT) {
+            return publicationCountTally
+                    .keySet()
+                    .stream()
+                    .collect(SingletonCollector.collect());
+        }
+
         return publicationCountTally.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
-                .filter(m -> m.getValue() > 1)
+                .filter(tallyMap -> tallyMap.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .orElse(null);
     }
