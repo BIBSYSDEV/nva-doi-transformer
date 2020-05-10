@@ -139,8 +139,7 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private PublicationInstance extractPublicationInstance(DataciteResponse dataciteResponse) throws
             InvalidPageTypeException {
-        if (getPublicationType(dataciteResponse).equals(JOURNAL_CONTENT)) {
-
+        if (JOURNAL_CONTENT.equals(getPublicationType(dataciteResponse))) {
             DataciteContainer container = dataciteResponse.getContainer();
             String issue = Optional.ofNullable(container.getIssue()).orElse(null);
             String volume = Optional.ofNullable(container.getVolume()).orElse(null);
