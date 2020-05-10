@@ -36,8 +36,10 @@ public class DataciteResponseConverterTest {
     private static final URI SOME_URI = URI.create("SomeUri");
     private final ObjectMapper objectMapper = MainHandler.createObjectMapper();
 
+    @DisplayName("DataciteResponseConverter::toPublication returns valid JSON when input is valid")
     @Test
-    public void test() throws IOException, URISyntaxException, InvalidPageTypeException, InvalidIssnException {
+    public void toPublicationReturnsValidJsonWhenInputIsValid() throws IOException, URISyntaxException,
+            InvalidPageTypeException, InvalidIssnException {
 
         DataciteResponse dataciteResponse = objectMapper.readValue(
             new File("src/test/resources/datacite_response.json"), DataciteResponse.class);
@@ -45,15 +47,13 @@ public class DataciteResponseConverterTest {
         DataciteResponseConverter converter = new DataciteResponseConverter();
         Publication publication = converter.toPublication(dataciteResponse, now(), UUID.randomUUID(), "junit",
             URI.create("http://example.org/123"));
-
         String json = objectMapper.writeValueAsString(publication);
-
-        System.out.println(json);
         Assert.assertNotNull(json);
     }
 
+    @DisplayName("DataciteResponseConverter::toName creates valid, inverted name when input is valid")
     @Test
-    public void testToName() {
+    public void toNameReturnsInvertedNameStringWhenInputIsValid() {
         DataciteCreator dataciteCreator = new DataciteCreator();
         dataciteCreator.setFamilyName("Family");
         dataciteCreator.setGivenName("Given");
