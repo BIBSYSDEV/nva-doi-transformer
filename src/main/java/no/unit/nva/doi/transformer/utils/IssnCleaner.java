@@ -21,24 +21,30 @@ public class IssnCleaner {
      */
     public static String clean(String value) {
 
-        String issnCandidate = reformat(value);
+        String issnCandidate = stripSeparatorAndWhitespace(value);
 
         if (isNull(issnCandidate)) {
             return null;
         }
 
         return IssnValidator.validate(issnCandidate) ? issnCandidate : null;
-
     }
 
-    private static String reformat(String value) {
+    /**
+     * This method removes potential formatting errors such as whitespace, non-hyphen separators,
+     * invalid characters and missing separators.
+     *
+     * @param value an ISSN candidate.
+     * @return a formatted ISSN candidate or null.
+     */
+    private static String stripSeparatorAndWhitespace(String value) {
         if (isNull(value)) {
             return null;
         }
 
         String cleanedString = StringUtils.removeMultipleWhiteSpaces(value).replaceAll(INVALID_CHARS, EMPTY_STRING);
 
-        if (cleanedString.length() != CLEANED_LENGTH) {
+        if (isNotExactlyEightCharacters(cleanedString)) {
             return null;
         }
 
@@ -47,5 +53,7 @@ public class IssnCleaner {
                 + cleanedString.substring(BEGIN_SECOND_PART);
     }
 
-
+    private static boolean isNotExactlyEightCharacters(String cleanedString) {
+        return cleanedString.length() != CLEANED_LENGTH;
+    }
 }
