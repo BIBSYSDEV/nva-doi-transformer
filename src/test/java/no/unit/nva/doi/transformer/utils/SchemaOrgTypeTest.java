@@ -11,9 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class SchemaOrgTypeTest {
     @DisplayName("getByType returns NON_EXISTING_TYPE when the type does not exist")
+    @ParameterizedTest
+    @ValueSource(strings = {"", "X", "SchalarlyArticle", "Årticle"})
+    void getByTypeReturnsNullWhenValueDoesNotExist(String candidate) {
+        assertEquals(SchemaOrgType.NON_EXISTING_TYPE, SchemaOrgType.getByType(candidate));
+    }
+
+    @DisplayName("getByType returns NON_EXISTING_TYPE when the type is null")
     @Test
     void getByTypeReturnsNullWhenValueDoesNotExist() {
-        assertEquals(SchemaOrgType.NON_EXISTING_TYPE, SchemaOrgType.getByType("X"));
+        assertEquals(SchemaOrgType.NON_EXISTING_TYPE, SchemaOrgType.getByType(null));
     }
 
     @DisplayName("getByType returns SchemaOrgType when type exists ")
