@@ -39,8 +39,10 @@ class DataciteTypesUtilTest {
     @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all but one types map to JOURNAL_CONTENT")
     @Test
     void mapToTypeReturnsJournalContentWhenAllButOneTypesAreJournalContent() {
+        String dissentingType = BibTexType.CONFERENCE.getType();
+
         DataciteTypes dataciteTypes = new DataciteTypes.Builder()
-                .withBibtex(BibTexType.CONFERENCE.getType())
+                .withBibtex(dissentingType)
                 .withCiteproc(CiteProcType.ARTICLE_JOURNAL.getType())
                 .withResourceType("JournalArticle")
                 .withRis(RisType.JOUR.name())
@@ -56,9 +58,12 @@ class DataciteTypesUtilTest {
     @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all but two types map to JOURNAL_CONTENT")
     @Test
     void mapToTypeReturnsJournalContentWhenAllButTwoTypesAreJournalContent() {
+        String firstDissentingType = BibTexType.CONFERENCE.getType();
+        String secondDissentingType = CiteProcType.PAPER_CONFERENCE.getType();
+
         DataciteTypes dataciteTypes = new DataciteTypes.Builder()
-                .withBibtex(BibTexType.CONFERENCE.getType())
-                .withCiteproc(CiteProcType.PAPER_CONFERENCE.getType())
+                .withBibtex(firstDissentingType)
+                .withCiteproc(secondDissentingType)
                 .withResourceType("JournalArticle")
                 .withRis(RisType.JOUR.name())
                 .withSchemaOrg(SchemaOrgType.SCHOLARLY_ARTICLE.getType())
