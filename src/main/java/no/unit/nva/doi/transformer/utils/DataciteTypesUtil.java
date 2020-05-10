@@ -52,8 +52,8 @@ public class DataciteTypesUtil {
             return publicationTypeList.get(ONLY_ELEMENT);
         }
 
-        Map<PublicationType, Long> publicationCountTally = generatePublicationTypeOccurenceTally(publicationTypeList);
-        return findMostAppliedMapping(publicationCountTally);
+        Map<PublicationType, Long> publicationTypeTally = generatePublicationTypeOccurenceTally(publicationTypeList);
+        return findMostAppliedMapping(publicationTypeTally);
     }
 
     /**
@@ -61,18 +61,18 @@ public class DataciteTypesUtil {
      * the provided types should be mapped. If there is only one mapping, this is returned. If there are multiple
      * mappings but no agreement between two-or-more of these, then null is returned.
      *
-     * @param publicationCountTally a map of types and number of occurrences.
+     * @param publicationTypeTally a map of types and number of occurrences.
      * @return the most mapped type.
      */
-    private static PublicationType findMostAppliedMapping(Map<PublicationType, Long> publicationCountTally) {
-        if (publicationCountTally.size() == SINGLE_ELEMENT) {
-            return publicationCountTally
+    private static PublicationType findMostAppliedMapping(Map<PublicationType, Long> publicationTypeTally) {
+        if (publicationTypeTally.size() == SINGLE_ELEMENT) {
+            return publicationTypeTally
                     .keySet()
                     .stream()
                     .collect(SingletonCollector.collect());
         }
 
-        return publicationCountTally.entrySet().stream()
+        return publicationTypeTally.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .filter(tallyMap -> tallyMap.getValue() > 1)
                 .map(Map.Entry::getKey)
