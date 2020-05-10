@@ -179,7 +179,7 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private String extractOnlineIssn(DataciteResponse dataciteResponse) {
-        DataciteRelatedIdentifier result = getPartOfRelations(dataciteResponse)
+        DataciteRelatedIdentifier result = extractPartOfRelations(dataciteResponse)
                 .stream()
                 .filter(this::isOnlineIssn)
                 .collect(SingletonCollector.collectOrElse(null));
@@ -193,14 +193,14 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private String extractPrintIssn(DataciteResponse dataciteResponse) {
-        DataciteRelatedIdentifier result = getPartOfRelations(dataciteResponse)
+        DataciteRelatedIdentifier result = extractPartOfRelations(dataciteResponse)
                 .stream()
                 .filter(this::isPrintIssn)
                 .collect(SingletonCollector.collectOrElse(null));
         return nonNull(result) ? IssnCleaner.clean(result.getRelatedIdentifier()) : null;
     }
 
-    private List<DataciteRelatedIdentifier> getPartOfRelations(DataciteResponse dataciteResponse) {
+    private List<DataciteRelatedIdentifier> extractPartOfRelations(DataciteResponse dataciteResponse) {
         return dataciteResponse.getRelatedIdentifiers()
                 .stream()
                 .filter(this::isPartOf)
