@@ -1,5 +1,6 @@
 package no.unit.nva.doi.transformer.model.internal.external;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import no.unit.nva.doi.transformer.utils.BibTexType;
 import no.unit.nva.doi.transformer.utils.CiteProcType;
@@ -25,6 +26,7 @@ public class DataciteTypes {
      * @param resourceType the Datacite resource type.
      * @param resourceTypeGeneral the Datacite resource type general.
      */
+    @JsonCreator
     public DataciteTypes(
                          @JsonProperty("ris") String ris,
                          @JsonProperty("bibtex") String bibtex,
