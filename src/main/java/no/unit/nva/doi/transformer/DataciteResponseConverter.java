@@ -272,7 +272,22 @@ public class DataciteResponseConverter extends AbstractConverter {
     protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
         try {
             return new Contributor.Builder().withIdentity(
-                    new Identity.Builder().withName(toName(dataciteCreator)).withNameType(
+                    protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
+        try {
+            return new Contributor.Builder()
+                .withIdentity(createCreatorIdentity(dataciteCreator))
+                .withAffiliations(toAffilitations())
+                .withSequence(sequence)
+                .build();
+        } catch (MalformedContributorException e) {
+            return null;
+        }
+    }
+
+    private Identity createCreatorIdentity(DataciteCreator dataciteCreator) {
+        return new Identity.Builder().withName(toName(dataciteCreator))
+            .withNameType(NameType.lookup(dataciteCreator.getNameType())).build();
+    }
                             NameType.lookup(dataciteCreator.getNameType())).build()).withAffiliations(
                     toAffilitations()).withSequence(sequence).build();
         } catch (MalformedContributorException e) {
