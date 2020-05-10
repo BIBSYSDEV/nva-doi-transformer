@@ -11,9 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class RisTypeTest {
 
     @DisplayName("getByType returns NON_EXISTING_TYPE when the type does not exist")
+    @ParameterizedTest
+    @ValueSource(strings = {"", "X", "BELL", "INPL"})
+    void getByTypeReturnsNullWhenValueDoesNotExist(String candidate) {
+        assertEquals(RisType.NON_EXISTING_TYPE, RisType.getByType(candidate));
+    }
+
+    @DisplayName("getByType returns NON_EXISTING_TYPE when the type does not exist")
     @Test
-    void getByTypeReturnsNullWhenValueDoesNotExist() {
-        assertEquals(RisType.NON_EXISTING_TYPE, RisType.getByType("X"));
+    void getByTypeReturnsNullWhenValueIsNull() {
+        assertEquals(RisType.NON_EXISTING_TYPE, RisType.getByType(null));
     }
 
     @DisplayName("getByType returns RisType when type exists ")
