@@ -6,10 +6,8 @@ import java.net.URL;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 @SuppressWarnings({"PMD.TooManyFields", "PMD.ExcessivePublicCount"})
 public class DataciteResponse {
-
     private URL id;
     private String doi;
     private URL url;
@@ -31,7 +29,6 @@ public class DataciteResponse {
     private List<DataciteRights> rightsList;
 
     public DataciteResponse() {
-
     }
 
     private DataciteResponse(Builder builder) {
@@ -53,6 +50,7 @@ public class DataciteResponse {
         setClientId(builder.clientId);
         setAgency(builder.agency);
         setState(builder.state);
+        setRightsList(builder.rightsList);
     }
 
     public URL getId() {
@@ -203,6 +201,9 @@ public class DataciteResponse {
         return rightsList;
     }
 
+    public void setRightsList(List<DataciteRights> rightsList) {
+        this.rightsList = rightsList;
+    }
 
     public static final class Builder {
         private URL id;
@@ -223,6 +224,7 @@ public class DataciteResponse {
         private String clientId;
         private String agency;
         private String state;
+        public List<DataciteRights> rightsList;
 
         public Builder() {
         }
@@ -314,6 +316,11 @@ public class DataciteResponse {
 
         public Builder withState(String state) {
             this.state = state;
+            return this;
+        }
+
+        public Builder withRightsList(List<DataciteRights> rights) {
+            this.rightsList = rights;
             return this;
         }
 
