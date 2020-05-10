@@ -11,7 +11,6 @@ public class DataciteCreator {
     private List<DataciteAffiliation> affiliation;
 
     public DataciteCreator() {
-
     }
 
     public String getName() {
