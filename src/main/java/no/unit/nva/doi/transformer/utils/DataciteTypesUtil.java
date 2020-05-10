@@ -29,11 +29,15 @@ public class DataciteTypesUtil {
      */
     public static PublicationType mapToType(DataciteResponse dataciteResponse) {
         DataciteTypes types = dataciteResponse.getTypes();
-        String resourceType = Optional.ofNullable(types.getResourceTypeGeneral()).orElse(null);
-        if (nonNull(resourceType) && resourceType.equalsIgnoreCase(TYPE_TEXT)) {
-            return getAnalyzedType(types);
-        }
-        return null;
+        return Optional.ofNullable(types)
+                .filter(DataciteTypesUtil::isTextType)
+                .map(DataciteTypesUtil::getAnalyzedType)
+                .orElse(null);
+    }
+
+    private static boolean isTextType(DataciteTypes dataciteTypes) {
+        return  nonNull(dataciteTypes.getResourceTypeGeneral())
+                && dataciteTypes.getResourceTypeGeneral().equalsIgnoreCase(TYPE_TEXT);
     }
 
     private static PublicationType getAnalyzedType(DataciteTypes types) {
