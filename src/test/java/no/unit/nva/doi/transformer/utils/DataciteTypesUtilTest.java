@@ -18,7 +18,7 @@ class DataciteTypesUtilTest {
         DataciteTypesUtil.mapToType(getNonTextDataciteResource());
     }
 
-    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all types agree")
+    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all input types map to JOURNAL_CONTENT")
     @Test
     void mapToTypeReturnsJournalContentWhenAllTypesAreJournalContent() {
         DataciteTypes dataciteTypes = new DataciteTypes.Builder()
@@ -36,7 +36,7 @@ class DataciteTypesUtilTest {
 
     }
 
-    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all but one types agree")
+    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all but one types map to JOURNAL_CONTENT")
     @Test
     void mapToTypeReturnsJournalContentWhenAllButOneTypesAreJournalContent() {
         DataciteTypes dataciteTypes = new DataciteTypes.Builder()
@@ -53,7 +53,7 @@ class DataciteTypesUtilTest {
         assertEquals(PublicationType.JOURNAL_CONTENT, DataciteTypesUtil.mapToType(dataciteResponse));
     }
 
-    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all but two types agree")
+    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when all but two types map to JOURNAL_CONTENT")
     @Test
     void mapToTypeReturnsJournalContentWhenAllButTwoTypesAreJournalContent() {
         DataciteTypes dataciteTypes = new DataciteTypes.Builder()
@@ -70,7 +70,7 @@ class DataciteTypesUtilTest {
         assertEquals(PublicationType.JOURNAL_CONTENT, DataciteTypesUtil.mapToType(dataciteResponse));
     }
 
-    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when two types agree")
+    @DisplayName("The mapping utility returns type JOURNAL_CONTENT when two types map to JOURNAL_CONTENT")
     @Test
     void mapToTypeReturnsJournalContentWhenTwoTypesAreJournalContent() {
         DataciteTypes dataciteTypes = new DataciteTypes.Builder()
