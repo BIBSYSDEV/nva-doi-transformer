@@ -7,7 +7,7 @@ import static java.util.Objects.isNull;
 public class IssnCleaner {
 
     public static final String DELIMITER = "-";
-    public static final String VALID_CHARS = "[^[0-9]Xx]+";
+    public static final String INVALID_CHARS = "[^[0-9]Xx]+";
     public static final String EMPTY_STRING = "";
     public static final int CLEANED_LENGTH = 8;
     public static final int BEGIN_FIRST_PART = 0;
@@ -36,7 +36,7 @@ public class IssnCleaner {
             return null;
         }
 
-        String cleanedString = StringUtils.removeMultipleWhiteSpaces(value).replaceAll(VALID_CHARS, EMPTY_STRING);
+        String cleanedString = StringUtils.removeMultipleWhiteSpaces(value).replaceAll(INVALID_CHARS, EMPTY_STRING);
 
         if (cleanedString.length() != CLEANED_LENGTH) {
             return null;
