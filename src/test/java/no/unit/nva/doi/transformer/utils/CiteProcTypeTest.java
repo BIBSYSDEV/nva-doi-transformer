@@ -11,12 +11,19 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class CiteProcTypeTest {
     @DisplayName("getByType returns NON_EXISTING_TYPE when the type does not exist")
-    @Test
-    void getByTypeReturnsNullWhenValueDoesNotExist() {
-        assertEquals(CiteProcType.NON_EXISTING_TYPE, CiteProcType.getByType("X"));
+    @ParameterizedTest
+    @ValueSource(strings = {"", "particle", "adataset", "journal-article"})
+    void getByTypeReturnsNullWhenValueDoesNotExist(String candidate) {
+        assertEquals(CiteProcType.NON_EXISTING_TYPE, CiteProcType.getByType(candidate));
     }
 
-    @DisplayName("getByType returns CiteProcType when type exists ")
+    @DisplayName("getByType returns NON_EXISTING_TYPE when the value is null")
+    @Test
+    void getByTypeReturnsNullWhenValueIsNull() {
+        assertEquals(CiteProcType.NON_EXISTING_TYPE, CiteProcType.getByType(null));
+    }
+
+    @DisplayName("getByType returns CiteProcType when type exists")
     @ParameterizedTest
     @ValueSource(strings = {"article", "article-journal", "article-magazine", "article-newspaper", "bill", "book",
             "broadcast", "chapter", "dataset", "entry", "entry-dictionary", "entry-encyclopedia", "figure", "graphic",
