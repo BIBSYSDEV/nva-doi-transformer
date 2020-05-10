@@ -46,7 +46,15 @@ public enum DataciteRelatedIdentifierType {
 
         return Arrays.stream(values())
                 .filter(DataciteRelatedIdentifierType::isKnown)
-                .filter(dataciteRelatedIdentifierType -> dataciteRelatedIdentifierType.getCode().equalsIgnoreCase(code))
+  .filter(dataciteRelatedIdentifierType ->
+                    matchesDataciteIdentifierType(code, dataciteRelatedIdentifierType))
+....
+
+private static boolean matchesDataciteIdentifierType
+        (String code,DataciteRelatedIdentifierType dataciteRelatedIdentifierType) {
+        return dataciteRelatedIdentifierType.getCode().equalsIgnoreCase(code);
+    }                                                                                                        
+                    
                 .collect(SingletonCollector.collectOrElse(UNKNOWN_IDENTIFIER));
     }
 
@@ -70,4 +78,3 @@ public enum DataciteRelatedIdentifierType {
         return description;
     }
 }
-
