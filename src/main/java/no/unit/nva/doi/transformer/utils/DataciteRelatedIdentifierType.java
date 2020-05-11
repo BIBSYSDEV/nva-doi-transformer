@@ -26,8 +26,8 @@ public enum DataciteRelatedIdentifierType {
     W3ID("w3id", "Permanent Web-Application identifier"),
     UNKNOWN_IDENTIFIER(null, null);
 
-    private String code;
-    private String description;
+    private final String code;
+    private final String description;
 
     DataciteRelatedIdentifierType(String code, String description) {
         this.code = code;
@@ -49,7 +49,6 @@ public enum DataciteRelatedIdentifierType {
                 .filter(type -> matchesDataciteIdentifierType(code, type))
                 .collect(SingletonCollector.collectOrElse(UNKNOWN_IDENTIFIER));
     }
-
 
     private static boolean matchesDataciteIdentifierType(String code,DataciteRelatedIdentifierType type) {
         return type.getCode().equalsIgnoreCase(code);
