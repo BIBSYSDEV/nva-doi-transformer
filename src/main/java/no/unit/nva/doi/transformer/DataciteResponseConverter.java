@@ -39,6 +39,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -136,7 +137,7 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private PublicationInstance extractPublicationInstance(DataciteResponse dataciteResponse) throws
             InvalidPageTypeException {
-        if (JOURNAL_CONTENT.equals(getPublicationType(dataciteResponse))) {
+        if (JOURNAL_CONTENT.equals(extractPublicationType(dataciteResponse))) {
             DataciteContainer container = dataciteResponse.getContainer();
             String issue = Optional.ofNullable(container.getIssue()).orElse(null);
             String volume = Optional.ofNullable(container.getVolume()).orElse(null);
@@ -160,7 +161,7 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private PublicationContext extractPublicationContext(DataciteResponse dataciteResponse) throws
             InvalidIssnException {
-        PublicationType type = getPublicationType(dataciteResponse);
+        PublicationType type = extractPublicationType(dataciteResponse);
         if (nonNull(type) && type.equals(JOURNAL_CONTENT)) {
 
             return new Journal.Builder()
@@ -176,7 +177,7 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private String extractOnlineIssn(DataciteResponse dataciteResponse) {
-        DataciteRelatedIdentifier result = extractPartOfRelations(dataciteResponse)
+        DataciteRelatedIdentifier result = extractIsPartOfRelations(dataciteResponse)
                 .stream()
                 .filter(this::isOnlineIssn)
                 .collect(SingletonCollector.collectOrElse(null));
@@ -190,14 +191,14 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     private String extractPrintIssn(DataciteResponse dataciteResponse) {
-        DataciteRelatedIdentifier result = extractPartOfRelations(dataciteResponse)
+        DataciteRelatedIdentifier result = extractIsPartOfRelations(dataciteResponse)
                 .stream()
                 .filter(this::isPrintIssn)
                 .collect(SingletonCollector.collectOrElse(null));
         return nonNull(result) ? IssnCleaner.clean(result.getRelatedIdentifier()) : null;
     }
 
-    private List<DataciteRelatedIdentifier> extractPartOfRelations(DataciteResponse dataciteResponse) {
+    private List<DataciteRelatedIdentifier> extractIsPartOfRelations(DataciteResponse dataciteResponse) {
         return dataciteResponse.getRelatedIdentifiers()
                 .stream()
                 .filter(this::isPartOf)
@@ -209,17 +210,17 @@ public class DataciteResponseConverter extends AbstractConverter {
                 .equals(DataciteRelatedIdentifierType.ISSN);
     }
 
-    private boolean isPartOf(DataciteRelatedIdentifier identifer) {
-        return DataciteRelationType.getByRelation(identifer.getRelationType())
+    private boolean isPartOf(DataciteRelatedIdentifier identifier) {
+        return DataciteRelationType.getByRelation(identifier.getRelationType())
                 .equals(DataciteRelationType.IS_PART_OF);
     }
 
     private boolean extractOpenAccess(DataciteResponse dataciteResponse) {
-        List<DataciteRights> rights = Optional.ofNullable(dataciteResponse.getRightsList()).orElse(null);
-        if (nonNull(rights)) {
-            return rights.stream().anyMatch(this::hasOpenAccessRights);
-        }
-        return false;
+        return Optional.ofNullable(dataciteResponse)
+                .map(DataciteResponse::getRightsList)
+                .stream()
+                .flatMap(Collection::stream)
+                .anyMatch(this::hasOpenAccessRights);
     }
 
     private boolean hasOpenAccessRights(DataciteRights dataciteRights) {
@@ -227,7 +228,7 @@ public class DataciteResponseConverter extends AbstractConverter {
                 .map(LicensingIndicator::isOpen).orElse(false);
     }
 
-    private PublicationType getPublicationType(DataciteResponse dataciteResponse) {
+    private PublicationType extractPublicationType(DataciteResponse dataciteResponse) {
         return DataciteTypesUtil.mapToType(dataciteResponse);
     }
 
