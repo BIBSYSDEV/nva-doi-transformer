@@ -32,7 +32,6 @@ import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
-import nva.commons.utils.doi.DoiConverter;
 import nva.commons.utils.doi.DoiConverterImpl;
 
 import java.net.URI;
@@ -59,7 +58,7 @@ public class DataciteResponseConverter extends AbstractConverter {
     }
 
     public DataciteResponseConverter(LanguageDetector languageDetector) {
-        super(languageDetector);
+        super(languageDetector, new DoiConverterImpl());
     }
 
     /**
@@ -124,15 +123,10 @@ public class DataciteResponseConverter extends AbstractConverter {
     private Reference createReference(DataciteResponse dataciteResponse) throws InvalidPageTypeException,
             InvalidIssnException {
         return new Reference.Builder()
-                .withDoi(createDoi(dataciteResponse.getDoi()))
+                .withDoi(doiConverter.toUri(dataciteResponse.getDoi()))
                 .withPublishingContext(extractPublicationContext(dataciteResponse))
                 .withPublicationInstance(extractPublicationInstance(dataciteResponse))
                 .build();
-    }
-
-    private URI createDoi(String doi) {
-        DoiConverter doiConverter = new DoiConverterImpl();
-        return doiConverter.toUri(doi);
     }
 
     private PublicationInstance extractPublicationInstance(DataciteResponse dataciteResponse) throws

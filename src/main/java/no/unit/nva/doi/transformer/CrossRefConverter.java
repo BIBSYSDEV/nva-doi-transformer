@@ -3,8 +3,8 @@ package no.unit.nva.doi.transformer;
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import no.unit.nva.doi.transformer.language.LanguageMapper;
 import no.unit.nva.doi.transformer.language.SimpleLanguageDetector;
-import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefAuthor;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
+import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefAuthor;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefDate;
 import no.unit.nva.doi.transformer.model.crossrefmodel.Issn;
 import no.unit.nva.doi.transformer.utils.CrossrefType;
@@ -30,7 +30,6 @@ import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
 import nva.commons.utils.attempt.Try;
-import nva.commons.utils.doi.DoiConverter;
 import nva.commons.utils.doi.DoiConverterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public class CrossRefConverter extends AbstractConverter {
     private static final Logger logger = LoggerFactory.getLogger(CrossRefConverter.class);
 
     public CrossRefConverter() {
-        super(new SimpleLanguageDetector());
+        super(new SimpleLanguageDetector(), new DoiConverterImpl());
     }
 
     /**
@@ -143,15 +142,10 @@ public class CrossRefConverter extends AbstractConverter {
         PublicationInstance instance = extractPublicationInstance(document);
         PublicationContext context = extractPublicationContext(document);
         return new Reference.Builder()
-            .withDoi(createDoiUri(document))
+            .withDoi(doiConverter.toUri(document.getDoi()))
             .withPublishingContext(context)
             .withPublicationInstance(instance)
             .build();
-    }
-
-    private URI createDoiUri(CrossRefDocument document) {
-        DoiConverter doiConverter = new DoiConverterImpl();
-        return doiConverter.toUri(document.getDoi());
     }
 
     private Range extractPages(CrossRefDocument document) {
