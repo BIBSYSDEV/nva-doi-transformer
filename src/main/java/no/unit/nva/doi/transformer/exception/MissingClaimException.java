@@ -1,4 +1,4 @@
-package no.unit.nva.doi.transformer.excpetions;
+package no.unit.nva.doi.transformer.exception;
 
 public class MissingClaimException extends Exception {
 

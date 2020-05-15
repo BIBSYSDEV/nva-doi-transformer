@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.unit.nva.doi.transformer.excpetions.MissingClaimException;
+import no.unit.nva.doi.transformer.exception.MissingClaimException;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;

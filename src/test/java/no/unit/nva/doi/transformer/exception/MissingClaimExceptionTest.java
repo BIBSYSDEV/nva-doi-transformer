@@ -1,4 +1,4 @@
-package no.unit.nva.doi.transformer.excpetions;
+package no.unit.nva.doi.transformer.exception;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
