@@ -13,7 +13,6 @@ import no.unit.nva.doi.transformer.utils.DataciteRelationType;
 import no.unit.nva.doi.transformer.utils.DataciteTypesUtil;
 import no.unit.nva.doi.transformer.utils.IssnCleaner;
 import no.unit.nva.doi.transformer.utils.LicensingIndicator;
-import no.unit.nva.doi.transformer.utils.SingletonCollector;
 import no.unit.nva.model.Contributor;
 import no.unit.nva.model.EntityDescription;
 import no.unit.nva.model.Identity;
@@ -32,6 +31,7 @@ import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
+import nva.commons.utils.SingletonCollector;
 import nva.commons.utils.doi.DoiConverterImpl;
 
 import java.net.URI;

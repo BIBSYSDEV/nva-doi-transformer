@@ -1,5 +1,7 @@
 package no.unit.nva.doi.transformer.utils;
 
+import nva.commons.utils.SingletonCollector;
+
 import java.util.Arrays;
 
 import static java.util.Objects.isNull;
