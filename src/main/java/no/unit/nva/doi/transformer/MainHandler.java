@@ -16,12 +16,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import no.unit.nva.model.Publication;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -63,7 +65,7 @@ public class MainHandler implements RequestStreamHandler {
                        CrossRefConverter crossRefConverter, Environment environment) {
         this.objectMapper = objectMapper;
         this.publicationTransformer = new PublicationTransformer(dataciteConverter, crossRefConverter,
-            createObjectMapper());
+                createObjectMapper());
         this.allowedOrigin = environment.get(ALLOWED_ORIGIN).orElseThrow(
             () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
     }
@@ -80,8 +82,8 @@ public class MainHandler implements RequestStreamHandler {
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output,
-                new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())),
-                    failureResponseHeaders(), SC_BAD_REQUEST));
+                    new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())),
+                            failureResponseHeaders(), SC_BAD_REQUEST));
             return;
         }
 
@@ -93,8 +95,8 @@ public class MainHandler implements RequestStreamHandler {
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(
-                objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
-                failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
+                    objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
+                    failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
         }
     }
 

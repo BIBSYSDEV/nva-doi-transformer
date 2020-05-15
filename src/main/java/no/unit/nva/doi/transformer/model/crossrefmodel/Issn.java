@@ -26,7 +26,7 @@ public class Issn {
         this.type = IssnType.getType(type);
     }
 
-    private enum IssnType {
+    public enum IssnType {
         PRINT("print"),
         ELECTRONIC("electronic");
 

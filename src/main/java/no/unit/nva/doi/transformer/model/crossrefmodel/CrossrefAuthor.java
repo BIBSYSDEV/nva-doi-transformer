@@ -3,7 +3,8 @@ package no.unit.nva.doi.transformer.model.crossrefmodel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-public class Author {
+
+public class CrossrefAuthor {
 
     @JsonProperty("given")
     private String givenName;
@@ -12,7 +13,7 @@ public class Author {
     @JsonProperty("sequence")
     private String sequence;
     @JsonProperty("affiliation")
-    private List<Affiliation> affiliation;
+    private List<CrossrefAffiliation> affiliation;
 
     public String getGivenName() {
         return givenName;
@@ -38,11 +39,11 @@ public class Author {
         this.sequence = sequence;
     }
 
-    public List<Affiliation> getAffiliation() {
+    public List<CrossrefAffiliation> getAffiliation() {
         return affiliation;
     }
 
-    public void setAffiliation(List<Affiliation> affiliation) {
+    public void setAffiliation(List<CrossrefAffiliation> affiliation) {
         this.affiliation = affiliation;
     }
 
@@ -51,7 +52,7 @@ public class Author {
         private String givenName;
         private String familyName;
         private String sequence;
-        private List<Affiliation> affiliation;
+        private List<CrossrefAffiliation> affiliation;
 
         public Builder() {
         }
@@ -71,18 +72,18 @@ public class Author {
             return this;
         }
 
-        public Builder withAffiliation(List<Affiliation> affiliation) {
+        public Builder withAffiliation(List<CrossrefAffiliation> affiliation) {
             this.affiliation = affiliation;
             return this;
         }
 
         /**
-         * Creates an Author object.
+         * Creates an CrossrefAuthor object.
          *
-         * @return an Author object.
+         * @return an CrossrefAuthor object.
          */
-        public Author build() {
-            Author author = new Author();
+        public CrossrefAuthor build() {
+            CrossrefAuthor author = new CrossrefAuthor();
             author.setGivenName(givenName);
             author.setFamilyName(familyName);
             author.setSequence(sequence);

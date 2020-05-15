@@ -2,7 +2,7 @@ package no.unit.nva.doi.transformer.model.crossrefmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Affiliation {
+public class CrossrefAffiliation {
 
     @JsonProperty("name")
     public String name;

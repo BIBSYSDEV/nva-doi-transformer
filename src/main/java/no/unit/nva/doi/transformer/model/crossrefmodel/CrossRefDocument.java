@@ -1,6 +1,7 @@
 package no.unit.nva.doi.transformer.model.crossrefmodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 @SuppressWarnings({"PMD.TooManyFields", "PMD.ExcessivePublicCount"})
@@ -42,7 +43,7 @@ public class CrossRefDocument {
     @JsonProperty("volume")
     private String volume;
     @JsonProperty("author")
-    private List<Author> author;
+    private List<CrossrefAuthor> author;
     @JsonProperty("member")
     private String member;
     @JsonProperty("reference")
@@ -338,11 +339,11 @@ public class CrossRefDocument {
         this.volume = volume;
     }
 
-    public List<Author> getAuthor() {
+    public List<CrossrefAuthor> getAuthor() {
         return author;
     }
 
-    public void setAuthor(List<Author> author) {
+    public void setAuthor(List<CrossrefAuthor> author) {
         this.author = author;
     }
 

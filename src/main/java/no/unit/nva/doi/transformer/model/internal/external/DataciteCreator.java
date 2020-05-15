@@ -10,6 +10,9 @@ public class DataciteCreator {
     private String familyName;
     private List<DataciteAffiliation> affiliation;
 
+    public DataciteCreator() {
+    }
+
     public String getName() {
         return name;
     }
