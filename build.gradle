@@ -48,7 +48,7 @@ dependencies {
     implementation(group: 'com.ibm.icu', name: 'icu4j', version: '66.1') {
         because 'We use this to map ordinals to numbers'
     }
-    testImplementation('junit:junit:4.11') {
+    testImplementation('junit:junit:4.13') {
         constraints {
             implementation('org.hamcrest:hamcrest-core:2.2')
         }
