@@ -25,7 +25,6 @@ public class PublicationTransformer {
     public static final String CUSTOM_FEIDE_ID = "custom:feideId";
     public static final String CUSTOM_ORG_NUMBER = "custom:orgNumber";
     public static final String MISSING_CLAIM_IN_REQUEST_CONTEXT = "Missing claim in requestContext: ";
-    public static final String ORG_NUMBER_COUNTRY_PREFIX_NORWAY = "NO";
 
     private final DataciteResponseConverter dataciteConverter;
     private final CrossRefConverter crossRefConverter;
@@ -107,11 +106,6 @@ public class PublicationTransformer {
     }
 
     private URI toPublisherId(String orgNumber) {
-
-        if (orgNumber.startsWith(ORG_NUMBER_COUNTRY_PREFIX_NORWAY)) {
-            // Remove this if and when datamodel has support for OrgNumber country prefix
-            return OrgNumberMapper.toCristinId(orgNumber.substring(ORG_NUMBER_COUNTRY_PREFIX_NORWAY.length()));
-        }
         return OrgNumberMapper.toCristinId(orgNumber);
     }
 }
