@@ -3,16 +3,20 @@ package no.unit.nva.doi.transformer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-import no.unit.nva.doi.transformer.excpetions.MisingClaimException;
+
+import no.unit.nva.doi.transformer.exception.MissingClaimException;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossRefDocument;
 import no.unit.nva.doi.transformer.model.crossrefmodel.CrossrefApiResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.model.Publication;
+import no.unit.nva.model.exceptions.InvalidIssnException;
+import no.unit.nva.model.exceptions.InvalidPageTypeException;
 import no.unit.nva.model.util.OrgNumberMapper;
 
 public class PublicationTransformer {
@@ -21,14 +25,14 @@ public class PublicationTransformer {
     public static final String CUSTOM_FEIDE_ID = "custom:feideId";
     public static final String CUSTOM_ORG_NUMBER = "custom:orgNumber";
     public static final String MISSING_CLAIM_IN_REQUEST_CONTEXT = "Missing claim in requestContext: ";
-    public static final String ORG_NUMBER_COUNTRY_PREFIX_NORWAY = "NO";
 
-    private DataciteResponseConverter dataciteConverter;
-    private CrossRefConverter crossRefConverter;
+    private final DataciteResponseConverter dataciteConverter;
+    private final CrossRefConverter crossRefConverter;
     private final ObjectMapper objectMapper;
 
     public PublicationTransformer() {
-        this(new DataciteResponseConverter(), new CrossRefConverter(), MainHandler.createObjectMapper());
+        this(new DataciteResponseConverter(),
+                new CrossRefConverter(), MainHandler.createObjectMapper());
     }
 
     /**
@@ -53,13 +57,16 @@ public class PublicationTransformer {
      * @param body            the request body as extracted from the event.
      * @param contentLocation crossref or datacite.
      * @return a Publication.
-     * @throws JsonProcessingException when cannot process json.
-     * @throws MisingClaimException    when request does not have the required claims.
-     * @throws URISyntaxException      when the input contains invalid URIs
+     * @throws JsonProcessingException  when cannot process json.
+     * @throws MissingClaimException     when request does not have the required claims.
+     * @throws URISyntaxException       when the input contains invalid URIs
+     * @throws InvalidIssnException     thrown if a provided ISSN is invalid.
+     * @throws InvalidPageTypeException thrown if the provided page type is incompatible with
+     *                                  the publication instance type.
      */
-
     public Publication transformPublication(JsonNode event, String body, String contentLocation)
-        throws JsonProcessingException, MisingClaimException, URISyntaxException {
+            throws JsonProcessingException, MissingClaimException, URISyntaxException, InvalidIssnException,
+            InvalidPageTypeException {
         String owner = getClaimValueFromRequestContext(event, CUSTOM_FEIDE_ID);
         String orgNumber = getClaimValueFromRequestContext(event, CUSTOM_ORG_NUMBER);
         UUID uuid = UUID.randomUUID();
@@ -70,7 +77,7 @@ public class PublicationTransformer {
 
     protected Publication convertInputToPublication(String body, String contentLocation, Instant now, String owner,
                                                     UUID identifier, URI publisher)
-        throws JsonProcessingException, URISyntaxException {
+            throws JsonProcessingException, URISyntaxException, InvalidIssnException, InvalidPageTypeException {
 
         MetadataLocation metadataLocation = MetadataLocation.lookup(contentLocation);
         if (metadataLocation.equals(MetadataLocation.CROSSREF)) {
@@ -81,29 +88,24 @@ public class PublicationTransformer {
     }
 
     private Publication convertFromDatacite(String body, Instant now, String owner, UUID uuid, URI publisherId)
-        throws JsonProcessingException, URISyntaxException {
+            throws JsonProcessingException, URISyntaxException, InvalidPageTypeException, InvalidIssnException {
         DataciteResponse dataciteResponse = objectMapper.readValue(body, DataciteResponse.class);
         return dataciteConverter.toPublication(dataciteResponse, now, uuid, owner, publisherId);
     }
 
     private Publication convertFromCrossRef(String body, Instant now, String owner, UUID identifier, URI publisherId)
-        throws JsonProcessingException {
+            throws JsonProcessingException, InvalidIssnException, InvalidPageTypeException {
 
         CrossRefDocument document = objectMapper.readValue(body, CrossrefApiResponse.class).getMessage();
         return crossRefConverter.toPublication(document, now, owner, identifier, publisherId);
     }
 
-    private String getClaimValueFromRequestContext(JsonNode event, String claimName) throws MisingClaimException {
+    private String getClaimValueFromRequestContext(JsonNode event, String claimName) throws MissingClaimException {
         return Optional.ofNullable(event.at(REQUEST_CONTEXT_AUTHORIZER_CLAIMS + claimName).textValue())
-                       .orElseThrow(() -> new MisingClaimException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
+                .orElseThrow(() -> new MissingClaimException(MISSING_CLAIM_IN_REQUEST_CONTEXT + claimName));
     }
 
     private URI toPublisherId(String orgNumber) {
-
-        if (orgNumber.startsWith(ORG_NUMBER_COUNTRY_PREFIX_NORWAY)) {
-            // Remove this if and when datamodel has support for OrgNumber country prefix
-            return OrgNumberMapper.toCristinId(orgNumber.substring(ORG_NUMBER_COUNTRY_PREFIX_NORWAY.length()));
-        }
         return OrgNumberMapper.toCristinId(orgNumber);
     }
 }

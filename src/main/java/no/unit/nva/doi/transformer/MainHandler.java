@@ -9,7 +9,6 @@ import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -17,14 +16,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import no.unit.nva.model.Publication;
 import org.apache.http.entity.ContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemModule;
 
@@ -41,11 +44,13 @@ public class MainHandler implements RequestStreamHandler {
     public final transient ObjectMapper objectMapper;
     private final transient String allowedOrigin;
     private final PublicationTransformer publicationTransformer;
-    private LambdaLogger logger;
+
+    private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
     @JacocoGenerated
     public MainHandler() {
-        this(createObjectMapper(), new DataciteResponseConverter(), new CrossRefConverter(), new Environment());
+        this(createObjectMapper(), new DataciteResponseConverter(),
+            new CrossRefConverter(), new Environment());
     }
 
     /**
@@ -60,15 +65,13 @@ public class MainHandler implements RequestStreamHandler {
                        CrossRefConverter crossRefConverter, Environment environment) {
         this.objectMapper = objectMapper;
         this.publicationTransformer = new PublicationTransformer(dataciteConverter, crossRefConverter,
-            createObjectMapper());
+                createObjectMapper());
         this.allowedOrigin = environment.get(ALLOWED_ORIGIN).orElseThrow(
             () -> new IllegalStateException(ENVIRONMENT_VARIABLE_NOT_SET + ALLOWED_ORIGIN));
     }
 
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
-        init(context);
-        logger.log("This is a test message testing logging. Phase 1. Phase 2 is to add log4j2.xml configuration");
         JsonNode event;
         String body;
         String contentLocation;
@@ -79,26 +82,22 @@ public class MainHandler implements RequestStreamHandler {
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output,
-                new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())),
-                    failureResponseHeaders(), SC_BAD_REQUEST));
+                    new GatewayResponse<>(objectMapper.writeValueAsString(Problem.valueOf(BAD_REQUEST, e.getMessage())),
+                            failureResponseHeaders(), SC_BAD_REQUEST));
             return;
         }
 
         try {
             Publication publication = publicationTransformer.transformPublication(event, body, contentLocation);
-            log(objectMapper.writeValueAsString(publication));
+            logger.info(objectMapper.writeValueAsString(publication));
             objectMapper.writeValue(output,
                 new GatewayResponse<>(objectMapper.writeValueAsString(publication), sucessResponseHeaders(), SC_OK));
         } catch (Exception e) {
             e.printStackTrace();
             objectMapper.writeValue(output, new GatewayResponse<>(
-                objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
-                failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
+                    objectMapper.writeValueAsString(Problem.valueOf(INTERNAL_SERVER_ERROR, e.getMessage())),
+                    failureResponseHeaders(), SC_INTERNAL_SERVER_ERROR));
         }
-    }
-
-    private void init(Context context) {
-        logger = context.getLogger();
     }
 
     private String extractRequestBody(JsonNode event) {
@@ -149,13 +148,9 @@ public class MainHandler implements RequestStreamHandler {
      */
     public static ObjectMapper createObjectMapper() {
         return new ObjectMapper().registerModule(new ProblemModule()).registerModule(new JavaTimeModule())
-                                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-    }
-
-    public static void log(String message) {
-        System.out.println(message);
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
 }
