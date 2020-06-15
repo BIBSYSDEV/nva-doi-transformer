@@ -1,6 +1,5 @@
 package no.unit.nva.doi.transformer.utils;
 
-import no.unit.nva.model.PublicationType;
 import nva.commons.utils.SingletonCollector;
 
 import java.util.Arrays;

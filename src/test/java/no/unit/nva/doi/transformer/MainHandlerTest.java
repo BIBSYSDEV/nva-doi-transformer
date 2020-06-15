@@ -39,7 +39,7 @@ import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.utils.TestLambdaLogger;
 import no.unit.nva.model.Publication;
 import no.unit.nva.model.exceptions.InvalidIssnException;
-import no.unit.nva.model.exceptions.InvalidPageTypeException;
+import no.unit.nva.model.exceptions.InvalidPageRangeException;
 import nva.commons.utils.IoUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
@@ -96,8 +96,8 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     @Test
-    public void testInternalServerErrorResponse() throws IOException, URISyntaxException, InvalidPageTypeException,
-            InvalidIssnException {
+    public void testInternalServerErrorResponse() throws IOException, URISyntaxException, InvalidIssnException,
+            InvalidPageRangeException {
         DataciteResponseConverter dataciteConverter = mock(DataciteResponseConverter.class);
         CrossRefConverter crossRefConverter = new CrossRefConverter();
 
@@ -116,7 +116,7 @@ public class MainHandlerTest extends ConversionTest {
 
     @Test
     public void convertInputToPublicationShouldParseCrossrefWhenMetadataLocationIsCrossRef()
-            throws IOException, URISyntaxException, InvalidIssnException, InvalidPageTypeException {
+            throws IOException, URISyntaxException, InvalidIssnException, InvalidPageRangeException {
 
         PublicationTransformer publicationTransformer = new PublicationTransformer();
         String jsonString = IoUtils.stringFromResources(Paths.get(SAMPLE_CROSSREF_FILE));
@@ -132,7 +132,7 @@ public class MainHandlerTest extends ConversionTest {
 
     @Test
     public void convertInputToPublicationShouldParseDataciteWhenMetadataLocationIsDatacite()
-            throws IOException, URISyntaxException, InvalidIssnException, InvalidPageTypeException {
+            throws IOException, URISyntaxException, InvalidIssnException, InvalidPageRangeException {
 
         PublicationTransformer transformer = new PublicationTransformer();
         String jsonString = IoUtils.stringFromResources(Paths.get(DATACITE_RESPONSE_JSON));
@@ -163,15 +163,15 @@ public class MainHandlerTest extends ConversionTest {
     }
 
     private Publication createPublicationUsingCrossRefConverterDirectly(String jsonString, Instant now)
-            throws com.fasterxml.jackson.core.JsonProcessingException, InvalidIssnException, InvalidPageTypeException {
+            throws com.fasterxml.jackson.core.JsonProcessingException, InvalidIssnException, InvalidPageRangeException {
         CrossRefDocument doc = objectMapper.readValue(jsonString, CrossrefApiResponse.class).getMessage();
         return new CrossRefConverter()
                 .toPublication(doc, now, SOME_OWNER, SOME_UUID, SOME_PUBLISHER_URI);
     }
 
     private Publication createPublicationUsingDataciteConverterDirectly(String jsonString, Instant now)
-            throws com.fasterxml.jackson.core.JsonProcessingException, URISyntaxException, InvalidPageTypeException,
-            InvalidIssnException {
+            throws com.fasterxml.jackson.core.JsonProcessingException, URISyntaxException, InvalidIssnException,
+            InvalidPageRangeException {
         DataciteResponse doc = objectMapper.readValue(jsonString, DataciteResponse.class);
         return new DataciteResponseConverter().toPublication(doc, now, SOME_UUID, SOME_OWNER, SOME_PUBLISHER_URI);
     }
