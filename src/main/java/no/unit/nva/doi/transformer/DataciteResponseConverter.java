@@ -1,5 +1,21 @@
 package no.unit.nva.doi.transformer;
 
+import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
+import static no.unit.nva.doi.transformer.utils.PublicationType.JOURNAL_CONTENT;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.Instant;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import no.unit.nva.doi.transformer.language.LanguageDetector;
 import no.unit.nva.doi.transformer.language.SimpleLanguageDetector;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteContainer;
@@ -31,25 +47,7 @@ import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
 import no.unit.nva.model.pages.Range;
-import nva.commons.utils.SingletonCollector;
 import nva.commons.utils.doi.DoiConverterImpl;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Instant;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static java.util.Objects.nonNull;
-import static java.util.function.Predicate.not;
-import static no.unit.nva.doi.transformer.utils.PublicationType.JOURNAL_CONTENT;
 
 public class DataciteResponseConverter extends AbstractConverter {
 
@@ -77,39 +75,39 @@ public class DataciteResponseConverter extends AbstractConverter {
             InvalidPageRangeException {
 
         return new Publication.Builder()
-                .withCreatedDate(now)
-                .withModifiedDate(now)
-                .withPublishedDate(extractPublishedDate())
-                .withOwner(owner)
-                .withPublisher(toPublisher(publisherId))
-                .withIdentifier(identifier)
-                .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
-                .withHandle(extractHandle())
-                .withLink(extractLink(dataciteResponse))
-                .withIndexedDate(extractIndexedDate())
-                .withProject(extractProject())
-                .withEntityDescription(
-                        new EntityDescription.Builder()
-                                .withContributors(toContributors(dataciteResponse.getCreators()))
-                                .withDate(toDate(dataciteResponse.getPublicationYear()))
-                                .withMainTitle(extractMainTitle(dataciteResponse))
-                                .withAbstract(extractAbstract())
-                                .withAlternativeTitles(extractAlternativeTitles(dataciteResponse))
-                                .withLanguage(createLanguage())
-                                .withReference(createReference(dataciteResponse))
-                                .withTags(createTags())
-                                .withDescription(createDescription())
-                                .build())
-                .build();
+            .withCreatedDate(now)
+            .withModifiedDate(now)
+            .withPublishedDate(extractPublishedDate())
+            .withOwner(owner)
+            .withPublisher(toPublisher(publisherId))
+            .withIdentifier(identifier)
+            .withStatus(DEFAULT_NEW_PUBLICATION_STATUS)
+            .withHandle(extractHandle())
+            .withLink(extractLink(dataciteResponse))
+            .withIndexedDate(extractIndexedDate())
+            .withProject(extractProject())
+            .withEntityDescription(
+                new EntityDescription.Builder()
+                    .withContributors(toContributors(dataciteResponse.getCreators()))
+                    .withDate(toDate(dataciteResponse.getPublicationYear()))
+                    .withMainTitle(extractMainTitle(dataciteResponse))
+                    .withAbstract(extractAbstract())
+                    .withAlternativeTitles(extractAlternativeTitles(dataciteResponse))
+                    .withLanguage(createLanguage())
+                    .withReference(createReference(dataciteResponse))
+                    .withTags(createTags())
+                    .withDescription(createDescription())
+                    .build())
+            .build();
     }
 
     private Map<String, String> extractAlternativeTitles(DataciteResponse dataciteResponse) {
         String mainTitle = extractMainTitle(dataciteResponse);
         return dataciteResponse.getTitles().stream()
-                .filter(not(t -> t.getTitle().equals(mainTitle)))
-                .map(t -> detectLanguage(t.getTitle()))
-                .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
-                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+            .filter(not(t -> t.getTitle().equals(mainTitle)))
+            .map(t -> detectLanguage(t.getTitle()))
+            .map(e -> new SimpleEntry<>(e.getText(), e.getLanguage().toString()))
+            .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
     private String createDescription() {
@@ -123,10 +121,10 @@ public class DataciteResponseConverter extends AbstractConverter {
     private Reference createReference(DataciteResponse dataciteResponse) throws InvalidIssnException,
             InvalidPageRangeException {
         return new Reference.Builder()
-                .withDoi(doiConverter.toUri(dataciteResponse.getDoi()))
-                .withPublishingContext(extractPublicationContext(dataciteResponse))
-                .withPublicationInstance(extractPublicationInstance(dataciteResponse))
-                .build();
+            .withDoi(doiConverter.toUri(dataciteResponse.getDoi()))
+            .withPublishingContext(extractPublicationContext(dataciteResponse))
+            .withPublicationInstance(extractPublicationInstance(dataciteResponse))
+            .build();
     }
 
     private PublicationInstance<?> extractPublicationInstance(DataciteResponse dataciteResponse) throws
@@ -136,21 +134,21 @@ public class DataciteResponseConverter extends AbstractConverter {
             String issue = Optional.ofNullable(container.getIssue()).orElse(null);
             String volume = Optional.ofNullable(container.getVolume()).orElse(null);
             return new JournalArticle.Builder()
-                    .withArticleNumber(null)
-                    .withIssue(issue)
-                    .withPages(extractPages(container))
-                    .withVolume(volume)
-                    .withPeerReviewed(true)
-                    .build();
+                .withArticleNumber(null)
+                .withIssue(issue)
+                .withPages(extractPages(container))
+                .withVolume(volume)
+                .withPeerReviewed(true)
+                .build();
         }
         return null;
     }
 
     private Range extractPages(DataciteContainer container) throws InvalidPageRangeException {
         return new Range.Builder()
-                .withBegin(container.getFirstPage())
-                .withEnd(container.getLastPage())
-                .build();
+            .withBegin(container.getFirstPage())
+            .withEnd(container.getLastPage())
+            .build();
     }
 
     private BasicContext extractPublicationContext(DataciteResponse dataciteResponse) throws
@@ -159,67 +157,68 @@ public class DataciteResponseConverter extends AbstractConverter {
         if (nonNull(type) && type.equals(JOURNAL_CONTENT)) {
 
             return new Journal.Builder()
-                    .withPrintIssn(extractPrintIssn(dataciteResponse))
-                    .withTitle(dataciteResponse.getContainer().getTitle())
-                    .withOnlineIssn(extractOnlineIssn(dataciteResponse))
-                    .withPeerReviewed(true)
-                    .withOpenAccess(extractOpenAccess(dataciteResponse))
-                    .withLevel(Level.NO_LEVEL)
-                    .build();
+                .withPrintIssn(extractPrintIssn(dataciteResponse))
+                .withTitle(dataciteResponse.getContainer().getTitle())
+                .withOnlineIssn(extractOnlineIssn(dataciteResponse))
+                .withPeerReviewed(true)
+                .withOpenAccess(extractOpenAccess(dataciteResponse))
+                .withLevel(Level.NO_LEVEL)
+                .build();
         }
         return null;
     }
 
     private String extractOnlineIssn(DataciteResponse dataciteResponse) {
         DataciteRelatedIdentifier result = extractIsPartOfRelations(dataciteResponse)
-                .stream()
-                .filter(this::isOnlineIssn)
-                .collect(SingletonCollector.collectOrElse(null));
+            .stream()
+            .filter(this::isOnlineIssn)
+            .findAny()
+            .orElse(null);
         return nonNull(result) ? IssnCleaner.clean(result.getRelatedIdentifier()) : null;
-
     }
 
     private boolean isOnlineIssn(DataciteRelatedIdentifier identifier) {
         return DataciteRelatedIdentifierType.getByCode(identifier.getRelatedIdentifierType())
-                .equals(DataciteRelatedIdentifierType.EISSN);
+            .equals(DataciteRelatedIdentifierType.EISSN);
     }
 
     private String extractPrintIssn(DataciteResponse dataciteResponse) {
         DataciteRelatedIdentifier result = extractIsPartOfRelations(dataciteResponse)
-                .stream()
-                .filter(this::isPrintIssn)
-                .collect(SingletonCollector.collectOrElse(null));
+            .stream()
+            .filter(this::isPrintIssn)
+            .findAny()
+            .orElse(null);
         return nonNull(result) ? IssnCleaner.clean(result.getRelatedIdentifier()) : null;
     }
 
     private List<DataciteRelatedIdentifier> extractIsPartOfRelations(DataciteResponse dataciteResponse) {
         return dataciteResponse.getRelatedIdentifiers()
-                .stream()
-                .filter(this::isPartOf)
-                .collect(Collectors.toList());
+            .stream()
+            .filter(this::isPartOf)
+            .collect(Collectors.toList());
     }
 
     private boolean isPrintIssn(DataciteRelatedIdentifier identifier) {
         return DataciteRelatedIdentifierType.getByCode(identifier.getRelatedIdentifierType())
-                .equals(DataciteRelatedIdentifierType.ISSN);
+            .equals(DataciteRelatedIdentifierType.ISSN);
     }
 
     private boolean isPartOf(DataciteRelatedIdentifier identifier) {
         return DataciteRelationType.getByRelation(identifier.getRelationType())
-                .equals(DataciteRelationType.IS_PART_OF);
+            .equals(DataciteRelationType.IS_PART_OF);
     }
 
     private boolean extractOpenAccess(DataciteResponse dataciteResponse) {
         return Optional.ofNullable(dataciteResponse)
-                .map(DataciteResponse::getRightsList)
-                .stream()
-                .flatMap(Collection::stream)
-                .anyMatch(this::hasOpenAccessRights);
+            .map(DataciteResponse::getRightsList)
+            .stream()
+            .flatMap(Collection::stream)
+            .anyMatch(this::hasOpenAccessRights);
     }
 
     private boolean hasOpenAccessRights(DataciteRights dataciteRights) {
         return Optional.ofNullable(dataciteRights.getRightsUri())
-                .map(LicensingIndicator::isOpen).orElse(false);
+            .map(LicensingIndicator::isOpen).orElse(false);
     }
 
     private PublicationType extractPublicationType(DataciteResponse dataciteResponse) {
@@ -261,17 +260,16 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     protected List<Contributor> toContributors(List<DataciteCreator> creators) {
         return IntStream.range(0, creators.size()).mapToObj(i -> toCreator(creators.get(i), i + 1)).collect(
-                Collectors.toList());
+            Collectors.toList());
     }
-
 
     protected Contributor toCreator(DataciteCreator dataciteCreator, Integer sequence) {
         try {
             return new Contributor.Builder()
-                    .withIdentity(createCreatorIdentity(dataciteCreator))
-                    .withAffiliations(toAffiliations())
-                    .withSequence(sequence)
-                    .build();
+                .withIdentity(createCreatorIdentity(dataciteCreator))
+                .withAffiliations(toAffiliations())
+                .withSequence(sequence)
+                .build();
         } catch (MalformedContributorException e) {
             return null;
         }
@@ -279,7 +277,7 @@ public class DataciteResponseConverter extends AbstractConverter {
 
     private Identity createCreatorIdentity(DataciteCreator dataciteCreator) {
         return new Identity.Builder().withName(toName(dataciteCreator.getFamilyName(), dataciteCreator.getGivenName()))
-                .withNameType(NameType.lookup(dataciteCreator.getNameType())).build();
+            .withNameType(NameType.lookup(dataciteCreator.getNameType())).build();
     }
 
     protected List<Organization> toAffiliations() {
