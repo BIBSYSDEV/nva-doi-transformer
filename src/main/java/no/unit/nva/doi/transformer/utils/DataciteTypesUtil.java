@@ -2,7 +2,6 @@ package no.unit.nva.doi.transformer.utils;
 
 import no.unit.nva.doi.transformer.model.internal.external.DataciteResponse;
 import no.unit.nva.doi.transformer.model.internal.external.DataciteTypes;
-import no.unit.nva.model.PublicationType;
 import nva.commons.utils.SingletonCollector;
 
 import java.util.ArrayList;
