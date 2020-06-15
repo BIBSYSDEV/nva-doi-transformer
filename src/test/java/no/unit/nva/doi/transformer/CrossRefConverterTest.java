@@ -256,7 +256,8 @@ public class CrossRefConverterTest extends ConversionTest {
 
     @Test
     @DisplayName("toPublication sets the issue of the Reference when the Crosref document has a \"Issue\" value")
-    public void toPublicationSetsTheIssueOfTheReferenceWhentheCrossrefDocHasAnIssueValue() throws InvalidIssnException, InvalidPageRangeException {
+    public void toPublicationSetsTheIssueOfTheReferenceWhentheCrossrefDocHasAnIssueValue() throws InvalidIssnException,
+            InvalidPageRangeException {
         String expectedIssue = "SomeIssue";
 
         sampleInputDocument.setIssue(expectedIssue);
