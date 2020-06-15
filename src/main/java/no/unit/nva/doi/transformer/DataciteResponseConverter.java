@@ -46,6 +46,7 @@ import no.unit.nva.model.exceptions.InvalidPageRangeException;
 import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
+import no.unit.nva.model.pages.Pages;
 import no.unit.nva.model.pages.Range;
 import nva.commons.utils.doi.DoiConverterImpl;
 
@@ -127,7 +128,7 @@ public class DataciteResponseConverter extends AbstractConverter {
             .build();
     }
 
-    private PublicationInstance<?> extractPublicationInstance(DataciteResponse dataciteResponse) throws
+    private PublicationInstance<? extends Pages> extractPublicationInstance(DataciteResponse dataciteResponse) throws
             InvalidPageRangeException {
         if (JOURNAL_CONTENT.equals(extractPublicationType(dataciteResponse))) {
             DataciteContainer container = dataciteResponse.getContainer();

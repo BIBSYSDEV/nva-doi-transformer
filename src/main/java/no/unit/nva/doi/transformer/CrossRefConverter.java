@@ -43,6 +43,7 @@ import no.unit.nva.model.exceptions.InvalidPageRangeException;
 import no.unit.nva.model.exceptions.MalformedContributorException;
 import no.unit.nva.model.instancetypes.JournalArticle;
 import no.unit.nva.model.instancetypes.PublicationInstance;
+import no.unit.nva.model.pages.Pages;
 import no.unit.nva.model.pages.Range;
 import nva.commons.utils.attempt.Try;
 import nva.commons.utils.doi.DoiConverterImpl;
@@ -70,8 +71,9 @@ public class CrossRefConverter extends AbstractConverter {
      * @param identifier  the publication identifier.
      * @param publisherId the id for a publisher.
      * @return an internal representation of the publication.
-     * @throws InvalidIssnException     thrown if a provided ISSN is invalid.
-     *                                  type.
+     * @throws InvalidIssnException      thrown if a provided ISSN is invalid.
+     *                                   type.
+     * @throws InvalidPageRangeException thrown if page range is invalid.
      */
     public Publication toPublication(CrossRefDocument document,
                                      Instant now,
@@ -136,7 +138,7 @@ public class CrossRefConverter extends AbstractConverter {
 
     private Reference extractReference(CrossRefDocument document) throws InvalidIssnException,
                                                                          InvalidPageRangeException {
-        PublicationInstance<?> instance = extractPublicationInstance(document);
+        PublicationInstance<? extends Pages> instance = extractPublicationInstance(document);
         BasicContext context = extractPublicationContext(document);
         return new Reference.Builder()
             .withDoi(doiConverter.toUri(document.getDoi()))
@@ -188,7 +190,7 @@ public class CrossRefConverter extends AbstractConverter {
             .orElse(null);
     }
 
-    private PublicationInstance<?> extractPublicationInstance(CrossRefDocument document) throws
+    private PublicationInstance<? extends Pages> extractPublicationInstance(CrossRefDocument document) throws
             InvalidPageRangeException {
         return new JournalArticle.Builder()
             .withVolume(document.getVolume())

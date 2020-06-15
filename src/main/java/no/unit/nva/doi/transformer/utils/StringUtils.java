@@ -100,6 +100,7 @@ public final class StringUtils {
      *
      * @param pages A "pages" string
      * @return A {@link Range} object with the respective pages.
+     * @throws InvalidPageRangeException If the page range is invalid.
      */
     public static Range parsePage(String pages) throws InvalidPageRangeException {
         if (pages == null) {
